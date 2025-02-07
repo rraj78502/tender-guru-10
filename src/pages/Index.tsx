@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import CommitteeForm from "@/components/CommitteeForm";
 import CommitteeList from "@/components/CommitteeList";
 import ReviewModule from "@/components/ReviewModule";
+import TenderForm from "@/components/tender/TenderForm";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
+  const [showTenderForm, setShowTenderForm] = useState(false);
 
   // Mock review data
   const reviewData = {
@@ -51,8 +53,12 @@ const Index = () => {
             <p className="text-gray-600 mb-4">
               View and manage ongoing tender processes
             </p>
-            <Button variant="outline" className="w-full">
-              View Tenders
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setShowTenderForm(true)}
+            >
+              Create Tender
             </Button>
           </Card>
 
@@ -79,6 +85,10 @@ const Index = () => {
 
         {showCommitteeForm && (
           <CommitteeForm onClose={() => setShowCommitteeForm(false)} />
+        )}
+
+        {showTenderForm && (
+          <TenderForm onClose={() => setShowTenderForm(false)} />
         )}
       </div>
     </div>
