@@ -5,13 +5,19 @@ export interface Notification {
   read: boolean;
   timestamp: string;
   type: 'status_change' | 'deadline' | 'email';
-  deadline?: string; // Optional deadline date for deadline notifications
+  deadline?: string;
   reminderTime?: number; // Hours before deadline to remind
+  reminderPreferences?: {
+    email: boolean;
+    inApp: boolean;
+    customTime?: number; // Custom hours before deadline
+  };
 }
 
 export interface NotificationCenterProps {
   notifications: Notification[];
   onMarkAsRead?: (id: number) => void;
+  onUpdateReminderPreferences?: (id: number, preferences: Notification['reminderPreferences']) => void;
 }
 
 export interface DeadlineNotification {
@@ -20,4 +26,3 @@ export interface DeadlineNotification {
   deadline: string;
   reminderTime: number;
 }
-

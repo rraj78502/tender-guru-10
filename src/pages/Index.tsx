@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import TenderList from "@/components/tender/TenderList";
 import VendorRegistrationForm from "@/components/vendor/VendorRegistrationForm";
 import { Building2, FileText, Users } from "lucide-react";
 import NotificationCenter from "@/components/review/NotificationCenter";
+import type { Notification } from "@/types/notification";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
@@ -17,7 +17,7 @@ const Index = () => {
   const [showVendorForm, setShowVendorForm] = useState(false);
 
   // Mock notifications data with deadline information
-  const [notifications, setNotifications] = useState([
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       message: "New tender specification submitted for review",
@@ -33,6 +33,10 @@ const Index = () => {
       type: 'deadline' as const,
       deadline: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
       reminderTime: 24,
+      reminderPreferences: {
+        email: true,
+        inApp: true,
+      },
     },
     {
       id: 3,
@@ -57,6 +61,12 @@ const Index = () => {
     ));
   };
 
+  const handleUpdateReminderPreferences = (id: number, preferences: Notification['reminderPreferences']) => {
+    setNotifications(notifications.map(notification =>
+      notification.id === id ? { ...notification, reminderPreferences: preferences } : notification
+    ));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -75,6 +85,7 @@ const Index = () => {
           <NotificationCenter 
             notifications={notifications}
             onMarkAsRead={handleMarkAsRead}
+            onUpdateReminderPreferences={handleUpdateReminderPreferences}
           />
         </div>
 

@@ -9,7 +9,9 @@ export const checkUpcomingDeadlines = (notifications: Notification[]): Notificat
     .filter(n => n.type === 'deadline' && n.deadline && !n.read)
     .forEach(notification => {
       const deadline = new Date(notification.deadline!);
-      const reminderTime = notification.reminderTime || 24; // Default 24 hours
+      const reminderTime = notification.reminderPreferences?.customTime || 
+                          notification.reminderTime || 
+                          24; // Default 24 hours
       const reminderDate = new Date(deadline.getTime() - (reminderTime * 60 * 60 * 1000));
       
       if (now >= reminderDate && now < deadline) {
@@ -22,11 +24,11 @@ export const checkUpcomingDeadlines = (notifications: Notification[]): Notificat
           timestamp: new Date().toISOString(),
           type: 'deadline',
           deadline: notification.deadline,
-          reminderTime: reminderTime
+          reminderTime: reminderTime,
+          reminderPreferences: notification.reminderPreferences
         });
       }
     });
     
   return newNotifications;
 };
-

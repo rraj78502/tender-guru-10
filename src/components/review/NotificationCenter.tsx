@@ -13,7 +13,11 @@ import { NotificationFilters } from "./NotificationFilters";
 import { checkUpcomingDeadlines } from "@/utils/deadlineUtils";
 import type { NotificationCenterProps, Notification } from "@/types/notification";
 
-const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterProps) => {
+const NotificationCenter = ({ 
+  notifications, 
+  onMarkAsRead,
+  onUpdateReminderPreferences 
+}: NotificationCenterProps) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'status_change' | 'deadline' | 'email'>('all');
@@ -25,10 +29,12 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
       const newDeadlineNotifications = checkUpcomingDeadlines(notifications);
       if (newDeadlineNotifications.length > 0) {
         newDeadlineNotifications.forEach(notification => {
-          toast({
-            title: "Upcoming Deadline",
-            description: notification.message,
-          });
+          if (notification.reminderPreferences?.inApp) {
+            toast({
+              title: "Upcoming Deadline",
+              description: notification.message,
+            });
+          }
         });
         // Add new notifications to localStorage
         const existingNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
@@ -63,6 +69,14 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
       description: "The notification has been marked as read.",
     });
     setIsOpen(false);
+  };
+
+  const handleUpdateReminderPreferences = (id: number, preferences: Notification['reminderPreferences']) => {
+    onUpdateReminderPreferences?.(id, preferences);
+    toast({
+      title: "Reminder preferences updated",
+      description: "Your notification preferences have been saved.",
+    });
   };
 
   const handleClearAll = () => {
@@ -125,6 +139,7 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
                     key={notification.id}
                     notification={notification}
                     onClick={handleMarkAsRead}
+                    onUpdateReminderPreferences={handleUpdateReminderPreferences}
                   />
                 ))}
               </div>
@@ -137,4 +152,3 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
 };
 
 export default NotificationCenter;
-
