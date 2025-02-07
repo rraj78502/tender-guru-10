@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Vendor } from "@/types/vendor";
+import CompanyInfoFields from "./form/CompanyInfoFields";
+import DocumentUpload from "./form/DocumentUpload";
 
 interface VendorRegistrationFormProps {
   onClose: () => void;
@@ -79,99 +79,16 @@ const VendorRegistrationForm = ({ onClose }: VendorRegistrationFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="companyName">Company Name</Label>
-            <Input
-              id="companyName"
-              name="companyName"
-              value={vendorData.companyName}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+          <CompanyInfoFields
+            {...vendorData}
+            onChange={handleInputChange}
+          />
 
-          <div>
-            <Label htmlFor="registrationNumber">Registration Number</Label>
-            <Input
-              id="registrationNumber"
-              name="registrationNumber"
-              value={vendorData.registrationNumber}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={vendorData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={vendorData.phone}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="address">Address</Label>
-            <Input
-              id="address"
-              name="address"
-              value={vendorData.address}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="documents">Company Documents</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="documents"
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                className="cursor-pointer"
-                accept=".pdf,.doc,.docx"
-              />
-              <Button type="button" variant="outline" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload
-              </Button>
-            </div>
-            
-            {documents.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {documents.map((doc, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm truncate">{doc.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDocument(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <DocumentUpload
+            documents={documents}
+            onFileChange={handleFileChange}
+            onRemoveDocument={removeDocument}
+          />
 
           <div className="flex justify-end gap-4">
             <Button type="button" variant="outline" onClick={onClose}>

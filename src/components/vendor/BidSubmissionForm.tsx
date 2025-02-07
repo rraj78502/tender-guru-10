@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Upload, X } from "lucide-react";
+import { X } from "lucide-react";
 import { VendorBid } from "@/types/vendor";
+import BidAmountField from "./form/BidAmountField";
+import DocumentUpload from "./form/DocumentUpload";
 
 interface BidSubmissionFormProps {
   tenderId: number;
@@ -78,54 +78,16 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="bidAmount">Bid Amount</Label>
-            <Input
-              id="bidAmount"
-              name="bidAmount"
-              type="number"
-              step="0.01"
-              value={bidData.bidAmount}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+          <BidAmountField
+            bidAmount={bidData.bidAmount}
+            onChange={handleInputChange}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="documents">Bid Documents</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="documents"
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                className="cursor-pointer"
-                accept=".pdf,.doc,.docx"
-              />
-              <Button type="button" variant="outline" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload
-              </Button>
-            </div>
-            
-            {documents.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {documents.map((doc, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm truncate">{doc.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDocument(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <DocumentUpload
+            documents={documents}
+            onFileChange={handleFileChange}
+            onRemoveDocument={removeDocument}
+          />
 
           <div className="flex justify-end gap-4">
             <Button type="button" variant="outline" onClick={onClose}>
