@@ -37,7 +37,13 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
   const [showComments, setShowComments] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [newComment, setNewComment] = useState("");
-  const [notifications, setNotifications] = useState<Array<{ id: number; message: string; read: boolean }>>([]);
+  const [notifications, setNotifications] = useState<Array<{
+    id: number;
+    message: string;
+    read: boolean;
+    timestamp: string;
+    type: 'status_change' | 'deadline' | 'email';
+  }>>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [reviewHistory, setReviewHistory] = useState<ReviewHistory[]>([]);
 
@@ -46,6 +52,8 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
       id: Date.now(),
       message,
       read: false,
+      timestamp: new Date().toISOString(),
+      type: 'status_change' as const
     };
     setNotifications(prev => [newNotification, ...prev]);
   };
