@@ -16,7 +16,7 @@ export interface Notification {
     committeeId: number;
     formationDate: string;
     submissionDate: string;
-    role: 'member' | 'chairperson';
+    role: 'member' | 'chairperson' | 'secretary';
     taskId?: number;
   };
 }
@@ -38,7 +38,7 @@ export interface CommitteeMember {
   id: number;
   employeeId: string;
   name: string;
-  role: 'member' | 'chairperson';
+  role: 'member' | 'chairperson' | 'secretary';
   email?: string;
   phone?: string;
   tasks?: CommitteeTask[];
@@ -64,4 +64,3 @@ export interface Committee {
   tasks: CommitteeTask[];
   status: 'active' | 'completed' | 'archived';
 }
-
