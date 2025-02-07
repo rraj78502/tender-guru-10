@@ -52,7 +52,8 @@ export interface CommitteeTask {
   assignedTo: number;
   dueDate: string;
   status: 'pending' | 'in_progress' | 'completed' | 'overdue';
-  documents?: File[];
+  attachments?: File[];
+  comments?: string[];
 }
 
 export interface Committee {
