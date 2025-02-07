@@ -1,5 +1,5 @@
 
-import { Notification, CommitteeTask } from "@/types/notification";
+import { Notification, CommitteeMember, Committee, CommitteeTask } from "@/types/notification";
 
 export const checkUpcomingDeadlines = (notifications: Notification[]): Notification[] => {
   const now = new Date();
@@ -90,4 +90,3 @@ export const createCommitteeNotification = (
     }
   };
 };
-
