@@ -41,6 +41,7 @@ export interface CommitteeMember {
   role: 'member' | 'chairperson' | 'secretary';
   email?: string;
   phone?: string;
+  department?: string;
   tasks?: CommitteeTask[];
 }
 
@@ -48,9 +49,9 @@ export interface CommitteeTask {
   id: number;
   title: string;
   description: string;
-  assignedTo: number; // member id
+  assignedTo: number;
   dueDate: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
   documents?: File[];
 }
 
