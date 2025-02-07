@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-
-interface CommitteeMember {
-  employeeId: string;
-  name: string;
-  role: "member" | "chairperson";
-}
+import { CommitteeMember } from "@/types/notification";
 
 interface MemberFormItemProps {
   member: CommitteeMember;
@@ -51,6 +46,24 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
           <option value="chairperson">Chairperson</option>
         </select>
       </div>
+      <div>
+        <Label htmlFor={`email-${index}`}>Email</Label>
+        <Input
+          id={`email-${index}`}
+          type="email"
+          value={member.email || ''}
+          onChange={(e) => onUpdate(index, "email", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`phone-${index}`}>Phone</Label>
+        <Input
+          id={`phone-${index}`}
+          type="tel"
+          value={member.phone || ''}
+          onChange={(e) => onUpdate(index, "phone", e.target.value)}
+        />
+      </div>
       <Button
         type="button"
         variant="ghost"
@@ -65,3 +78,4 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
+

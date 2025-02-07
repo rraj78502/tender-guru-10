@@ -2,23 +2,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Bell } from "lucide-react";
+import { X, Bell, Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import MemberFormItem from "./committee/MemberFormItem";
 import DateInputs from "./committee/DateInputs";
 import FileUpload from "./committee/FileUpload";
-
-interface CommitteeMember {
-  employeeId: string;
-  name: string;
-  role: "member" | "chairperson";
-}
+import { Committee, CommitteeMember } from "@/types/notification";
 
 interface CommitteeFormProps {
   onClose: () => void;
+  onCreateCommittee?: (committee: Committee) => void;
 }
 
-const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
+const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const { toast } = useToast();
   const [members, setMembers] = useState<CommitteeMember[]>([]);
   const [formDate, setFormDate] = useState("");
@@ -27,7 +23,14 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const addMember = () => {
-    setMembers([...members, { employeeId: "", name: "", role: "member" }]);
+    const newMember: CommitteeMember = {
+      id: Date.now(),
+      employeeId: "",
+      name: "",
+      role: "member",
+      tasks: []
+    };
+    setMembers([...members, newMember]);
   };
 
   const removeMember = (index: number) => {
@@ -45,14 +48,28 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      formDate,
-      specificationDate,
-      reviewDate,
-      members,
-      file: selectedFile?.name,
+    
+    if (!members.some(m => m.role === 'chairperson')) {
+      toast({
+        title: "Validation Error",
+        description: "Please assign a chairperson to the committee",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const committee: Committee = {
+      id: Date.now(),
+      formationDate: formDate,
+      specificationDate: specificationDate,
+      reviewDate: reviewDate,
+      members: members,
+      documents: selectedFile ? [selectedFile] : [],
+      tasks: [],
+      status: 'active'
     };
-    console.log("Form submitted:", formData);
+
+    onCreateCommittee?.(committee);
     
     toast({
       title: "Committee Created",
@@ -96,7 +113,7 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
 
             {members.map((member, index) => (
               <MemberFormItem
-                key={index}
+                key={member.id}
                 member={member}
                 index={index}
                 onUpdate={updateMember}
@@ -123,3 +140,4 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
+

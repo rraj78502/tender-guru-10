@@ -4,13 +4,20 @@ export interface Notification {
   message: string;
   read: boolean;
   timestamp: string;
-  type: 'status_change' | 'deadline' | 'email';
+  type: 'status_change' | 'deadline' | 'email' | 'committee';
   deadline?: string;
-  reminderTime?: number; // Hours before deadline to remind
+  reminderTime?: number;
   reminderPreferences?: {
     email: boolean;
     inApp: boolean;
-    customTime?: number; // Custom hours before deadline
+    customTime?: number;
+  };
+  committeeInfo?: {
+    committeeId: number;
+    formationDate: string;
+    submissionDate: string;
+    role: 'member' | 'chairperson';
+    taskId?: number;
   };
 }
 
@@ -26,3 +33,35 @@ export interface DeadlineNotification {
   deadline: string;
   reminderTime: number;
 }
+
+export interface CommitteeMember {
+  id: number;
+  employeeId: string;
+  name: string;
+  role: 'member' | 'chairperson';
+  email?: string;
+  phone?: string;
+  tasks?: CommitteeTask[];
+}
+
+export interface CommitteeTask {
+  id: number;
+  title: string;
+  description: string;
+  assignedTo: number; // member id
+  dueDate: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  documents?: File[];
+}
+
+export interface Committee {
+  id: number;
+  formationDate: string;
+  specificationDate: string;
+  reviewDate: string;
+  members: CommitteeMember[];
+  documents: File[];
+  tasks: CommitteeTask[];
+  status: 'active' | 'completed' | 'archived';
+}
+
