@@ -7,14 +7,16 @@ import ReviewModule from "@/components/ReviewModule";
 import TenderForm from "@/components/tender/TenderForm";
 import TenderList from "@/components/tender/TenderList";
 import VendorRegistrationForm from "@/components/vendor/VendorRegistrationForm";
-import { Building2, FileText, Users } from "lucide-react";
+import { Building2, FileText, Users, MessageSquare } from "lucide-react";
 import NotificationCenter from "@/components/review/NotificationCenter";
+import ComplaintManagement from "@/components/complaint/ComplaintManagement";
 import type { Notification } from "@/types/notification";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
+  const [showComplaints, setShowComplaints] = useState(false);
 
   // Mock notifications data with deadline information
   const [notifications, setNotifications] = useState<Notification[]>([
@@ -89,7 +91,7 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Card className="p-6 glass-card fade-in hover:shadow-xl transition-shadow">
             <div className="flex items-center gap-3 mb-4">
               <Users className="h-6 w-6 text-purple-500" />
@@ -139,6 +141,23 @@ const Index = () => {
               Register Vendor
             </Button>
           </Card>
+
+          <Card className="p-6 glass-card fade-in hover:shadow-xl transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <MessageSquare className="h-6 w-6 text-orange-500" />
+              <h3 className="text-lg font-semibold">Complaints</h3>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Manage and track complaints
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setShowComplaints(true)}
+            >
+              View Complaints
+            </Button>
+          </Card>
         </div>
 
         <div className="mb-12">
@@ -154,6 +173,26 @@ const Index = () => {
             <CommitteeList />
           </div>
         </div>
+
+        {showComplaints && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-4xl max-h-[90vh] overflow-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Complaint Management</h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowComplaints(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+                <ComplaintManagement />
+              </div>
+            </Card>
+          </div>
+        )}
 
         {showCommitteeForm && (
           <CommitteeForm onClose={() => setShowCommitteeForm(false)} />
