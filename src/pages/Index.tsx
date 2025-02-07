@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import CommitteeForm from "@/components/CommitteeForm";
+import CommitteeList from "@/components/CommitteeList";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
@@ -55,6 +56,10 @@ const Index = () => {
               View Specifications
             </Button>
           </Card>
+        </div>
+
+        <div className="mb-12">
+          <CommitteeList />
         </div>
 
         {showCommitteeForm && (
