@@ -7,8 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Edit, Search, Filter } from "lucide-react";
 import TenderPreview from "./TenderPreview";
 
+type TenderStatus = "draft" | "published" | "closed";
+
+interface Tender {
+  id: number;
+  ifbNumber: string;
+  title: string;
+  description: string;
+  publishDate: string;
+  openingDate: string;
+  bidValidity: string;
+  status: TenderStatus;
+  documents: File[];
+}
+
 // Mock data - replace with real data source later
-const mockTenders = [
+const mockTenders: Tender[] = [
   {
     id: 1,
     ifbNumber: "IFB-1234567890-001",
@@ -32,20 +46,6 @@ const mockTenders = [
     documents: [],
   },
 ];
-
-type TenderStatus = "draft" | "published" | "closed";
-
-interface Tender {
-  id: number;
-  ifbNumber: string;
-  title: string;
-  description: string;
-  publishDate: string;
-  openingDate: string;
-  bidValidity: string;
-  status: TenderStatus;
-  documents: File[];
-}
 
 const TenderList = () => {
   const [tenders] = useState<Tender[]>(mockTenders);
