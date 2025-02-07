@@ -7,10 +7,13 @@ import CommitteeList from "@/components/CommitteeList";
 import ReviewModule from "@/components/ReviewModule";
 import TenderForm from "@/components/tender/TenderForm";
 import TenderList from "@/components/tender/TenderList";
+import VendorRegistrationForm from "@/components/vendor/VendorRegistrationForm";
+import { Building2, FileText, Users } from "lucide-react";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
+  const [showVendorForm, setShowVendorForm] = useState(false);
 
   // Mock review data
   const reviewData = {
@@ -37,7 +40,10 @@ const Index = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Card className="p-6 glass-card fade-in hover:shadow-xl transition-shadow">
-            <h3 className="text-lg font-semibold mb-2">Committee Formation</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="h-6 w-6 text-purple-500" />
+              <h3 className="text-lg font-semibold">Committee Formation</h3>
+            </div>
             <p className="text-gray-600 mb-4">
               Create and manage specification committees
             </p>
@@ -50,7 +56,10 @@ const Index = () => {
           </Card>
 
           <Card className="p-6 glass-card fade-in hover:shadow-xl transition-shadow">
-            <h3 className="text-lg font-semibold mb-2">Active Tenders</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <FileText className="h-6 w-6 text-blue-500" />
+              <h3 className="text-lg font-semibold">Active Tenders</h3>
+            </div>
             <p className="text-gray-600 mb-4">
               View and manage ongoing tender processes
             </p>
@@ -64,12 +73,19 @@ const Index = () => {
           </Card>
 
           <Card className="p-6 glass-card fade-in hover:shadow-xl transition-shadow">
-            <h3 className="text-lg font-semibold mb-2">Specifications</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <Building2 className="h-6 w-6 text-green-500" />
+              <h3 className="text-lg font-semibold">Vendor Management</h3>
+            </div>
             <p className="text-gray-600 mb-4">
-              Review and approve tender specifications
+              Register and manage vendor profiles
             </p>
-            <Button variant="outline" className="w-full">
-              View Specifications
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => setShowVendorForm(true)}
+            >
+              Register Vendor
             </Button>
           </Card>
         </div>
@@ -94,6 +110,10 @@ const Index = () => {
 
         {showTenderForm && (
           <TenderForm onClose={() => setShowTenderForm(false)} />
+        )}
+
+        {showVendorForm && (
+          <VendorRegistrationForm onClose={() => setShowVendorForm(false)} />
         )}
       </div>
     </div>
