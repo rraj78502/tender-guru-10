@@ -1,27 +1,14 @@
-
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Search, Filter, Upload, File } from "lucide-react";
+import { Edit } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import TenderPreview from "./TenderPreview";
 import DocumentViewer from "./DocumentViewer";
-
-type TenderStatus = "draft" | "published" | "closed";
-
-interface Tender {
-  id: number;
-  ifbNumber: string;
-  title: string;
-  description: string;
-  publishDate: string;
-  openingDate: string;
-  bidValidity: string;
-  status: TenderStatus;
-  documents: File[];
-}
+import TenderSearchFilter from "./TenderSearchFilter";
+import TenderDocuments from "./TenderDocuments";
+import { getStatusBadge } from "@/utils/tenderUtils";
+import { Tender, TenderStatus } from "@/types/tender";
 
 const mockTenders: Tender[] = [
   {
@@ -58,33 +45,6 @@ const TenderList = () => {
   const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
 
-  const getStatusBadge = (status: TenderStatus) => {
-    const statusStyles = {
-      draft: "bg-yellow-100 text-yellow-800",
-      published: "bg-green-100 text-green-800",
-      closed: "bg-gray-100 text-gray-800",
-    };
-
-    return (
-      <Badge variant="outline" className={`${statusStyles[status]} capitalize`}>
-        {status}
-      </Badge>
-    );
-  };
-
-  const filteredTenders = tenders.filter((tender) => {
-    const matchesSearch =
-      tender.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tender.ifbNumber.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || tender.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const handlePreview = (tender: Tender) => {
-    setSelectedTender(tender);
-    setShowPreview(true);
-  };
-
   const handleDocumentUpload = (tenderId: number, files: FileList) => {
     setTenders((prevTenders) =>
       prevTenders.map((tender) => {
@@ -110,36 +70,26 @@ const TenderList = () => {
     setShowDocumentViewer(true);
   };
 
+  const filteredTenders = tenders.filter((tender) => {
+    const matchesSearch =
+      tender.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tender.ifbNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || tender.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Tenders</h2>
       </div>
 
-      <div className="flex gap-4 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-          <Input
-            placeholder="Search tenders..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
-          <select
-            className="border rounded p-2"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as TenderStatus | "all")}
-          >
-            <option value="all">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="closed">Closed</option>
-          </select>
-        </div>
-      </div>
+      <TenderSearchFilter
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+      />
 
       <div className="border rounded-lg">
         <Table>
@@ -163,48 +113,22 @@ const TenderList = () => {
                 <TableCell>{tender.openingDate}</TableCell>
                 <TableCell>{getStatusBadge(tender.status)}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
-                      {tender.documents.length} file(s)
-                    </span>
-                    <div className="flex gap-2">
-                      <Input
-                        type="file"
-                        className="hidden"
-                        id={`upload-${tender.id}`}
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            handleDocumentUpload(tender.id, e.target.files);
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => document.getElementById(`upload-${tender.id}`)?.click()}
-                      >
-                        <Upload className="h-4 w-4" />
-                      </Button>
-                      {tender.documents.map((doc, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDocumentPreview(doc)}
-                        >
-                          <File className="h-4 w-4" />
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
+                  <TenderDocuments
+                    tenderId={tender.id}
+                    documents={tender.documents}
+                    onUpload={handleDocumentUpload}
+                    onPreview={handleDocumentPreview}
+                  />
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handlePreview(tender)}
+                      onClick={() => {
+                        setSelectedTender(tender);
+                        setShowPreview(true);
+                      }}
                     >
                       Preview
                     </Button>
