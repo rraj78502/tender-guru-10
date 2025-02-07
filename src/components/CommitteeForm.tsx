@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { X } from "lucide-react";
+import { X, Upload, Calendar, Bell } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CommitteeMember {
   employeeId: string;
@@ -17,8 +18,12 @@ interface CommitteeFormProps {
 }
 
 const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
+  const { toast } = useToast();
   const [members, setMembers] = useState<CommitteeMember[]>([]);
   const [formDate, setFormDate] = useState("");
+  const [specificationDate, setSpecificationDate] = useState("");
+  const [reviewDate, setReviewDate] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const addMember = () => {
     setMembers([
@@ -40,13 +45,39 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
     setMembers(updatedMembers);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      toast({
+        title: "File selected",
+        description: `File "${e.target.files[0].name}" ready for upload`,
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log({
+    // Mock data submission
+    const formData = {
       formDate,
+      specificationDate,
+      reviewDate,
       members,
+      file: selectedFile?.name,
+    };
+    console.log("Form submitted:", formData);
+    
+    toast({
+      title: "Committee Created",
+      description: "Committee has been formed successfully. Notifications will be sent to members.",
     });
+    
+    // Mock sending notifications
+    members.forEach(member => {
+      console.log(`Mock notification sent to ${member.name}`);
+    });
+    
+    onClose();
   };
 
   return (
@@ -60,15 +91,27 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="formation-date">Formation Date</Label>
-            <Input
-              id="formation-date"
-              type="date"
-              value={formDate}
-              onChange={(e) => setFormDate(e.target.value)}
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="formation-date">Formation Date</Label>
+              <Input
+                id="formation-date"
+                type="date"
+                value={formDate}
+                onChange={(e) => setFormDate(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="specification-date">Specification Submission Date</Label>
+              <Input
+                id="specification-date"
+                type="date"
+                value={specificationDate}
+                onChange={(e) => setSpecificationDate(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -125,11 +168,47 @@ const CommitteeForm = ({ onClose }: CommitteeFormProps) => {
             ))}
           </div>
 
+          <div className="space-y-4">
+            <Label htmlFor="committee-letter">Committee Formation Letter</Label>
+            <div className="flex items-center gap-4">
+              <Input
+                id="committee-letter"
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+                className="cursor-pointer"
+              />
+              <Button type="button" variant="outline" className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                Upload
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="review-date">Review Date</Label>
+            <div className="flex items-center gap-4">
+              <Input
+                id="review-date"
+                type="date"
+                value={reviewDate}
+                onChange={(e) => setReviewDate(e.target.value)}
+              />
+              <Button type="button" variant="outline" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Schedule
+              </Button>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-4">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Create Committee</Button>
+            <Button type="submit" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Create & Notify
+            </Button>
           </div>
         </form>
       </Card>
