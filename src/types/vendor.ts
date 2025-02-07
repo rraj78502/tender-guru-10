@@ -19,6 +19,18 @@ export interface VendorBid {
   status: "submitted" | "under_review" | "accepted" | "rejected";
 }
 
+export interface VendorPerformance {
+  id: number;
+  vendorId: number;
+  projectId: number;
+  deliveryScore: number;
+  qualityScore: number;
+  communicationScore: number;
+  timelinessScore: number;
+  comments: string;
+  evaluatedAt: string;
+}
+
 export interface Vendor {
   id: number;
   companyName: string;
@@ -31,4 +43,6 @@ export interface Vendor {
   status: VendorStatus;
   qualificationScore: number;
   createdAt: string;
+  performance?: VendorPerformance[];
 }
+
