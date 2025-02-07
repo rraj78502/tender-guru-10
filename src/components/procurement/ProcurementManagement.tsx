@@ -1,16 +1,14 @@
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import BidSecurityManager from "./BidSecurityManager";
-import DocumentFeeManager from "./DocumentFeeManager";
-import PreBidMeetingManager from "./PreBidMeetingManager";
-import ClarificationManager from "./ClarificationManager";
 import type { BidSecurity, DocumentFee, PreBidMeeting, Clarification } from "@/types/procurement";
+import BidSecurityTab from "./tabs/BidSecurityTab";
+import DocumentFeesTab from "./tabs/DocumentFeesTab";
+import PreBidMeetingsTab from "./tabs/PreBidMeetingsTab";
+import ClarificationsTab from "./tabs/ClarificationsTab";
 
 const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("bid-security");
   const [bidSecurities, setBidSecurities] = useState<BidSecurity[]>([]);
   const [documentFees, setDocumentFees] = useState<DocumentFee[]>([]);
@@ -30,7 +28,7 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
         </TabsList>
 
         <TabsContent value="bid-security">
-          <BidSecurityManager
+          <BidSecurityTab
             tenderId={tenderId}
             bidSecurities={bidSecurities}
             onUpdate={setBidSecurities}
@@ -38,7 +36,7 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
         </TabsContent>
 
         <TabsContent value="document-fees">
-          <DocumentFeeManager
+          <DocumentFeesTab
             tenderId={tenderId}
             documentFees={documentFees}
             onUpdate={setDocumentFees}
@@ -46,7 +44,7 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
         </TabsContent>
 
         <TabsContent value="pre-bid">
-          <PreBidMeetingManager
+          <PreBidMeetingsTab
             tenderId={tenderId}
             meetings={preBidMeetings}
             onUpdate={setPreBidMeetings}
@@ -54,7 +52,7 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
         </TabsContent>
 
         <TabsContent value="clarifications">
-          <ClarificationManager
+          <ClarificationsTab
             tenderId={tenderId}
             clarifications={clarifications}
             onUpdate={setClarifications}
@@ -66,3 +64,4 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
 };
 
 export default ProcurementManagement;
+
