@@ -3,7 +3,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { TenderStatus } from "@/types/tender";
 
-export const getStatusBadge = (status: TenderStatus) => {
+export const getStatusBadge = (status: TenderStatus): React.ReactElement => {
   const statusStyles = {
     draft: "bg-yellow-100 text-yellow-800",
     published: "bg-green-100 text-green-800",
