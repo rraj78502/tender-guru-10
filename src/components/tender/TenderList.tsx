@@ -1,16 +1,11 @@
-
 import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Edit, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TenderPreview from "./TenderPreview";
 import DocumentViewer from "./DocumentViewer";
 import TenderSearchFilter from "./TenderSearchFilter";
-import TenderDocuments from "./TenderDocuments";
-import { getStatusBadge, getApprovalStatusBadge, canTransitionStatus, getNextStatus } from "@/utils/tenderUtils";
+import TenderTable from "./TenderTable";
+import { getNextStatus } from "@/utils/tenderUtils";
 import { Tender, TenderStatus, TenderComment } from "@/types/tender";
-import CommentsSection from "../review/CommentsSection";
 
 const mockTenders: Tender[] = [
   {
@@ -57,7 +52,7 @@ const TenderList = () => {
       prevTenders.map((tender) => {
         if (tender.id === tenderId) {
           const nextStatus = getNextStatus(tender.status);
-          if (nextStatus && canTransitionStatus(tender.status, nextStatus, tender.approvalStatus)) {
+          if (nextStatus) {
             toast({
               title: "Status Updated",
               description: `Tender status changed from ${tender.status} to ${nextStatus}`,
@@ -92,7 +87,7 @@ const TenderList = () => {
       text,
       author: "Current User",
       createdAt: now.toISOString(),
-      timestamp: now.toISOString(), // Added timestamp field
+      timestamp: now.toISOString(),
     };
 
     setTenders((prevTenders) =>
@@ -159,104 +154,20 @@ const TenderList = () => {
         setStatusFilter={setStatusFilter}
       />
 
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>IFB Number</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Publish Date</TableHead>
-              <TableHead>Opening Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Approval</TableHead>
-              <TableHead>Documents</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTenders.map((tender) => (
-              <TableRow key={tender.id}>
-                <TableCell className="font-medium">{tender.ifbNumber}</TableCell>
-                <TableCell>{tender.title}</TableCell>
-                <TableCell>{tender.publishDate}</TableCell>
-                <TableCell>{tender.openingDate}</TableCell>
-                <TableCell>{getStatusBadge(tender.status)}</TableCell>
-                <TableCell>{getApprovalStatusBadge(tender.approvalStatus)}</TableCell>
-                <TableCell>
-                  <TenderDocuments
-                    tenderId={tender.id}
-                    documents={tender.documents}
-                    onUpload={handleDocumentUpload}
-                    onPreview={handleDocumentPreview}
-                  />
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end items-center gap-2">
-                    <CommentsSection
-                      comments={tender.comments}
-                      showComments={showComments}
-                      setShowComments={setShowComments}
-                      newComment=""
-                      setNewComment={() => {}}
-                      onAddComment={() => handleAddComment(tender.id, "")}
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedTender(tender);
-                        setShowPreview(true);
-                      }}
-                    >
-                      Preview
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    {tender.status === "draft" && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleApprovalStatusUpdate(tender.id, "approved")}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600"
-                          onClick={() => handleApprovalStatusUpdate(tender.id, "rejected")}
-                        >
-                          Reject
-                        </Button>
-                      </>
-                    )}
-                    {canTransitionStatus(tender.status, "published", tender.approvalStatus) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleStatusTransition(tender.id)}
-                      >
-                        Publish
-                      </Button>
-                    )}
-                    {tender.status === "published" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleStatusTransition(tender.id)}
-                      >
-                        Close
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <TenderTable
+        tenders={filteredTenders}
+        onPreview={(tender) => {
+          setSelectedTender(tender);
+          setShowPreview(true);
+        }}
+        onApprovalStatusUpdate={handleApprovalStatusUpdate}
+        onStatusTransition={handleStatusTransition}
+        onAddComment={handleAddComment}
+        onDocumentUpload={handleDocumentUpload}
+        onDocumentPreview={handleDocumentPreview}
+        showComments={showComments}
+        setShowComments={setShowComments}
+      />
 
       {selectedTender && (
         <TenderPreview
