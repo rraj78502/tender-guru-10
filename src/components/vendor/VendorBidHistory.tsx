@@ -47,12 +47,11 @@ const VendorBidHistory = ({ vendorId, bids }: VendorBidHistoryProps) => {
                 </Badge>
               </TableCell>
             </TableRow>
-          </TableBody>
-        </Table>
-      </ScrollArea>
-    </div>
+          ))}
+        </TableBody>
+      </Table>
+    </ScrollArea>
   );
 };
 
 export default VendorBidHistory;
-
