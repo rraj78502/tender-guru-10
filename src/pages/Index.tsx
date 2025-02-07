@@ -6,6 +6,7 @@ import CommitteeForm from "@/components/CommitteeForm";
 import CommitteeList from "@/components/CommitteeList";
 import ReviewModule from "@/components/ReviewModule";
 import TenderForm from "@/components/tender/TenderForm";
+import TenderList from "@/components/tender/TenderList";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
@@ -71,6 +72,10 @@ const Index = () => {
               View Specifications
             </Button>
           </Card>
+        </div>
+
+        <div className="mb-12">
+          <TenderList />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
