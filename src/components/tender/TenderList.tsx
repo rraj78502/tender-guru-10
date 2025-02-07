@@ -1,14 +1,16 @@
+
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Edit, MessageSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import TenderPreview from "./TenderPreview";
 import DocumentViewer from "./DocumentViewer";
 import TenderSearchFilter from "./TenderSearchFilter";
 import TenderDocuments from "./TenderDocuments";
-import { getStatusBadge } from "@/utils/tenderUtils";
-import { Tender, TenderStatus } from "@/types/tender";
+import { getStatusBadge, getApprovalStatusBadge, canTransitionStatus, getNextStatus } from "@/utils/tenderUtils";
+import { Tender, TenderStatus, TenderComment } from "@/types/tender";
+import CommentsSection from "../review/CommentsSection";
 
 const mockTenders: Tender[] = [
   {
@@ -20,6 +22,8 @@ const mockTenders: Tender[] = [
     openingDate: "2024-04-15",
     bidValidity: "90",
     status: "draft",
+    approvalStatus: "pending",
+    comments: [],
     documents: [],
   },
   {
@@ -31,6 +35,8 @@ const mockTenders: Tender[] = [
     openingDate: "2024-04-20",
     bidValidity: "60",
     status: "published",
+    approvalStatus: "approved",
+    comments: [],
     documents: [],
   },
 ];
@@ -44,6 +50,66 @@ const TenderList = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  const handleStatusTransition = (tenderId: number) => {
+    setTenders((prevTenders) =>
+      prevTenders.map((tender) => {
+        if (tender.id === tenderId) {
+          const nextStatus = getNextStatus(tender.status);
+          if (nextStatus && canTransitionStatus(tender.status, nextStatus, tender.approvalStatus)) {
+            toast({
+              title: "Status Updated",
+              description: `Tender status changed from ${tender.status} to ${nextStatus}`,
+            });
+            return { ...tender, status: nextStatus };
+          }
+        }
+        return tender;
+      })
+    );
+  };
+
+  const handleApprovalStatusUpdate = (tenderId: number, status: "approved" | "rejected") => {
+    setTenders((prevTenders) =>
+      prevTenders.map((tender) => {
+        if (tender.id === tenderId) {
+          toast({
+            title: "Approval Status Updated",
+            description: `Tender has been ${status}`,
+          });
+          return { ...tender, approvalStatus: status };
+        }
+        return tender;
+      })
+    );
+  };
+
+  const handleAddComment = (tenderId: number, text: string) => {
+    const newComment: TenderComment = {
+      id: Date.now(),
+      text,
+      author: "Current User",
+      createdAt: new Date().toISOString(),
+    };
+
+    setTenders((prevTenders) =>
+      prevTenders.map((tender) => {
+        if (tender.id === tenderId) {
+          return {
+            ...tender,
+            comments: [newComment, ...tender.comments],
+          };
+        }
+        return tender;
+      })
+    );
+
+    toast({
+      title: "Comment Added",
+      description: "Your comment has been added successfully",
+    });
+  };
 
   const handleDocumentUpload = (tenderId: number, files: FileList) => {
     setTenders((prevTenders) =>
@@ -100,6 +166,7 @@ const TenderList = () => {
               <TableHead>Publish Date</TableHead>
               <TableHead>Opening Date</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Approval</TableHead>
               <TableHead>Documents</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -112,6 +179,7 @@ const TenderList = () => {
                 <TableCell>{tender.publishDate}</TableCell>
                 <TableCell>{tender.openingDate}</TableCell>
                 <TableCell>{getStatusBadge(tender.status)}</TableCell>
+                <TableCell>{getApprovalStatusBadge(tender.approvalStatus)}</TableCell>
                 <TableCell>
                   <TenderDocuments
                     tenderId={tender.id}
@@ -121,7 +189,15 @@ const TenderList = () => {
                   />
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end items-center gap-2">
+                    <CommentsSection
+                      comments={tender.comments}
+                      showComments={showComments}
+                      setShowComments={setShowComments}
+                      newComment=""
+                      setNewComment={() => {}}
+                      onAddComment={() => handleAddComment(tender.id, "")}
+                    />
                     <Button
                       variant="outline"
                       size="sm"
@@ -135,6 +211,43 @@ const TenderList = () => {
                     <Button variant="outline" size="sm">
                       <Edit className="h-4 w-4" />
                     </Button>
+                    {tender.status === "draft" && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApprovalStatusUpdate(tender.id, "approved")}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600"
+                          onClick={() => handleApprovalStatusUpdate(tender.id, "rejected")}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                    {canTransitionStatus(tender.status, "published", tender.approvalStatus) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusTransition(tender.id)}
+                      >
+                        Publish
+                      </Button>
+                    )}
+                    {tender.status === "published" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusTransition(tender.id)}
+                      >
+                        Close
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

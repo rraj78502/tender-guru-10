@@ -1,6 +1,15 @@
 
 export type TenderStatus = "draft" | "published" | "closed";
 
+export type TenderApprovalStatus = "pending" | "approved" | "rejected";
+
+export interface TenderComment {
+  id: number;
+  text: string;
+  author: string;
+  createdAt: string;
+}
+
 export interface Tender {
   id: number;
   ifbNumber: string;
@@ -10,5 +19,7 @@ export interface Tender {
   openingDate: string;
   bidValidity: string;
   status: TenderStatus;
+  approvalStatus: TenderApprovalStatus;
+  comments: TenderComment[];
   documents: File[];
 }
