@@ -10,7 +10,7 @@ export const getStatusBadge = (status: TenderStatus) => {
   };
 
   return (
-    <Badge variant="outline" className={`${statusStyles[status]} capitalize`}>
+    <Badge variant="outline" className={statusStyles[status]}>
       {status}
     </Badge>
   );
