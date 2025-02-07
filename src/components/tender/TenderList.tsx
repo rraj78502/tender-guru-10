@@ -4,8 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Search, Filter } from "lucide-react";
+import { Edit, Search, Filter, Upload, File } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import TenderPreview from "./TenderPreview";
+import DocumentViewer from "./DocumentViewer";
 
 type TenderStatus = "draft" | "published" | "closed";
 
@@ -21,7 +23,6 @@ interface Tender {
   documents: File[];
 }
 
-// Mock data - replace with real data source later
 const mockTenders: Tender[] = [
   {
     id: 1,
@@ -48,11 +49,14 @@ const mockTenders: Tender[] = [
 ];
 
 const TenderList = () => {
-  const [tenders] = useState<Tender[]>(mockTenders);
+  const { toast } = useToast();
+  const [tenders, setTenders] = useState<Tender[]>(mockTenders);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TenderStatus | "all">("all");
   const [selectedTender, setSelectedTender] = useState<Tender | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
 
   const getStatusBadge = (status: TenderStatus) => {
     const statusStyles = {
@@ -79,6 +83,31 @@ const TenderList = () => {
   const handlePreview = (tender: Tender) => {
     setSelectedTender(tender);
     setShowPreview(true);
+  };
+
+  const handleDocumentUpload = (tenderId: number, files: FileList) => {
+    setTenders((prevTenders) =>
+      prevTenders.map((tender) => {
+        if (tender.id === tenderId) {
+          const newDocuments = Array.from(files);
+          return {
+            ...tender,
+            documents: [...tender.documents, ...newDocuments],
+          };
+        }
+        return tender;
+      })
+    );
+
+    toast({
+      title: "Documents Uploaded",
+      description: `${files.length} document(s) have been uploaded successfully.`,
+    });
+  };
+
+  const handleDocumentPreview = (document: File) => {
+    setSelectedDocument(document);
+    setShowDocumentViewer(true);
   };
 
   return (
@@ -121,6 +150,7 @@ const TenderList = () => {
               <TableHead>Publish Date</TableHead>
               <TableHead>Opening Date</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Documents</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -132,6 +162,43 @@ const TenderList = () => {
                 <TableCell>{tender.publishDate}</TableCell>
                 <TableCell>{tender.openingDate}</TableCell>
                 <TableCell>{getStatusBadge(tender.status)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {tender.documents.length} file(s)
+                    </span>
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        className="hidden"
+                        id={`upload-${tender.id}`}
+                        multiple
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            handleDocumentUpload(tender.id, e.target.files);
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById(`upload-${tender.id}`)?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                      {tender.documents.map((doc, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDocumentPreview(doc)}
+                        >
+                          <File className="h-4 w-4" />
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
@@ -157,6 +224,14 @@ const TenderList = () => {
           open={showPreview}
           onOpenChange={setShowPreview}
           tender={selectedTender}
+        />
+      )}
+
+      {selectedDocument && (
+        <DocumentViewer
+          open={showDocumentViewer}
+          onOpenChange={setShowDocumentViewer}
+          document={selectedDocument}
         />
       )}
     </div>
