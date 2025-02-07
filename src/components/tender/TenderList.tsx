@@ -86,11 +86,13 @@ const TenderList = () => {
   };
 
   const handleAddComment = (tenderId: number, text: string) => {
+    const now = new Date();
     const newComment: TenderComment = {
       id: Date.now(),
       text,
       author: "Current User",
-      createdAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
+      timestamp: now.toISOString(), // Added timestamp field
     };
 
     setTenders((prevTenders) =>

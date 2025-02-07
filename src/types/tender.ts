@@ -8,6 +8,7 @@ export interface TenderComment {
   text: string;
   author: string;
   createdAt: string;
+  timestamp: string; // Added this field to match the Comment type
 }
 
 export interface Tender {
