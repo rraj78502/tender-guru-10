@@ -21,6 +21,7 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
     toast({
       title: "Specification Approved",
       description: "The committee has been notified of the approval.",
+      variant: "default",
     });
   };
 
@@ -29,15 +30,24 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
     toast({
       title: "Revision Requested",
       description: "A revision request has been sent to the committee.",
+      variant: "destructive",
+    });
+  };
+
+  const handleViewDocument = () => {
+    console.log("Viewing document for committee:", committeeId);
+    toast({
+      title: "Opening Document",
+      description: "Loading specification document...",
     });
   };
 
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow">
+    <Card className="p-6 hover:shadow-lg transition-shadow bg-white/80 backdrop-blur-sm">
       <div className="space-y-4">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             <div className="flex items-center gap-2 mt-2">
               <Calendar className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600">
@@ -63,10 +73,14 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
           </Badge>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
           <FileText className="h-4 w-4" />
           <span>Specification Document</span>
-          <Button variant="link" className="text-sm p-0 h-auto" onClick={() => console.log("View document")}>
+          <Button 
+            variant="link" 
+            className="text-sm p-0 h-auto text-blue-600 hover:text-blue-700" 
+            onClick={handleViewDocument}
+          >
             View Document
           </Button>
         </div>
@@ -74,7 +88,7 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
         <div className="flex gap-3 mt-4">
           <Button
             onClick={handleApprove}
-            className="bg-green-500 hover:bg-green-600"
+            className="bg-green-500 hover:bg-green-600 text-white transition-colors"
           >
             <CheckCircle className="h-4 w-4 mr-2" />
             Approve
@@ -82,6 +96,7 @@ const ReviewModule = ({ committeeId, title, submissionDate, status }: ReviewModu
           <Button
             variant="outline"
             onClick={handleRequestRevision}
+            className="border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600"
           >
             <AlertCircle className="h-4 w-4 mr-2" />
             Request Revision
