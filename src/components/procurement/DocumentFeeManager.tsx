@@ -121,7 +121,7 @@ const DocumentFeeManager = ({
                       f.id === fee.id
                         ? {
                             ...f,
-                            paymentStatus: "paid",
+                            paymentStatus: "paid" as const,
                             paymentDate: new Date().toISOString(),
                           }
                         : f
