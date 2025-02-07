@@ -16,12 +16,12 @@ const DocumentViewer = ({ open, onOpenChange, document }: DocumentViewerProps) =
 
   const handleDownload = () => {
     const url = URL.createObjectURL(document);
-    const a = document.createElement('a');
+    const a = window.document.createElement('a');
     a.href = url;
     a.download = document.name;
-    document.body.appendChild(a);
+    window.document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    window.document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
     toast({
@@ -79,3 +79,4 @@ const DocumentViewer = ({ open, onOpenChange, document }: DocumentViewerProps) =
 };
 
 export default DocumentViewer;
+
