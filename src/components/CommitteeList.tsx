@@ -44,7 +44,7 @@ const getStatusBadge = (status: string) => {
       );
     case "specification_submitted":
       return (
-        <Badge variant="success" className="flex items-center gap-1 bg-green-500">
+        <Badge variant="default" className="flex items-center gap-1 bg-green-500 hover:bg-green-600">
           <CheckCircle className="h-3 w-3" />
           Specification Submitted
         </Badge>
