@@ -9,11 +9,37 @@ import TenderForm from "@/components/tender/TenderForm";
 import TenderList from "@/components/tender/TenderList";
 import VendorRegistrationForm from "@/components/vendor/VendorRegistrationForm";
 import { Building2, FileText, Users } from "lucide-react";
+import NotificationCenter from "@/components/review/NotificationCenter";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
+
+  // Mock notifications data
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      message: "New tender specification submitted for review",
+      read: false,
+      timestamp: new Date().toISOString(),
+      type: 'status_change' as const,
+    },
+    {
+      id: 2,
+      message: "Deadline approaching: Network Equipment Specification Review",
+      read: false,
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      type: 'deadline' as const,
+    },
+    {
+      id: 3,
+      message: "Tender status updated to 'Published'",
+      read: true,
+      timestamp: new Date(Date.now() - 86400000).toISOString(),
+      type: 'status_change' as const,
+    },
+  ]);
 
   // Mock review data
   const reviewData = {
@@ -23,19 +49,31 @@ const Index = () => {
     status: "pending_review"
   };
 
+  const handleMarkAsRead = (id: number) => {
+    setNotifications(notifications.map(notification => 
+      notification.id === id ? { ...notification, read: true } : notification
+    ));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 slide-in">
-          <div className="inline-block px-3 py-1 mb-4 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
-            Tender Management System
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-center mb-12 slide-in">
+            <div className="inline-block px-3 py-1 mb-4 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
+              Tender Management System
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Welcome to TenderFlow
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Streamline your tender process with our comprehensive management system
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to TenderFlow
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Streamline your tender process with our comprehensive management system
-          </p>
+          <NotificationCenter 
+            notifications={notifications}
+            onMarkAsRead={handleMarkAsRead}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
