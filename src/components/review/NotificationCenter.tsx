@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationItem } from "./NotificationItem";
 import { NotificationFilters } from "./NotificationFilters";
+import { checkUpcomingDeadlines } from "@/utils/deadlineUtils";
 import type { NotificationCenterProps, Notification } from "@/types/notification";
 
 const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterProps) => {
@@ -17,6 +18,32 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'status_change' | 'deadline' | 'email'>('all');
   const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
+
+  // Check for deadlines every minute
+  useEffect(() => {
+    const checkDeadlines = () => {
+      const newDeadlineNotifications = checkUpcomingDeadlines(notifications);
+      if (newDeadlineNotifications.length > 0) {
+        newDeadlineNotifications.forEach(notification => {
+          toast({
+            title: "Upcoming Deadline",
+            description: notification.message,
+          });
+        });
+        // Add new notifications to localStorage
+        const existingNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        localStorage.setItem('notifications', JSON.stringify([
+          ...existingNotifications,
+          ...newDeadlineNotifications
+        ]));
+      }
+    };
+
+    checkDeadlines(); // Initial check
+    const interval = setInterval(checkDeadlines, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [notifications, toast]);
 
   useEffect(() => {
     const savedNotifications = localStorage.getItem('notifications');
@@ -110,3 +137,4 @@ const NotificationCenter = ({ notifications, onMarkAsRead }: NotificationCenterP
 };
 
 export default NotificationCenter;
+

@@ -16,7 +16,7 @@ const Index = () => {
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
 
-  // Mock notifications data
+  // Mock notifications data with deadline information
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -31,6 +31,8 @@ const Index = () => {
       read: false,
       timestamp: new Date(Date.now() - 3600000).toISOString(),
       type: 'deadline' as const,
+      deadline: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
+      reminderTime: 24,
     },
     {
       id: 3,
