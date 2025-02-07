@@ -1,5 +1,5 @@
 
-import { Vendor, VendorQualification } from "@/types/vendor";
+import { Vendor, VendorQualification, VendorBid } from "@/types/vendor";
 
 export const defaultQualificationCriteria: VendorQualification[] = [
   {
@@ -25,6 +25,83 @@ export const defaultQualificationCriteria: VendorQualification[] = [
     criteria: "Certifications",
     minimumRequirement: "ISO 9001",
     weight: 10,
+  },
+];
+
+// Mock vendors data
+export const mockVendors: Vendor[] = [
+  {
+    id: 1,
+    companyName: "Tech Solutions Inc.",
+    registrationNumber: "TSI123456",
+    email: "contact@techsolutions.com",
+    phone: "+1-555-0123",
+    address: "123 Tech Avenue, Silicon Valley, CA",
+    category: ["IT", "Software"],
+    documents: [],
+    status: "approved",
+    qualificationScore: 85,
+    createdAt: "2024-01-15T08:00:00Z",
+  },
+  {
+    id: 2,
+    companyName: "Global Networks Ltd",
+    registrationNumber: "GNL789012",
+    email: "info@globalnetworks.com",
+    phone: "+1-555-0124",
+    address: "456 Network Street, Boston, MA",
+    category: ["Networking", "Hardware"],
+    documents: [],
+    status: "pending",
+    qualificationScore: 72,
+    createdAt: "2024-02-01T10:30:00Z",
+  },
+  {
+    id: 3,
+    companyName: "Security Systems Pro",
+    registrationNumber: "SSP345678",
+    email: "contact@securitypro.com",
+    phone: "+1-555-0125",
+    address: "789 Security Road, Austin, TX",
+    category: ["Security", "Hardware"],
+    documents: [],
+    status: "rejected",
+    qualificationScore: 45,
+    createdAt: "2024-02-15T14:15:00Z",
+  },
+];
+
+// Mock bids data
+export const mockBids: VendorBid[] = [
+  {
+    id: 1,
+    tenderId: 1,
+    vendorId: 1,
+    bidAmount: 150000,
+    technicalScore: 88,
+    documents: [],
+    submissionDate: "2024-03-01T09:00:00Z",
+    status: "submitted",
+  },
+  {
+    id: 2,
+    tenderId: 1,
+    vendorId: 2,
+    bidAmount: 165000,
+    technicalScore: 92,
+    documents: [],
+    submissionDate: "2024-03-02T11:30:00Z",
+    status: "under_review",
+  },
+  {
+    id: 3,
+    tenderId: 2,
+    vendorId: 1,
+    bidAmount: 75000,
+    technicalScore: 85,
+    documents: [],
+    submissionDate: "2024-03-05T15:45:00Z",
+    status: "accepted",
   },
 ];
 
