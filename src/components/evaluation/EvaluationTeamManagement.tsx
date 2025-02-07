@@ -14,7 +14,7 @@ import {
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, Key } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import type { EvaluationTeam, EvaluationTeamMember } from "@/types/evaluation";
 
 interface Props {
@@ -28,7 +28,6 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
   const [selectedMember, setSelectedMember] = useState<EvaluationTeamMember | null>(null);
 
   const handleGenerateOTP = (member: EvaluationTeamMember) => {
-    // In a real app, this would call an API to generate and send OTP
     const mockOTP = Math.random().toString(36).slice(-6);
     setSelectedMember(member);
     setShowOTPInput(true);
@@ -40,7 +39,6 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
   };
 
   const handleVerifyOTP = (value: string) => {
-    // In a real app, this would verify the OTP with the backend
     toast({
       title: "Access Granted",
       description: "Team member can now access evaluation documents",
@@ -88,7 +86,7 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
               </TableCell>
               <TableCell>{member.department}</TableCell>
               <TableCell>
-                <Badge variant={member.hasAccess ? "success" : "secondary"}>
+                <Badge variant={member.hasAccess ? "secondary" : "outline"}>
                   {member.hasAccess ? "Active" : "Inactive"}
                 </Badge>
               </TableCell>
@@ -115,8 +113,8 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
               maxLength={6}
               render={({ slots }) => (
                 <InputOTPGroup>
-                  {slots.map((slot, index) => (
-                    <InputOTPSlot key={index} {...slot} />
+                  {slots.map((slot, i) => (
+                    <InputOTPSlot key={i} {...slot} index={i} />
                   ))}
                 </InputOTPGroup>
               )}

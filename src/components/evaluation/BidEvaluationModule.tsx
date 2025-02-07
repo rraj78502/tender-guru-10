@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +5,7 @@ import EvaluationTeamManagement from "./EvaluationTeamManagement";
 import SecureDocumentViewer from "./SecureDocumentViewer";
 import TechnicalEvaluation from "./TechnicalEvaluation";
 import FinancialEvaluation from "./FinancialEvaluation";
-import type { EvaluationTeam, TechnicalCriteria, FinancialEvaluation } from "@/types/evaluation";
+import type { EvaluationTeam, TechnicalCriteria, FinancialEvaluation as FinancialEvaluationType } from "@/types/evaluation";
 
 // Mock data
 const mockTeam: EvaluationTeam = {
@@ -59,7 +58,7 @@ const mockCriteria: TechnicalCriteria[] = [
   },
 ];
 
-const mockFinancialEvaluations: FinancialEvaluation[] = [
+const mockFinancialEvaluations: FinancialEvaluationType[] = [
   {
     id: 1,
     vendorId: 1,
