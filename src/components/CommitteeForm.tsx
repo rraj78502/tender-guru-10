@@ -1,13 +1,15 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Bell, Upload } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import MemberFormItem from "./committee/MemberFormItem";
-import DateInputs from "./committee/DateInputs";
-import FileUpload from "./committee/FileUpload";
-import { Committee, CommitteeMember } from "@/types/notification";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { X, Bell } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import MemberFormItem from "./MemberFormItem";
+import DateInputs from "./DateInputs";
+import FileUpload from "./FileUpload";
+import TaskManager from "./TaskManager";
+import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
 
 interface CommitteeFormProps {
   onClose: () => void;
@@ -21,6 +23,8 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const [specificationDate, setSpecificationDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [name, setName] = useState("");
+  const [purpose, setPurpose] = useState("");
 
   const addMember = () => {
     const newMember: CommitteeMember = {
@@ -60,13 +64,19 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
     const committee: Committee = {
       id: Date.now(),
+      name,
+      purpose,
       formationDate: formDate,
-      specificationDate: specificationDate,
-      reviewDate: reviewDate,
-      members: members,
-      documents: selectedFile ? [selectedFile] : [],
+      formationLetter: selectedFile || undefined,
+      members,
       tasks: [],
-      status: 'active'
+      specifications: {
+        submissionDate: specificationDate,
+        documents: [],
+        status: 'draft'
+      },
+      reviews: [],
+      approvalStatus: 'draft'
     };
 
     onCreateCommittee?.(committee);
@@ -77,7 +87,8 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
     });
     
     members.forEach(member => {
-      console.log(`Mock notification sent to ${member.name}`);
+      console.log(`Mock email sent to ${member.email}`);
+      console.log(`Mock SMS sent to ${member.phone}`);
     });
     
     onClose();
@@ -140,4 +151,3 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
-
