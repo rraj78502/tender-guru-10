@@ -1,14 +1,14 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { X, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import MemberFormItem from "./MemberFormItem";
 import DateInputs from "./DateInputs";
 import FileUpload from "./FileUpload";
 import TaskManager from "./TaskManager";
+import BasicInfoFields from "./BasicInfoFields";
+import CommitteeMembers from "./CommitteeMembers";
 import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
 
 interface CommitteeFormProps {
@@ -123,26 +123,12 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Committee Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="purpose">Purpose</Label>
-              <Input
-                id="purpose"
-                value={purpose}
-                onChange={(e) => setPurpose(e.target.value)}
-                required
-              />
-            </div>
-          </div>
+          <BasicInfoFields
+            name={name}
+            purpose={purpose}
+            onNameChange={setName}
+            onPurposeChange={setPurpose}
+          />
 
           <DateInputs
             formDate={formDate}
@@ -153,24 +139,12 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
             onReviewDateChange={setReviewDate}
           />
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Committee Members</h3>
-              <Button type="button" onClick={addMember} variant="outline">
-                Add Member
-              </Button>
-            </div>
-
-            {members.map((member, index) => (
-              <MemberFormItem
-                key={member.id}
-                member={member}
-                index={index}
-                onUpdate={updateMember}
-                onRemove={removeMember}
-              />
-            ))}
-          </div>
+          <CommitteeMembers
+            members={members}
+            onAddMember={addMember}
+            onUpdateMember={updateMember}
+            onRemoveMember={removeMember}
+          />
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Task Management</h3>
