@@ -13,6 +13,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import BidAmountField from "../vendor/form/BidAmountField";
 import type { FinancialEvaluation as FinancialEvaluationType } from "@/types/evaluation";
 
 interface Props {
@@ -20,22 +30,89 @@ interface Props {
   evaluations: FinancialEvaluationType[];
 }
 
-const FinancialEvaluation = ({ teamId, evaluations }: Props) => {
+const FinancialEvaluation = ({ teamId, evaluations: initialEvaluations }: Props) => {
   const { toast } = useToast();
-  const [selectedEvaluation, setSelectedEvaluation] = useState<FinancialEvaluationType | null>(null);
+  const [evaluations, setEvaluations] = useState<FinancialEvaluationType[]>(initialEvaluations);
+  const [newEvaluation, setNewEvaluation] = useState({
+    vendorId: "",
+    bidAmount: "",
+    technicalScore: "",
+  });
 
-  const handleApprove = (evaluation: FinancialEvaluationType) => {
+  const calculateFinancialScore = (bidAmount: number, lowestBid: number) => {
+    // Financial score = (Lowest Bid / Bid Amount) × 100
+    return (lowestBid / bidAmount) * 100;
+  };
+
+  const calculateTotalScore = (technicalScore: number, financialScore: number) => {
+    // Assuming 70% weight for technical and 30% for financial
+    return (technicalScore * 0.7) + (financialScore * 0.3);
+  };
+
+  const handleAddEvaluation = () => {
+    if (!newEvaluation.vendorId || !newEvaluation.bidAmount || !newEvaluation.technicalScore) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const bidAmount = parseFloat(newEvaluation.bidAmount);
+    const technicalScore = parseFloat(newEvaluation.technicalScore);
+    const lowestBid = Math.min(...evaluations.map(e => e.bidAmount), bidAmount);
+    const financialScore = calculateFinancialScore(bidAmount, lowestBid);
+    const totalScore = calculateTotalScore(technicalScore, financialScore);
+
+    const newEval: FinancialEvaluationType = {
+      id: Date.now(),
+      vendorId: parseInt(newEvaluation.vendorId),
+      bidAmount,
+      technicalScore,
+      financialScore,
+      totalScore,
+      rank: 0, // Will be calculated after adding
+      evaluatedBy: teamId,
+      timestamp: new Date().toISOString(),
+      status: "evaluated",
+    };
+
+    // Update all evaluations with new ranks
+    const updatedEvaluations = [...evaluations, newEval]
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .map((eval, index) => ({ ...eval, rank: index + 1 }));
+
+    setEvaluations(updatedEvaluations);
+    setNewEvaluation({ vendorId: "", bidAmount: "", technicalScore: "" });
+
     toast({
-      title: "Evaluation Approved",
-      description: `Financial evaluation for Vendor ${evaluation.vendorId} has been approved`,
+      title: "Evaluation Added",
+      description: `Financial evaluation for Vendor ${newEvaluation.vendorId} has been recorded`,
     });
   };
 
-  const handleReject = (evaluation: FinancialEvaluationType) => {
+  const handleStatusChange = (evaluation: FinancialEvaluationType, newStatus: "approved" | "rejected") => {
+    const updatedEvaluations = evaluations.map(eval => 
+      eval.id === evaluation.id ? { ...eval, status: newStatus } : eval
+    );
+    setEvaluations(updatedEvaluations);
+
     toast({
-      title: "Evaluation Rejected",
-      description: `Financial evaluation for Vendor ${evaluation.vendorId} has been rejected`,
+      title: `Evaluation ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+      description: `Financial evaluation for Vendor ${evaluation.vendorId} has been ${newStatus}`,
     });
+  };
+
+  const exportToCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "Vendor ID,Bid Amount,Technical Score,Financial Score,Total Score,Rank,Status\n" +
+      evaluations.map(eval => 
+        `${eval.vendorId},${eval.bidAmount},${eval.technicalScore},${eval.financialScore},${eval.totalScore},${eval.rank},${eval.status}`
+      ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    window.open(encodedUri);
   };
 
   return (
@@ -43,7 +120,50 @@ const FinancialEvaluation = ({ teamId, evaluations }: Props) => {
       <div className="space-y-6 p-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Financial Evaluation</h3>
-          <Button variant="outline">Export Results</Button>
+          <div className="space-x-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Add Evaluation</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>New Financial Evaluation</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="vendorId">Vendor ID</Label>
+                    <Input
+                      id="vendorId"
+                      type="number"
+                      value={newEvaluation.vendorId}
+                      onChange={(e) => setNewEvaluation(prev => ({ ...prev, vendorId: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <BidAmountField
+                      bidAmount={newEvaluation.bidAmount}
+                      onChange={(e) => setNewEvaluation(prev => ({ ...prev, bidAmount: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="technicalScore">Technical Score</Label>
+                    <Input
+                      id="technicalScore"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={newEvaluation.technicalScore}
+                      onChange={(e) => setNewEvaluation(prev => ({ ...prev, technicalScore: e.target.value }))}
+                    />
+                  </div>
+                  <Button onClick={handleAddEvaluation} className="w-full">
+                    Add Evaluation
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button variant="outline" onClick={exportToCSV}>Export Results</Button>
+          </div>
         </div>
 
         <Card className="p-4">
@@ -65,9 +185,9 @@ const FinancialEvaluation = ({ teamId, evaluations }: Props) => {
                 <TableRow key={evaluation.id}>
                   <TableCell>{evaluation.vendorId}</TableCell>
                   <TableCell>${evaluation.bidAmount.toLocaleString()}</TableCell>
-                  <TableCell>{evaluation.technicalScore}</TableCell>
-                  <TableCell>{evaluation.financialScore}</TableCell>
-                  <TableCell>{evaluation.totalScore}</TableCell>
+                  <TableCell>{evaluation.technicalScore.toFixed(2)}</TableCell>
+                  <TableCell>{evaluation.financialScore.toFixed(2)}</TableCell>
+                  <TableCell>{evaluation.totalScore.toFixed(2)}</TableCell>
                   <TableCell>{evaluation.rank}</TableCell>
                   <TableCell>
                     <Badge variant={evaluation.status === "evaluated" ? "secondary" : "outline"}>
@@ -79,7 +199,8 @@ const FinancialEvaluation = ({ teamId, evaluations }: Props) => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleApprove(evaluation)}
+                        onClick={() => handleStatusChange(evaluation, "approved")}
+                        disabled={evaluation.status === "approved"}
                       >
                         Approve
                       </Button>
@@ -87,7 +208,8 @@ const FinancialEvaluation = ({ teamId, evaluations }: Props) => {
                         variant="outline"
                         size="sm"
                         className="text-red-600"
-                        onClick={() => handleReject(evaluation)}
+                        onClick={() => handleStatusChange(evaluation, "rejected")}
+                        disabled={evaluation.status === "rejected"}
                       >
                         Reject
                       </Button>
