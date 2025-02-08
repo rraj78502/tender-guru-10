@@ -24,6 +24,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const [specificationDate, setSpecificationDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [tasks, setTasks] = useState<CommitteeTask[]>([]);
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
 
@@ -36,7 +37,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       phone: "",
       role: "member",
       department: "",
-      tasks: []
+      tasks: [],
     };
     setMembers([...members, newMember]);
   };
@@ -52,6 +53,20 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       [field]: value,
     };
     setMembers(updatedMembers);
+  };
+
+  const handleCreateTask = (task: Omit<CommitteeTask, 'id'>) => {
+    const newTask: CommitteeTask = {
+      id: Date.now(),
+      ...task,
+    };
+    setTasks([...tasks, newTask]);
+  };
+
+  const handleUpdateTask = (taskId: number, status: CommitteeTask['status']) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, status } : task
+    ));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,7 +88,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       formationDate: formDate,
       formationLetter: selectedFile || undefined,
       members,
-      tasks: [],
+      tasks,
       specifications: {
         submissionDate: specificationDate,
         documents: [],
@@ -100,7 +115,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-card p-6 slide-in">
+      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Create Committee</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -109,6 +124,27 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name">Committee Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="purpose">Purpose</Label>
+              <Input
+                id="purpose"
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           <DateInputs
             formDate={formDate}
             specificationDate={specificationDate}
@@ -135,6 +171,16 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
                 onRemove={removeMember}
               />
             ))}
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Task Management</h3>
+            <TaskManager
+              members={members}
+              tasks={tasks}
+              onTaskCreate={handleCreateTask}
+              onTaskUpdate={handleUpdateTask}
+            />
           </div>
 
           <FileUpload onFileChange={setSelectedFile} />
