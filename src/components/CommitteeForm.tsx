@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -5,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import MemberFormItem from "./MemberFormItem";
-import DateInputs from "./DateInputs";
-import FileUpload from "./FileUpload";
-import TaskManager from "./TaskManager";
+import MemberFormItem from "@/components/committee/MemberFormItem";
+import DateInputs from "@/components/committee/DateInputs";
+import FileUpload from "@/components/committee/FileUpload";
+import TaskManager from "@/components/committee/TaskManager";
 import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
 
 interface CommitteeFormProps {
@@ -31,7 +32,10 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       id: Date.now(),
       employeeId: "",
       name: "",
+      email: "",
+      phone: "",
       role: "member",
+      department: "",
       tasks: []
     };
     setMembers([...members, newMember]);
