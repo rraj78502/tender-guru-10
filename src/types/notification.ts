@@ -58,11 +58,18 @@ export interface CommitteeTask {
 
 export interface Committee {
   id: number;
+  name: string;
   formationDate: string;
-  specificationDate: string;
-  reviewDate: string;
+  formationLetter?: File;
+  purpose: string;
   members: CommitteeMember[];
-  documents: File[];
   tasks: CommitteeTask[];
-  status: 'active' | 'completed' | 'archived';
+  specifications: {
+    submissionDate: string;
+    documents: File[];
+    status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
+  };
+  reviews: any[]; // This will be typed properly when needed
+  approvalStatus: 'draft' | 'pending' | 'approved' | 'rejected';
 }
+
