@@ -1,7 +1,22 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Chart } from "@/components/ui/chart";
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
+} from "@/components/ui/chart";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip
+} from "recharts";
 import { 
   ChartBar, 
   ChartLine, 
@@ -53,6 +68,14 @@ const DashboardStats = () => {
     { name: "Apr", value: 45 },
   ];
 
+  const pieData = [
+    { name: "Active", value: 45 },
+    { name: "Pending", value: 25 },
+    { name: "Completed", value: 30 },
+  ];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -85,26 +108,40 @@ const DashboardStats = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Project Timeline Overview</h3>
-          <Chart
-            type="bar"
-            data={chartData}
-            xField="name"
-            yField="value"
-            height={300}
-          />
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Contract Status Distribution</h3>
-          <Chart
-            type="pie"
-            data={[
-              { name: "Active", value: 45 },
-              { name: "Pending", value: 25 },
-              { name: "Completed", value: 30 },
-            ]}
-            height={300}
-          />
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
       </div>
     </div>
