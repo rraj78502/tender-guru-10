@@ -60,7 +60,7 @@ export const createCommitteeNotification = (
     committeeInfo: {
       committeeId: committee.id,
       formationDate: committee.formationDate,
-      submissionDate: committee.specificationDate,
+      submissionDate: committee.specifications.submissionDate,
       role: member.role,
       taskId: task?.id
     }
@@ -82,7 +82,7 @@ export const createCommitteeNotification = (
   return {
     ...baseNotification,
     message: `You have been assigned as ${member.role} to a new committee`,
-    deadline: committee.specificationDate,
+    deadline: committee.specifications.submissionDate,
     reminderTime: 48,
     reminderPreferences: {
       email: true,

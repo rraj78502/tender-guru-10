@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -86,7 +85,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       name,
       purpose,
       formationDate: formDate,
-      formationLetter: selectedFile,
+      formationLetter: selectedFile || undefined,
       members,
       tasks,
       specifications: {
@@ -105,7 +104,6 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       description: "Committee has been formed successfully. Notifications will be sent to members.",
     });
     
-    // Mock email/SMS notifications
     members.forEach(member => {
       console.log(`Mock email sent to ${member.email}`);
       console.log(`Mock SMS sent to ${member.phone}`);
