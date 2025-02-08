@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { CommitteeMember } from "@/types/notification";
+import { CommitteeMember } from "@/types/committee";
 
 interface MemberFormItemProps {
   member: CommitteeMember;
@@ -21,6 +21,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
           id={`employee-id-${index}`}
           value={member.employeeId}
           onChange={(e) => onUpdate(index, "employeeId", e.target.value)}
+          placeholder="Enter employee ID"
           required
         />
       </div>
@@ -30,6 +31,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
           id={`name-${index}`}
           value={member.name}
           onChange={(e) => onUpdate(index, "name", e.target.value)}
+          placeholder="Enter member name"
           required
         />
       </div>
@@ -38,12 +40,13 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <select
           id={`role-${index}`}
           value={member.role}
-          onChange={(e) => onUpdate(index, "role", e.target.value as "member" | "chairperson")}
-          className="w-full p-2 border rounded-md"
+          onChange={(e) => onUpdate(index, "role", e.target.value as CommitteeMember["role"])}
+          className="w-full h-10 px-3 py-2 text-base rounded-md border border-input bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           required
         >
           <option value="member">Member</option>
           <option value="chairperson">Chairperson</option>
+          <option value="secretary">Secretary</option>
         </select>
       </div>
       <div>
@@ -51,8 +54,9 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`email-${index}`}
           type="email"
-          value={member.email || ''}
+          value={member.email}
           onChange={(e) => onUpdate(index, "email", e.target.value)}
+          placeholder="Enter email address"
         />
       </div>
       <div>
@@ -60,8 +64,18 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`phone-${index}`}
           type="tel"
-          value={member.phone || ''}
+          value={member.phone}
           onChange={(e) => onUpdate(index, "phone", e.target.value)}
+          placeholder="Enter phone number"
+        />
+      </div>
+      <div>
+        <Label htmlFor={`department-${index}`}>Department</Label>
+        <Input
+          id={`department-${index}`}
+          value={member.department}
+          onChange={(e) => onUpdate(index, "department", e.target.value)}
+          placeholder="Enter department"
         />
       </div>
       <Button
@@ -78,4 +92,3 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
-
