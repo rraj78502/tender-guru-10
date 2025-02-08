@@ -3,9 +3,9 @@ import React from "react";
 import TenderList from "@/components/tender/TenderList";
 import ReviewModule from "@/components/ReviewModule";
 import CommitteeList from "@/components/CommitteeList";
+import DashboardStats from "@/components/dashboard/DashboardStats";
 
 const DashboardContent = () => {
-  // Mock review data
   const reviewData = {
     committeeId: 1,
     title: "Network Equipment Specification Review",
@@ -15,6 +15,10 @@ const DashboardContent = () => {
 
   return (
     <>
+      <div className="mb-8">
+        <DashboardStats />
+      </div>
+
       <div className="mb-12">
         <TenderList />
       </div>
