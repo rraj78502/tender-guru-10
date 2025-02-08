@@ -61,7 +61,7 @@ const FinancialEvaluation = ({ teamId, evaluations: initialEvaluations }: Props)
 
     const bidAmount = parseFloat(newEvaluation.bidAmount);
     const technicalScore = parseFloat(newEvaluation.technicalScore);
-    const lowestBid = Math.min(...evaluations.map(e => e.bidAmount), bidAmount);
+    const lowestBid = Math.min(...evaluations.map(evaluation => evaluation.bidAmount), bidAmount);
     const financialScore = calculateFinancialScore(bidAmount, lowestBid);
     const totalScore = calculateTotalScore(technicalScore, financialScore);
 
@@ -81,7 +81,7 @@ const FinancialEvaluation = ({ teamId, evaluations: initialEvaluations }: Props)
     // Update all evaluations with new ranks
     const updatedEvaluations = [...evaluations, newEval]
       .sort((a, b) => b.totalScore - a.totalScore)
-      .map((eval, index) => ({ ...eval, rank: index + 1 }));
+      .map((evaluation, index) => ({ ...evaluation, rank: index + 1 }));
 
     setEvaluations(updatedEvaluations);
     setNewEvaluation({ vendorId: "", bidAmount: "", technicalScore: "" });
@@ -93,8 +93,8 @@ const FinancialEvaluation = ({ teamId, evaluations: initialEvaluations }: Props)
   };
 
   const handleStatusChange = (evaluation: FinancialEvaluationType, newStatus: "approved" | "rejected") => {
-    const updatedEvaluations = evaluations.map(eval => 
-      eval.id === evaluation.id ? { ...eval, status: newStatus } : eval
+    const updatedEvaluations = evaluations.map(item => 
+      item.id === evaluation.id ? { ...item, status: newStatus } : item
     );
     setEvaluations(updatedEvaluations);
 
@@ -107,8 +107,8 @@ const FinancialEvaluation = ({ teamId, evaluations: initialEvaluations }: Props)
   const exportToCSV = () => {
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Vendor ID,Bid Amount,Technical Score,Financial Score,Total Score,Rank,Status\n" +
-      evaluations.map(eval => 
-        `${eval.vendorId},${eval.bidAmount},${eval.technicalScore},${eval.financialScore},${eval.totalScore},${eval.rank},${eval.status}`
+      evaluations.map(evaluation => 
+        `${evaluation.vendorId},${evaluation.bidAmount},${evaluation.technicalScore},${evaluation.financialScore},${evaluation.totalScore},${evaluation.rank},${evaluation.status}`
       ).join("\n");
     
     const encodedUri = encodeURI(csvContent);
