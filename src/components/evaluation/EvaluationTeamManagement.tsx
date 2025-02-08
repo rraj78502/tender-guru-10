@@ -15,7 +15,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, Key, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { EvaluationTeam, EvaluationTeamMember } from "@/types/evaluation";
+import type { EvaluationTeam, EvaluationTeamMember, EvaluationTeamRole } from "@/types/evaluation";
 
 interface Props {
   team: EvaluationTeam;
@@ -27,10 +27,15 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
   const [showOTPInput, setShowOTPInput] = useState(false);
   const [selectedMember, setSelectedMember] = useState<EvaluationTeamMember | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
-  const [newMember, setNewMember] = useState({
+  const [newMember, setNewMember] = useState<{
+    name: string;
+    email: string;
+    role: EvaluationTeamRole;
+    department: string;
+  }>({
     name: "",
     email: "",
-    role: "member" as const,
+    role: "member",
     department: "",
   });
 
@@ -39,7 +44,6 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
     setSelectedMember({ ...member, otp: mockOTP, otpValidUntil: new Date(Date.now() + 30 * 60000).toISOString() });
     setShowOTPInput(true);
     
-    // In a real implementation, this would be an API call to send the OTP
     toast({
       title: "OTP Generated",
       description: `An OTP has been sent to ${member.email}`,
@@ -150,7 +154,7 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
                 id="role"
                 className="w-full p-2 border rounded-md"
                 value={newMember.role}
-                onChange={(e) => setNewMember({ ...newMember, role: e.target.value as "chair" | "member" | "secretary" })}
+                onChange={(e) => setNewMember({ ...newMember, role: e.target.value as EvaluationTeamRole })}
               >
                 <option value="member">Member</option>
                 <option value="chair">Chair</option>
@@ -243,8 +247,8 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
               maxLength={6}
               render={({ slots }) => (
                 <InputOTPGroup>
-                  {slots.map((slot, i) => (
-                    <InputOTPSlot key={i} {...slot} />
+                  {slots.map((slot, index) => (
+                    <InputOTPSlot key={index} {...slot} index={index} />
                   ))}
                 </InputOTPGroup>
               )}
