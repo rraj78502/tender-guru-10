@@ -1,4 +1,3 @@
-
 export type CommitteeTaskStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
 export type CommitteeApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type DocumentStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
@@ -52,4 +51,15 @@ export interface Committee {
   };
   reviews: SpecificationReview[];
   approvalStatus: CommitteeApprovalStatus;
+}
+
+export interface ReviewHistory {
+  id: number;
+  reviewDate: string;
+  reviewers: CommitteeMember[];
+  status: DocumentStatus;
+  minutes?: string;
+  documents: File[];
+  comments: string[];
+  nextReviewDate?: string;
 }
