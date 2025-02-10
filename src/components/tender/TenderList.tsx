@@ -1,43 +1,21 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import TenderPreview from "./TenderPreview";
 import DocumentViewer from "./DocumentViewer";
 import TenderSearchFilter from "./TenderSearchFilter";
 import TenderTable from "./TenderTable";
+import TenderForm from "./TenderForm";
 import { getNextStatus } from "@/utils/tenderUtils";
 import { Tender, TenderStatus, TenderComment } from "@/types/tender";
-
-const mockTenders: Tender[] = [
-  {
-    id: 1,
-    ifbNumber: "IFB-1234567890-001",
-    title: "Network Equipment Procurement",
-    description: "Procurement of networking equipment for data center",
-    publishDate: "2024-03-15",
-    openingDate: "2024-04-15",
-    bidValidity: "90",
-    status: "draft",
-    approvalStatus: "pending",
-    comments: [],
-    documents: [],
-  },
-  {
-    id: 2,
-    ifbNumber: "IFB-1234567890-002",
-    title: "Software Development Services",
-    description: "Custom software development services for ERP system",
-    publishDate: "2024-03-20",
-    openingDate: "2024-04-20",
-    bidValidity: "60",
-    status: "published",
-    approvalStatus: "approved",
-    comments: [],
-    documents: [],
-  },
-];
+import { mockTenders } from "@/mock/tenderData";
 
 const TenderList = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [tenders, setTenders] = useState<Tender[]>(mockTenders);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TenderStatus | "all">("all");
@@ -46,6 +24,10 @@ const TenderList = () => {
   const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const canCreateTender = user?.role === "admin" || user?.role === "procurement_officer";
+  const canApproveTender = user?.role === "admin";
 
   const handleStatusTransition = (tenderId: number) => {
     setTenders((prevTenders) =>
@@ -85,7 +67,7 @@ const TenderList = () => {
     const newComment: TenderComment = {
       id: Date.now(),
       text,
-      author: "Current User",
+      author: user?.name || "Unknown User",
       createdAt: now.toISOString(),
       timestamp: now.toISOString(),
     };
@@ -145,6 +127,12 @@ const TenderList = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Tenders</h2>
+        {canCreateTender && (
+          <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Tender
+          </Button>
+        )}
       </div>
 
       <TenderSearchFilter
@@ -160,7 +148,7 @@ const TenderList = () => {
           setSelectedTender(tender);
           setShowPreview(true);
         }}
-        onApprovalStatusUpdate={handleApprovalStatusUpdate}
+        onApprovalStatusUpdate={canApproveTender ? handleApprovalStatusUpdate : undefined}
         onStatusTransition={handleStatusTransition}
         onAddComment={handleAddComment}
         onDocumentUpload={handleDocumentUpload}
@@ -183,6 +171,10 @@ const TenderList = () => {
           onOpenChange={setShowDocumentViewer}
           document={selectedDocument}
         />
+      )}
+
+      {showCreateForm && (
+        <TenderForm onClose={() => setShowCreateForm(false)} />
       )}
     </div>
   );

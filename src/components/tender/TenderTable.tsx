@@ -6,11 +6,12 @@ import { Tender } from "@/types/tender";
 import { getStatusBadge, getApprovalStatusBadge, canTransitionStatus } from "@/utils/tenderUtils";
 import TenderDocuments from "./TenderDocuments";
 import CommentsSection from "../review/CommentsSection";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TenderTableProps {
   tenders: Tender[];
   onPreview: (tender: Tender) => void;
-  onApprovalStatusUpdate: (tenderId: number, status: "approved" | "rejected") => void;
+  onApprovalStatusUpdate?: (tenderId: number, status: "approved" | "rejected") => void;
   onStatusTransition: (tenderId: number) => void;
   onAddComment: (tenderId: number, text: string) => void;
   onDocumentUpload: (tenderId: number, files: FileList) => void;
@@ -30,6 +31,9 @@ const TenderTable = ({
   showComments,
   setShowComments,
 }: TenderTableProps) => {
+  const { user } = useAuth();
+  const canEdit = user?.role === "admin" || user?.role === "procurement_officer";
+
   return (
     <div className="border rounded-lg">
       <Table>
@@ -79,10 +83,12 @@ const TenderTable = ({
                   >
                     Preview
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {tender.status === "draft" && (
+                  {canEdit && (
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {tender.status === "draft" && onApprovalStatusUpdate && (
                     <>
                       <Button
                         variant="outline"
@@ -101,7 +107,7 @@ const TenderTable = ({
                       </Button>
                     </>
                   )}
-                  {canTransitionStatus(tender.status, "published", tender.approvalStatus) && (
+                  {canTransitionStatus(tender.status, "published", tender.approvalStatus) && canEdit && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -110,7 +116,7 @@ const TenderTable = ({
                       Publish
                     </Button>
                   )}
-                  {tender.status === "published" && (
+                  {tender.status === "published" && canEdit && (
                     <Button
                       variant="outline"
                       size="sm"
