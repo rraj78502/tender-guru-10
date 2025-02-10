@@ -51,3 +51,17 @@ export interface EvaluationTeam {
   createdAt: string;
   status: "active" | "inactive";
 }
+
+// Add the SecureDocument interface
+export interface SecureDocument {
+  id: number;
+  name: string;
+  type: string;
+  size: number;
+  uploadedAt: string;
+  isConfidential: boolean;
+  accessHistory: {
+    timestamp: string;
+    action: string;
+  }[];
+}
