@@ -1,17 +1,55 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import SpecificationSubmission from "./SpecificationSubmission";
 import ReviewScheduler from "./ReviewScheduler";
 import ReviewMinutes from "./ReviewMinutes";
 import DocumentApproval from "./DocumentApproval";
 import type { SpecificationDocument, ReviewSession } from "@/types/specification";
+import { 
+  mockSpecifications, 
+  mockReviews, 
+  getSpecificationById, 
+  getReviewBySpecificationId 
+} from "@/mock/specificationData";
 
 const SpecificationManagement = () => {
   const [activeTab, setActiveTab] = useState("submission");
   const [currentSpecification, setCurrentSpecification] = useState<SpecificationDocument | null>(null);
   const [currentReview, setCurrentReview] = useState<ReviewSession | null>(null);
+  const { toast } = useToast();
+
+  // Load initial mock data
+  useEffect(() => {
+    const initialSpec = mockSpecifications[0];
+    if (initialSpec) {
+      setCurrentSpecification(initialSpec);
+      const associatedReview = getReviewBySpecificationId(initialSpec.id);
+      if (associatedReview) {
+        setCurrentReview(associatedReview);
+      }
+    }
+  }, []);
+
+  const handleSpecificationUpdate = (spec: SpecificationDocument) => {
+    setCurrentSpecification(spec);
+    console.log("Specification updated:", spec);
+    toast({
+      title: "Specification Updated",
+      description: "The specification has been successfully updated.",
+    });
+  };
+
+  const handleReviewUpdate = (review: ReviewSession) => {
+    setCurrentReview(review);
+    console.log("Review updated:", review);
+    toast({
+      title: "Review Updated",
+      description: "The review session has been successfully updated.",
+    });
+  };
 
   return (
     <Card className="p-6">
@@ -26,7 +64,7 @@ const SpecificationManagement = () => {
         <TabsContent value="submission">
           <SpecificationSubmission
             specification={currentSpecification}
-            onSpecificationUpdate={setCurrentSpecification}
+            onSpecificationUpdate={handleSpecificationUpdate}
           />
         </TabsContent>
 
@@ -34,14 +72,14 @@ const SpecificationManagement = () => {
           <ReviewScheduler
             specification={currentSpecification}
             review={currentReview}
-            onReviewUpdate={setCurrentReview}
+            onReviewUpdate={handleReviewUpdate}
           />
         </TabsContent>
 
         <TabsContent value="minutes">
           <ReviewMinutes
             review={currentReview}
-            onReviewUpdate={setCurrentReview}
+            onReviewUpdate={handleReviewUpdate}
           />
         </TabsContent>
 
@@ -49,7 +87,7 @@ const SpecificationManagement = () => {
           <DocumentApproval
             specification={currentSpecification}
             review={currentReview}
-            onSpecificationUpdate={setCurrentSpecification}
+            onSpecificationUpdate={handleSpecificationUpdate}
           />
         </TabsContent>
       </Tabs>
