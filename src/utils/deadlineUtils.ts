@@ -1,14 +1,14 @@
 
-import { Notification, CommitteeMember, Committee, CommitteeTask, ReminderSchedule } from "@/types/notification";
+import type { Notification as CustomNotification, CommitteeMember, Committee, CommitteeTask, ReminderSchedule } from "@/types/notification";
 
 const calculateNextReminder = (deadline: Date, schedule: ReminderSchedule): Date => {
   const reminderTime = new Date(deadline.getTime() - (schedule.beforeDeadline * 60 * 60 * 1000));
   return reminderTime;
 };
 
-export const checkUpcomingDeadlines = (notifications: Notification[]): Notification[] => {
+export const checkUpcomingDeadlines = (notifications: CustomNotification[]): CustomNotification[] => {
   const now = new Date();
-  const newNotifications: Notification[] = [];
+  const newNotifications: CustomNotification[] = [];
   
   notifications
     .filter(n => (n.type === 'deadline' || n.type === 'committee') && n.deadline && !n.read)
@@ -62,7 +62,7 @@ export const createCommitteeNotification = (
   committee: Committee,
   member: CommitteeMember,
   task?: CommitteeTask
-): Notification => {
+): CustomNotification => {
   const baseNotification = {
     id: Date.now(),
     read: false,
@@ -104,7 +104,7 @@ export const createCommitteeNotification = (
 };
 
 export const scheduleReminder = (
-  notification: Notification,
+  notification: CustomNotification,
   schedule: ReminderSchedule
 ): void => {
   if (!notification.deadline) return;
@@ -119,7 +119,7 @@ export const scheduleReminder = (
     const timeUntilReminder = nextReminder.getTime() - new Date().getTime();
     if (timeUntilReminder > 0) {
       setTimeout(() => {
-        new Notification("Deadline Reminder", {
+        new globalThis.Notification("Deadline Reminder", {
           body: notification.message,
           icon: "/favicon.ico"
         });
