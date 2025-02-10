@@ -49,23 +49,23 @@ class MockDatabase {
   }
 
   public getAll<K extends keyof Collections>(collection: K): Collections[K] {
-    return [...this.data[collection]];
+    return [...this.data[collection]] as Collections[K];
   }
 
   public getById<K extends keyof Collections>(
     collection: K,
     id: number
   ): Collections[K][number] | undefined {
-    return this.data[collection].find((item: any) => item.id === id);
+    return this.data[collection].find((item) => item.id === id);
   }
 
   public create<K extends keyof Collections>(
     collection: K,
     item: Omit<Collections[K][number], 'id'>
   ): Collections[K][number] {
-    const newId = Math.max(...this.data[collection].map((i: any) => i.id), 0) + 1;
+    const newId = Math.max(...this.data[collection].map((i) => i.id), 0) + 1;
     const newItem = { ...item, id: newId } as Collections[K][number];
-    this.data[collection] = [...this.data[collection], newItem] as Collections[K];
+    this.data[collection] = [...this.data[collection], newItem];
     this.saveToStorage();
     return newItem;
   }
@@ -75,7 +75,7 @@ class MockDatabase {
     id: number,
     updates: Partial<Collections[K][number]>
   ): Collections[K][number] | undefined {
-    const index = this.data[collection].findIndex((item: any) => item.id === id);
+    const index = this.data[collection].findIndex((item) => item.id === id);
     if (index === -1) return undefined;
 
     const updatedItem = {
@@ -85,7 +85,7 @@ class MockDatabase {
 
     const updatedCollection = [...this.data[collection]];
     updatedCollection[index] = updatedItem;
-    this.data[collection] = updatedCollection as Collections[K];
+    this.data[collection] = updatedCollection;
     this.saveToStorage();
     return updatedItem;
   }
@@ -95,11 +95,10 @@ class MockDatabase {
     id: number
   ): boolean {
     const initialLength = this.data[collection].length;
-    const filteredCollection = this.data[collection].filter((item: any) => item.id !== id);
-    const deleted = initialLength > filteredCollection.length;
+    this.data[collection] = this.data[collection].filter((item) => item.id !== id);
+    const deleted = initialLength > this.data[collection].length;
     
     if (deleted) {
-      this.data[collection] = filteredCollection as Collections[K];
       this.saveToStorage();
     }
     return deleted;
@@ -138,3 +137,4 @@ class MockDatabase {
 }
 
 export default MockDatabase;
+
