@@ -84,4 +84,3 @@ const SpecificationTracker = ({ committeeId }: SpecificationTrackerProps) => {
 };
 
 export default SpecificationTracker;
-

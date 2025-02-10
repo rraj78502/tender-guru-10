@@ -4,6 +4,7 @@ import TenderList from "@/components/tender/TenderList";
 import ReviewModule from "@/components/ReviewModule";
 import CommitteeList from "@/components/CommitteeList";
 import DashboardStats from "@/components/dashboard/DashboardStats";
+import SpecificationTracker from "@/components/specification/SpecificationTracker";
 
 const DashboardContent = () => {
   const reviewData = {
@@ -31,6 +32,10 @@ const DashboardContent = () => {
         <div>
           <CommitteeList />
         </div>
+      </div>
+
+      <div className="mb-12">
+        <SpecificationTracker committeeId={1} />
       </div>
     </>
   );

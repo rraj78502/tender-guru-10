@@ -6,43 +6,14 @@ import DashboardContent from "@/components/home/DashboardContent";
 import Modals from "@/components/home/Modals";
 import NotificationCenter from "@/components/review/NotificationCenter";
 import type { Notification } from "@/types/notification";
+import { mockNotifications } from "@/mock/committeeNotifications";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
   const [showComplaints, setShowComplaints] = useState(false);
-
-  // Mock notifications data with deadline information
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      message: "New tender specification submitted for review",
-      read: false,
-      timestamp: new Date().toISOString(),
-      type: 'status_change' as const,
-    },
-    {
-      id: 2,
-      message: "Deadline approaching: Network Equipment Specification Review",
-      read: false,
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      type: 'deadline' as const,
-      deadline: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
-      reminderTime: 24,
-      reminderPreferences: {
-        email: true,
-        inApp: true,
-      },
-    },
-    {
-      id: 3,
-      message: "Tender status updated to 'Published'",
-      read: true,
-      timestamp: new Date(Date.now() - 86400000).toISOString(),
-      type: 'status_change' as const,
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
 
   const handleMarkAsRead = (id: number) => {
     setNotifications(notifications.map(notification => 
@@ -101,4 +72,3 @@ const Index = () => {
 };
 
 export default Index;
-
