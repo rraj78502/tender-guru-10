@@ -57,25 +57,33 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <Welcome />
-          <NotificationCenter 
-            notifications={notifications}
-            onMarkAsRead={handleMarkAsRead}
-            onUpdateReminderPreferences={handleUpdateReminderPreferences}
-          />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+        <div className="flex justify-between items-start mb-8">
+          <div className="flex-1">
+            <Welcome />
+          </div>
+          <div className="ml-4">
+            <NotificationCenter 
+              notifications={notifications}
+              onMarkAsRead={handleMarkAsRead}
+              onUpdateReminderPreferences={handleUpdateReminderPreferences}
+            />
+          </div>
         </div>
 
-        <QuickActions 
-          onShowCommitteeForm={() => setShowCommitteeForm(true)}
-          onShowTenderForm={() => setShowTenderForm(true)}
-          onShowVendorForm={() => setShowVendorForm(true)}
-          onShowComplaints={() => setShowComplaints(true)}
-        />
+        <div className="space-y-8">
+          <QuickActions 
+            onShowCommitteeForm={() => setShowCommitteeForm(true)}
+            onShowTenderForm={() => setShowTenderForm(true)}
+            onShowVendorForm={() => setShowVendorForm(true)}
+            onShowComplaints={() => setShowComplaints(true)}
+          />
 
-        <DashboardContent />
+          <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
+            <DashboardContent />
+          </div>
+        </div>
 
         <Modals 
           showComplaints={showComplaints}
@@ -93,3 +101,4 @@ const Index = () => {
 };
 
 export default Index;
+
