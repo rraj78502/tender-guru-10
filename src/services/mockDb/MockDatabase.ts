@@ -1,10 +1,11 @@
-
 import { Tender } from "@/types/tender";
 import { Vendor } from "@/types/vendor";
 import { BidSecurity, DocumentFee, PreBidMeeting, Clarification } from "@/types/procurement";
+import { Committee } from "@/types/committee";
 import { mockTenders } from "@/mock/tenderData";
 import { mockBidSecurities, mockDocumentFees, mockPreBidMeetings, mockClarifications } from "@/mock/procurementData";
 import { mockVendors } from "@/utils/vendorUtils";
+import { mockCommittees } from "@/mock/committeeData";
 
 type Collections = {
   tenders: Tender[];
@@ -13,6 +14,7 @@ type Collections = {
   documentFees: DocumentFee[];
   preBidMeetings: PreBidMeeting[];
   clarifications: Clarification[];
+  committees: Committee[];
 };
 
 class MockDatabase {
@@ -32,6 +34,7 @@ class MockDatabase {
         documentFees: mockDocumentFees,
         preBidMeetings: mockPreBidMeetings,
         clarifications: mockClarifications,
+        committees: mockCommittees,
       };
       this.saveToStorage();
     }
@@ -120,6 +123,7 @@ class MockDatabase {
       documentFees: [],
       preBidMeetings: [],
       clarifications: [],
+      committees: [],
     };
   }
 
@@ -131,6 +135,7 @@ class MockDatabase {
       documentFees: mockDocumentFees,
       preBidMeetings: mockPreBidMeetings,
       clarifications: mockClarifications,
+      committees: mockCommittees,
     };
     this.saveToStorage();
   }

@@ -10,6 +10,7 @@ import TaskManager from "./TaskManager";
 import BasicInfoFields from "./BasicInfoFields";
 import CommitteeMembers from "./CommitteeMembers";
 import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
+import { useMockDb } from "@/hooks/useMockDb";
 
 interface CommitteeFormProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ interface CommitteeFormProps {
 
 const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const { toast } = useToast();
+  const { create: createCommittee } = useMockDb<Committee>('committees');
   const [members, setMembers] = useState<CommitteeMember[]>([]);
   const [formDate, setFormDate] = useState("");
   const [specificationDate, setSpecificationDate] = useState("");
@@ -80,12 +82,10 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       return;
     }
 
-    const committee: Committee = {
-      id: Date.now(),
+    const committee: Omit<Committee, 'id'> = {
       name,
       purpose,
       formationDate: formDate,
-      formationLetter: selectedFile || undefined,
       members,
       tasks,
       specifications: {
@@ -97,7 +97,11 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       approvalStatus: 'draft'
     };
 
-    onCreateCommittee?.(committee);
+    const createdCommittee = createCommittee(committee);
+    
+    if (onCreateCommittee) {
+      onCreateCommittee(createdCommittee);
+    }
     
     toast({
       title: "Committee Created",

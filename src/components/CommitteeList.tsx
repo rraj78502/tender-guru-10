@@ -3,35 +3,8 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Users, CalendarClock, CheckCircle, AlertCircle } from "lucide-react";
-
-// Mock data for committees
-const mockCommittees = [
-  {
-    id: 1,
-    title: "Network Equipment Specification Committee",
-    formationDate: "2024-03-15",
-    specificationDate: "2024-04-01",
-    reviewDate: "2024-04-15",
-    status: "pending_review",
-    members: [
-      { name: "John Doe", role: "chairperson" },
-      { name: "Jane Smith", role: "member" },
-      { name: "Mike Johnson", role: "member" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Software Development Committee",
-    formationDate: "2024-03-10",
-    specificationDate: "2024-03-25",
-    reviewDate: "2024-04-05",
-    status: "specification_submitted",
-    members: [
-      { name: "Alice Brown", role: "chairperson" },
-      { name: "Bob Wilson", role: "member" },
-    ],
-  },
-];
+import { useMockDb } from "@/hooks/useMockDb";
+import type { Committee } from "@/types/committee";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -42,24 +15,26 @@ const getStatusBadge = (status: string) => {
           Pending Review
         </Badge>
       );
-    case "specification_submitted":
+    case "approved":
       return (
         <Badge variant="default" className="flex items-center gap-1 bg-green-500 hover:bg-green-600">
           <CheckCircle className="h-3 w-3" />
-          Specification Submitted
+          Approved
         </Badge>
       );
     default:
       return (
         <Badge variant="outline" className="flex items-center gap-1">
           <CalendarClock className="h-3 w-3" />
-          In Progress
+          Draft
         </Badge>
       );
   }
 };
 
 const CommitteeList = () => {
+  const { data: committees } = useMockDb<Committee>('committees');
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -67,13 +42,13 @@ const CommitteeList = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {mockCommittees.map((committee) => (
+        {committees.map((committee) => (
           <Card key={committee.id} className="p-6 hover:shadow-lg transition-shadow">
             <div className="flex flex-col md:flex-row justify-between gap-4">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{committee.title}</h3>
-                  {getStatusBadge(committee.status)}
+                  <h3 className="text-lg font-semibold">{committee.name}</h3>
+                  {getStatusBadge(committee.approvalStatus)}
                 </div>
 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-600">
@@ -83,7 +58,7 @@ const CommitteeList = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <FileText className="h-4 w-4" />
-                    <span>Specification Due: {new Date(committee.specificationDate).toLocaleDateString()}</span>
+                    <span>Specification Due: {new Date(committee.specifications.submissionDate).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
@@ -108,18 +83,19 @@ const CommitteeList = () => {
               </div>
 
               <div className="flex flex-col gap-2 min-w-[120px]">
-                <Badge
-                  variant="outline"
-                  className="text-center"
-                >
-                  Review Date:
-                  <br />
-                  {new Date(committee.reviewDate).toLocaleDateString()}
+                <Badge variant="outline" className="text-center">
+                  Tasks: {committee.tasks.length}
                 </Badge>
               </div>
             </div>
           </Card>
         ))}
+
+        {committees.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No committees have been formed yet.
+          </div>
+        )}
       </div>
     </div>
   );
