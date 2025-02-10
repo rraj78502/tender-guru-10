@@ -34,7 +34,7 @@ export const mockUsers: User[] = [
 export const rolePermissions = {
   admin: [
     "manage_users",
-    "manage_tenders",
+    "manage_tenders", 
     "manage_committees",
     "view_reports",
     "manage_roles",
