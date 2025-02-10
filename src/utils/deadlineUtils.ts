@@ -1,5 +1,10 @@
 
-import { Notification, CommitteeMember, Committee, CommitteeTask } from "@/types/notification";
+import { Notification, CommitteeMember, Committee, CommitteeTask, ReminderSchedule } from "@/types/notification";
+
+const calculateNextReminder = (deadline: Date, schedule: ReminderSchedule): Date => {
+  const reminderTime = new Date(deadline.getTime() - (schedule.beforeDeadline * 60 * 60 * 1000));
+  return reminderTime;
+};
 
 export const checkUpcomingDeadlines = (notifications: Notification[]): Notification[] => {
   const now = new Date();
@@ -26,7 +31,10 @@ export const checkUpcomingDeadlines = (notifications: Notification[]): Notificat
             type: 'committee',
             deadline: notification.deadline,
             reminderTime: reminderTime,
-            reminderPreferences: notification.reminderPreferences,
+            reminderPreferences: {
+              ...notification.reminderPreferences,
+              customTime: reminderTime
+            },
             committeeInfo: notification.committeeInfo
           });
         } else {
@@ -38,7 +46,10 @@ export const checkUpcomingDeadlines = (notifications: Notification[]): Notificat
             type: 'deadline',
             deadline: notification.deadline,
             reminderTime: reminderTime,
-            reminderPreferences: notification.reminderPreferences
+            reminderPreferences: {
+              ...notification.reminderPreferences,
+              customTime: reminderTime
+            }
           });
         }
       }
@@ -66,16 +77,20 @@ export const createCommitteeNotification = (
     }
   };
 
+  const defaultReminderPreferences = {
+    email: true,
+    inApp: true,
+    browser: true,
+    customTime: task ? 24 : 48 // 24 hours for tasks, 48 for committee notifications
+  };
+
   if (task) {
     return {
       ...baseNotification,
       message: `New task assigned: ${task.title}`,
       deadline: task.dueDate,
-      reminderTime: 24,
-      reminderPreferences: {
-        email: true,
-        inApp: true
-      }
+      reminderTime: defaultReminderPreferences.customTime,
+      reminderPreferences: defaultReminderPreferences
     };
   }
 
@@ -83,10 +98,37 @@ export const createCommitteeNotification = (
     ...baseNotification,
     message: `You have been assigned as ${member.role} to a new committee`,
     deadline: committee.specifications.submissionDate,
-    reminderTime: 48,
-    reminderPreferences: {
-      email: true,
-      inApp: true
-    }
+    reminderTime: defaultReminderPreferences.customTime,
+    reminderPreferences: defaultReminderPreferences
   };
+};
+
+export const scheduleReminder = (
+  notification: Notification,
+  schedule: ReminderSchedule
+): void => {
+  if (!notification.deadline) return;
+
+  const deadline = new Date(notification.deadline);
+  const nextReminder = calculateNextReminder(deadline, schedule);
+  
+  console.log(`Scheduled reminder for ${nextReminder.toISOString()}`);
+  
+  // Schedule browser notification if enabled
+  if (schedule.channels.browser && "Notification" in window) {
+    const timeUntilReminder = nextReminder.getTime() - new Date().getTime();
+    if (timeUntilReminder > 0) {
+      setTimeout(() => {
+        new Notification("Deadline Reminder", {
+          body: notification.message,
+          icon: "/favicon.ico"
+        });
+      }, timeUntilReminder);
+    }
+  }
+
+  // Log email notification (in real app, would integrate with email service)
+  if (schedule.channels.email) {
+    console.log(`Would send email reminder for: ${notification.message}`);
+  }
 };

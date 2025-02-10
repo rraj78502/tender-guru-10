@@ -1,4 +1,3 @@
-
 export interface Notification {
   id: number;
   message: string;
@@ -27,11 +26,24 @@ export interface NotificationCenterProps {
   onUpdateReminderPreferences?: (id: number, preferences: Notification['reminderPreferences']) => void;
 }
 
+export interface ReminderSchedule {
+  beforeDeadline: number; // hours before deadline
+  repetition: 'once' | 'daily' | 'weekly';
+  channels: {
+    email: boolean;
+    inApp: boolean;
+    browser: boolean;
+  };
+}
+
 export interface DeadlineNotification {
   id: number;
   title: string;
   deadline: string;
-  reminderTime: number;
+  reminderSchedule: ReminderSchedule;
+  status: 'pending' | 'sent' | 'cancelled';
+  lastSent?: string;
+  nextReminder?: string;
 }
 
 export interface CommitteeMember {
@@ -72,4 +84,3 @@ export interface Committee {
   reviews: any[]; // This will be typed properly when needed
   approvalStatus: 'draft' | 'pending' | 'approved' | 'rejected';
 }
-
