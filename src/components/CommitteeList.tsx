@@ -2,7 +2,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Users, CalendarClock, CheckCircle, AlertCircle } from "lucide-react";
+import { FileText, Users, CalendarClock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useMockDb } from "@/hooks/useMockDb";
 import type { Committee } from "@/types/committee";
 
@@ -33,7 +33,7 @@ const getStatusBadge = (status: string) => {
 };
 
 const CommitteeList = () => {
-  const { data: committees } = useMockDb<Committee>('committees');
+  const { data: committees = [] } = useMockDb<Committee>('committees');
 
   return (
     <div className="space-y-6">
