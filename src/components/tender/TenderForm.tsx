@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { Eye, Upload, X, Hash } from "lucide-react";
 import TenderPreview from "./TenderPreview";
+import { Tender } from "@/types/tender";
 
 interface TenderFormProps {
   onClose: () => void;
+  onSubmit?: (tender: Omit<Tender, "id" | "comments" | "documents">) => void;
 }
 
-const TenderForm = ({ onClose }: TenderFormProps) => {
+const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
   const { toast } = useToast();
   const [showPreview, setShowPreview] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
@@ -22,13 +25,17 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
     description: "",
     publishDate: "",
     openingDate: "",
-    bidValidity: "",
+    bidValidity: "90",
+    status: "draft" as const,
+    approvalStatus: "pending" as const,
   });
 
   const generateIFBNumber = () => {
-    const timestamp = Date.now();
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const ifbNumber = `IFB-${timestamp}-${random}`;
+    const ifbNumber = `IFB-${year}${month}-${random}`;
     setTenderData(prev => ({ ...prev, ifbNumber }));
     
     toast({
@@ -39,7 +46,27 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Tender form submitted:", { ...tenderData, documents });
+    
+    // Validate dates
+    const publish = new Date(tenderData.publishDate);
+    const opening = new Date(tenderData.openingDate);
+    
+    if (opening <= publish) {
+      toast({
+        title: "Invalid Dates",
+        description: "Opening date must be after publish date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Convert bidValidity to string if it's a number
+    const tender = {
+      ...tenderData,
+      bidValidity: String(tenderData.bidValidity),
+    };
+
+    onSubmit?.(tender);
     
     toast({
       title: "Tender Created",
@@ -49,7 +76,9 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
     onClose();
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setTenderData(prev => ({
       ...prev,
@@ -75,7 +104,7 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-card p-6 slide-in">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Create New Tender</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -113,18 +142,21 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
               name="title"
               value={tenderData.title}
               onChange={handleInputChange}
+              placeholder="Enter tender title"
               required
             />
           </div>
 
           <div>
             <Label htmlFor="description">Description</Label>
-            <Input
+            <Textarea
               id="description"
               name="description"
               value={tenderData.description}
               onChange={handleInputChange}
+              placeholder="Enter tender description"
               required
+              className="min-h-[100px]"
             />
           </div>
 
@@ -161,6 +193,7 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
               type="number"
               value={tenderData.bidValidity}
               onChange={handleInputChange}
+              min="1"
               required
             />
           </div>
@@ -221,13 +254,16 @@ const TenderForm = ({ onClose }: TenderFormProps) => {
         </form>
       </Card>
 
-      <TenderPreview
-        open={showPreview}
-        onOpenChange={setShowPreview}
-        tender={{ ...tenderData, documents }}
-      />
+      {showPreview && (
+        <TenderPreview
+          open={showPreview}
+          onOpenChange={setShowPreview}
+          tender={{ ...tenderData, documents }}
+        />
+      )}
     </div>
   );
 };
 
 export default TenderForm;
+

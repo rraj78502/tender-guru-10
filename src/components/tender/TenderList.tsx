@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +27,23 @@ const TenderList = () => {
 
   const canCreateTender = user?.role === "admin" || user?.role === "procurement_officer";
   const canApproveTender = user?.role === "admin";
+
+  const handleCreateTender = (tenderData: Omit<Tender, "id" | "comments" | "documents">) => {
+    const newTender: Tender = {
+      ...tenderData,
+      id: tenders.length + 1,
+      comments: [],
+      documents: [],
+    };
+
+    setTenders((prev) => [newTender, ...prev]);
+    setShowCreateForm(false);
+
+    toast({
+      title: "Success",
+      description: "New tender has been created successfully",
+    });
+  };
 
   const handleStatusTransition = (tenderId: number) => {
     setTenders((prevTenders) =>
@@ -174,7 +190,10 @@ const TenderList = () => {
       )}
 
       {showCreateForm && (
-        <TenderForm onClose={() => setShowCreateForm(false)} />
+        <TenderForm 
+          onClose={() => setShowCreateForm(false)} 
+          onSubmit={handleCreateTender}
+        />
       )}
     </div>
   );
