@@ -8,20 +8,16 @@ import BidSecurityTab from "./tabs/BidSecurityTab";
 import DocumentFeesTab from "./tabs/DocumentFeesTab";
 import PreBidMeetingsTab from "./tabs/PreBidMeetingsTab";
 import ClarificationsTab from "./tabs/ClarificationsTab";
-import { 
-  mockBidSecurities, 
-  mockDocumentFees, 
-  mockPreBidMeetings, 
-  mockClarifications 
-} from "@/mock/procurementData";
+import { useMockDb } from "@/hooks/useMockDb";
 
 const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("bid-security");
-  const [bidSecurities, setBidSecurities] = useState<BidSecurity[]>(mockBidSecurities);
-  const [documentFees, setDocumentFees] = useState<DocumentFee[]>(mockDocumentFees);
-  const [preBidMeetings, setPreBidMeetings] = useState<PreBidMeeting[]>(mockPreBidMeetings);
-  const [clarifications, setClarifications] = useState<Clarification[]>(mockClarifications);
+  
+  const { data: bidSecurities, update: updateBidSecurity } = useMockDb<BidSecurity>('bidSecurities');
+  const { data: documentFees, update: updateDocumentFee } = useMockDb<DocumentFee>('documentFees');
+  const { data: preBidMeetings, update: updatePreBidMeeting } = useMockDb<PreBidMeeting>('preBidMeetings');
+  const { data: clarifications, update: updateClarification } = useMockDb<Clarification>('clarifications');
 
   useEffect(() => {
     console.log("Loading procurement data for tender:", tenderId);
@@ -30,16 +26,16 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
   const handleUpdate = (type: string, data: any) => {
     switch (type) {
       case 'bid-security':
-        setBidSecurities(data);
+        updateBidSecurity(data.id, data);
         break;
       case 'document-fees':
-        setDocumentFees(data);
+        updateDocumentFee(data.id, data);
         break;
       case 'pre-bid':
-        setPreBidMeetings(data);
+        updatePreBidMeeting(data.id, data);
         break;
       case 'clarifications':
-        setClarifications(data);
+        updateClarification(data.id, data);
         break;
     }
 
