@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Navigation from "./components/layout/Navigation";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import LoginForm from "./components/auth/LoginForm";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
             <main>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/login" element={<LoginForm />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
