@@ -1,4 +1,3 @@
-
 import type { SpecificationDocument, ReviewSession, CommitteeFormation } from "@/types/specification";
 import type { CommitteeMember } from "@/types/committee";
 
@@ -10,6 +9,8 @@ const mockMembers: CommitteeMember[] = [
     role: "chairperson",
     department: "Engineering",
     email: "john.smith@example.com",
+    phone: "+1-555-0101",
+    tasks: [],
   },
   {
     id: 2,
@@ -18,6 +19,8 @@ const mockMembers: CommitteeMember[] = [
     role: "member",
     department: "Quality Assurance",
     email: "sarah.j@example.com",
+    phone: "+1-555-0102",
+    tasks: [],
   },
   {
     id: 3,
@@ -26,6 +29,8 @@ const mockMembers: CommitteeMember[] = [
     role: "secretary",
     department: "Technical",
     email: "m.chen@example.com",
+    phone: "+1-555-0103",
+    tasks: [],
   },
 ];
 
