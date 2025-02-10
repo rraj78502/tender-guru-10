@@ -1,4 +1,4 @@
-import type { SpecificationDocument, ReviewSession, CommitteeFormation } from "@/types/specification";
+import type { SpecificationDocument, ReviewSession, CommitteeFormation, DocumentVersion } from "@/types/specification";
 import type { CommitteeMember } from "@/types/committee";
 
 const mockMembers: CommitteeMember[] = [
@@ -34,22 +34,42 @@ const mockMembers: CommitteeMember[] = [
   },
 ];
 
+const mockVersionHistory: DocumentVersion[] = [
+  {
+    id: 1,
+    version: 1,
+    documentUrl: "/docs/network-spec-v1.pdf",
+    changes: "Initial specification document",
+    submittedBy: 1,
+    submittedAt: "2024-03-15T10:00:00Z",
+  },
+  {
+    id: 2,
+    version: 2,
+    documentUrl: "/docs/network-spec-v2.pdf",
+    changes: "Updated bandwidth requirements",
+    submittedBy: 2,
+    submittedAt: "2024-03-16T14:30:00Z",
+  },
+];
+
 export const mockSpecifications: SpecificationDocument[] = [
   {
     id: 1,
     title: "Network Infrastructure Upgrade Specification",
     description: "Detailed specifications for upgrading the corporate network infrastructure",
-    version: 1,
+    version: 2,
     status: "under_review",
     submittedBy: 1,
     submittedAt: "2024-03-15T10:00:00Z",
-    lastModified: "2024-03-15T10:00:00Z",
-    documentUrl: "/docs/network-spec-v1.pdf",
+    lastModified: "2024-03-16T14:30:00Z",
+    documentUrl: "/docs/network-spec-v2.pdf",
     committeeId: 1,
     comments: [
       "Please review section 3.2 regarding bandwidth requirements",
       "Cost estimates need to be updated in section 5",
     ],
+    versionHistory: mockVersionHistory,
   },
   {
     id: 2,
@@ -107,17 +127,19 @@ export const mockCommitteeFormations: CommitteeFormation[] = [
   },
 ];
 
-// Helper function to get a specification by ID
 export const getSpecificationById = (id: number): SpecificationDocument | undefined => {
   return mockSpecifications.find((spec) => spec.id === id);
 };
 
-// Helper function to get a review by specification ID
+export const getVersionHistory = (specId: number): DocumentVersion[] | undefined => {
+  const spec = getSpecificationById(specId);
+  return spec?.versionHistory;
+};
+
 export const getReviewBySpecificationId = (specId: number): ReviewSession | undefined => {
   return mockReviews.find((review) => review.specificationId === specId);
 };
 
-// Helper function to get committee formation by ID
 export const getCommitteeFormationById = (id: number): CommitteeFormation | undefined => {
   return mockCommitteeFormations.find((committee) => committee.id === id);
 };

@@ -1,4 +1,3 @@
-
 import { CommitteeMember } from "./committee";
 
 export type SpecificationStatus = 
@@ -15,6 +14,15 @@ export type ReviewStatus =
   | "completed"
   | "rescheduled";
 
+export interface DocumentVersion {
+  id: number;
+  version: number;
+  documentUrl: string;
+  changes: string;
+  submittedBy: number;
+  submittedAt: string;
+}
+
 export interface SpecificationDocument {
   id: number;
   title: string;
@@ -27,6 +35,7 @@ export interface SpecificationDocument {
   documentUrl: string;
   committeeId: number;
   comments: string[];
+  versionHistory?: DocumentVersion[];
 }
 
 export interface ReviewSession {
