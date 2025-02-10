@@ -1,5 +1,5 @@
 
-import { ClarificationManager } from "@/components/procurement/ClarificationManager";
+import ClarificationManager from "@/components/procurement/ClarificationManager";
 
 const ClarificationsPage = () => (
   <div className="container mx-auto p-6">
