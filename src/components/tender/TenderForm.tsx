@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Upload, X, Hash } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import TenderPreview from "./TenderPreview";
 import { Tender } from "@/types/tender";
+import IFBNumberField from "./form/IFBNumberField";
+import BasicTenderInfo from "./form/BasicTenderInfo";
+import TenderDates from "./form/TenderDates";
+import DocumentUpload from "./form/DocumentUpload";
 
 interface TenderFormProps {
   onClose: () => void;
@@ -30,24 +31,9 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     approvalStatus: "pending" as const,
   });
 
-  const generateIFBNumber = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const ifbNumber = `IFB-${year}${month}-${random}`;
-    setTenderData(prev => ({ ...prev, ifbNumber }));
-    
-    toast({
-      title: "IFB Number Generated",
-      description: `New IFB number: ${ifbNumber}`,
-    });
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate dates
     const publish = new Date(tenderData.publishDate);
     const opening = new Date(tenderData.openingDate);
     
@@ -60,7 +46,6 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
       return;
     }
 
-    // Convert bidValidity to string if it's a number
     const tender = {
       ...tenderData,
       bidValidity: String(tenderData.bidValidity),
@@ -80,6 +65,13 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    setTenderData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleIFBChange = (name: string, value: string) => {
     setTenderData(prev => ({
       ...prev,
       [name]: value
@@ -113,126 +105,29 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <Label htmlFor="ifbNumber">IFB Number</Label>
-              <Input
-                id="ifbNumber"
-                name="ifbNumber"
-                value={tenderData.ifbNumber}
-                onChange={handleInputChange}
-                readOnly
-                placeholder="Generate IFB Number"
-              />
-            </div>
-            <Button 
-              type="button" 
-              onClick={generateIFBNumber}
-              className="flex items-center gap-2"
-            >
-              <Hash className="h-4 w-4" />
-              Generate
-            </Button>
-          </div>
+          <IFBNumberField 
+            ifbNumber={tenderData.ifbNumber}
+            onChange={handleIFBChange}
+          />
 
-          <div>
-            <Label htmlFor="title">Tender Title</Label>
-            <Input
-              id="title"
-              name="title"
-              value={tenderData.title}
-              onChange={handleInputChange}
-              placeholder="Enter tender title"
-              required
-            />
-          </div>
+          <BasicTenderInfo
+            title={tenderData.title}
+            description={tenderData.description}
+            onChange={handleInputChange}
+          />
 
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={tenderData.description}
-              onChange={handleInputChange}
-              placeholder="Enter tender description"
-              required
-              className="min-h-[100px]"
-            />
-          </div>
+          <TenderDates
+            publishDate={tenderData.publishDate}
+            openingDate={tenderData.openingDate}
+            bidValidity={tenderData.bidValidity}
+            onChange={handleInputChange}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="publishDate">Publish Date</Label>
-              <Input
-                id="publishDate"
-                name="publishDate"
-                type="date"
-                value={tenderData.publishDate}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="openingDate">Opening Date</Label>
-              <Input
-                id="openingDate"
-                name="openingDate"
-                type="date"
-                value={tenderData.openingDate}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="bidValidity">Bid Validity (in days)</Label>
-            <Input
-              id="bidValidity"
-              name="bidValidity"
-              type="number"
-              value={tenderData.bidValidity}
-              onChange={handleInputChange}
-              min="1"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="documents">Upload Documents</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="documents"
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                className="cursor-pointer"
-                accept=".pdf,.doc,.docx"
-              />
-              <Button type="button" variant="outline" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload
-              </Button>
-            </div>
-            
-            {documents.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {documents.map((doc, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm truncate">{doc.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDocument(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <DocumentUpload
+            documents={documents}
+            onFileChange={handleFileChange}
+            onRemoveDocument={removeDocument}
+          />
 
           <div className="flex justify-end gap-4">
             <Button 
@@ -266,4 +161,3 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
 };
 
 export default TenderForm;
-
