@@ -48,9 +48,8 @@ class MockDatabase {
     localStorage.setItem('mockDb', JSON.stringify(this.data));
   }
 
-  // Generic CRUD operations
   public getAll<K extends keyof Collections>(collection: K): Collections[K] {
-    return this.data[collection];
+    return [...this.data[collection]];
   }
 
   public getById<K extends keyof Collections>(
@@ -66,7 +65,7 @@ class MockDatabase {
   ): Collections[K][number] {
     const newId = Math.max(...this.data[collection].map((i: any) => i.id), 0) + 1;
     const newItem = { ...item, id: newId } as Collections[K][number];
-    this.data[collection] = [...this.data[collection], newItem];
+    this.data[collection] = [...this.data[collection], newItem] as Collections[K];
     this.saveToStorage();
     return newItem;
   }
@@ -84,7 +83,9 @@ class MockDatabase {
       ...updates,
     } as Collections[K][number];
 
-    this.data[collection][index] = updatedItem;
+    const updatedCollection = [...this.data[collection]];
+    updatedCollection[index] = updatedItem;
+    this.data[collection] = updatedCollection as Collections[K];
     this.saveToStorage();
     return updatedItem;
   }
@@ -94,13 +95,16 @@ class MockDatabase {
     id: number
   ): boolean {
     const initialLength = this.data[collection].length;
-    this.data[collection] = this.data[collection].filter((item: any) => item.id !== id);
-    const deleted = initialLength > this.data[collection].length;
-    if (deleted) this.saveToStorage();
+    const filteredCollection = this.data[collection].filter((item: any) => item.id !== id);
+    const deleted = initialLength > filteredCollection.length;
+    
+    if (deleted) {
+      this.data[collection] = filteredCollection as Collections[K];
+      this.saveToStorage();
+    }
     return deleted;
   }
 
-  // Utility methods for querying
   public query<K extends keyof Collections>(
     collection: K,
     predicate: (item: Collections[K][number]) => boolean
@@ -108,7 +112,6 @@ class MockDatabase {
     return this.data[collection].filter(predicate) as Collections[K];
   }
 
-  // Clear all data (useful for testing)
   public clear(): void {
     localStorage.removeItem('mockDb');
     this.data = {
@@ -121,7 +124,6 @@ class MockDatabase {
     };
   }
 
-  // Reset to initial mock data
   public reset(): void {
     this.data = {
       tenders: mockTenders,
