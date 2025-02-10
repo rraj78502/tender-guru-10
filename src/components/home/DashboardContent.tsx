@@ -5,6 +5,7 @@ import ReviewModule from "@/components/ReviewModule";
 import CommitteeList from "@/components/CommitteeList";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import SpecificationTracker from "@/components/specification/SpecificationTracker";
+import ProcurementManagement from "@/components/procurement/ProcurementManagement";
 
 const DashboardContent = () => {
   const reviewData = {
@@ -36,6 +37,11 @@ const DashboardContent = () => {
 
       <div className="mb-12">
         <SpecificationTracker committeeId={1} />
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold mb-6">Procurement Management</h2>
+        <ProcurementManagement tenderId={1} />
       </div>
     </>
   );
