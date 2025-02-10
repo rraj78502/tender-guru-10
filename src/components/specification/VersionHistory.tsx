@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { History, FileText, CompareArrows } from "lucide-react";
+import { History, FileText, GitCompareArrows } from "lucide-react";
 import type { DocumentVersion } from "@/types/specification";
 
 interface VersionHistoryProps {
@@ -44,7 +44,7 @@ const VersionHistory = ({ versions, onCompareVersions, onViewVersion }: VersionH
                     size="sm"
                     onClick={() => onCompareVersions(version, versions[index + 1])}
                   >
-                    <CompareArrows className="h-4 w-4 mr-1" />
+                    <GitCompareArrows className="h-4 w-4 mr-1" />
                     Compare
                   </Button>
                 )}
