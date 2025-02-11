@@ -46,7 +46,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           required
         >
           <option value="">Select Member</option>
-          {members.map((member) => (
+          {members && members.map((member) => (
             <option key={member.id} value={member.id}>
               {member.name} ({member.role})
             </option>
