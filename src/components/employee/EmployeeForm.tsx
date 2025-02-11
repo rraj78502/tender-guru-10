@@ -19,6 +19,11 @@ const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormPr
     onChange(name as keyof Omit<Employee, 'id'>, value);
   };
 
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onCancel();
+  };
+
   return (
     <Card className="w-full max-w-2xl p-6">
       <div className="flex items-center gap-2 mb-6">
@@ -99,7 +104,7 @@ const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormPr
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
           <Button type="submit">Save Employee</Button>
@@ -110,3 +115,4 @@ const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormPr
 };
 
 export default EmployeeForm;
+
