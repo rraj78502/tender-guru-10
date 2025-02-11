@@ -11,6 +11,7 @@ import FormHeader from "./form/FormHeader";
 import FormActions from "./form/FormActions";
 import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
 import { useMockDb } from "@/hooks/useMockDb";
+import { mockEmployees } from "@/mock/employeeData";
 
 interface CommitteeFormProps {
   onClose: () => void;
@@ -101,17 +102,31 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   };
 
   const handleAddMember = () => {
-    // Initialize with default values
+    // Get the first available employee that isn't already in the committee
+    const existingEmployeeIds = new Set(members.map(m => m.employeeId));
+    const availableEmployee = mockEmployees.find(emp => !existingEmployeeIds.has(emp.employeeId));
+
+    if (!availableEmployee) {
+      toast({
+        title: "Cannot Add Member",
+        description: "All available employees have been added to the committee",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newMember: CommitteeMember = {
       id: Date.now(),
-      employeeId: "",
-      name: "",
-      email: "",
-      phone: "",
+      employeeId: availableEmployee.employeeId,
+      name: availableEmployee.name,
+      email: availableEmployee.email,
+      phone: availableEmployee.phone,
       role: "member",
-      department: "",
+      department: availableEmployee.department,
       tasks: [],
     };
+    
+    console.log('Adding new member:', newMember);
     setMembers([...members, newMember]);
   };
 
@@ -121,7 +136,22 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       ...updatedMembers[index],
       [field]: value,
     };
-    console.log('Updated member:', updatedMembers[index]); // Debug log
+
+    // If employeeId is being updated, populate other fields from mockEmployees
+    if (field === 'employeeId') {
+      const employee = mockEmployees.find(emp => emp.employeeId === value);
+      if (employee) {
+        updatedMembers[index] = {
+          ...updatedMembers[index],
+          name: employee.name,
+          email: employee.email,
+          phone: employee.phone,
+          department: employee.department,
+        };
+      }
+    }
+
+    console.log('Updated member:', updatedMembers[index]);
     setMembers(updatedMembers);
   };
 
