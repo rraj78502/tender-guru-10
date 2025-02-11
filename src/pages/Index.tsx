@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Welcome from "@/components/home/Welcome";
 import QuickActions from "@/components/home/QuickActions";
@@ -16,6 +18,8 @@ import type { Notification } from "@/types/notification";
 import { mockNotifications } from "@/mock/committeeNotifications";
 
 const Index = () => {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
@@ -33,6 +37,11 @@ const Index = () => {
       notification.id === id ? { ...notification, reminderPreferences: preferences } : notification
     ));
   };
+
+  if (!isAuthenticated) {
+    navigate('/login');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -131,3 +140,4 @@ const Index = () => {
 };
 
 export default Index;
+
