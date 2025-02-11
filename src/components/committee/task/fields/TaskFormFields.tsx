@@ -15,11 +15,26 @@ interface TaskFormFieldsProps {
 
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
   const { toast } = useToast();
-  console.log('TaskFormFields render with props:', { title, description, assignedTo, memberCount: members?.length });
   
-  // Filter out members without a name and log them for debugging
-  const validMembers = members.filter(member => member.name && member.name.trim() !== '');
-  console.log('Valid members for assignment:', validMembers.map(m => ({ id: m.id, name: m.name, role: m.role })));
+  // Log initial props for debugging
+  console.log('TaskFormFields render with props:', { 
+    title, 
+    description, 
+    assignedTo, 
+    memberCount: members?.length,
+    membersData: members 
+  });
+  
+  // Filter out invalid members
+  const validMembers = members?.filter(member => member && member.id && member.name) || [];
+  
+  // Log valid members for debugging
+  console.log('Valid members for assignment:', validMembers.map(m => ({ 
+    id: m.id, 
+    name: m.name, 
+    role: m.role,
+    employeeId: m.employeeId 
+  })));
 
   return (
     <>
@@ -56,6 +71,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
             console.log('Assign To selection changed:', {
               rawValue: e.target.value,
               parsedValue: selectedValue,
+              selectedMember,
               availableMembers: validMembers.map(m => ({ id: m.id, name: m.name }))
             });
 
@@ -71,11 +87,16 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           required
         >
           <option value="">Select Member</option>
-          {validMembers.map((member) => (
-            <option key={member.id} value={member.id}>
-              {`${member.name}${member.role ? ` (${member.role})` : ''}`}
-            </option>
-          ))}
+          {validMembers && validMembers.length > 0 ? (
+            validMembers.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.name}{member.role ? ` (${member.role})` : ''}
+                {member.employeeId ? ` - ${member.employeeId}` : ''}
+              </option>
+            ))
+          ) : (
+            <option disabled>No members available</option>
+          )}
         </select>
       </div>
     </>
@@ -83,3 +104,4 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
 };
 
 export default TaskFormFields;
+
