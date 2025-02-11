@@ -55,6 +55,17 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       return;
     }
 
+    // Validate that all members have required fields
+    const invalidMembers = members.filter(m => !m.name || !m.employeeId);
+    if (invalidMembers.length > 0) {
+      toast({
+        title: "Validation Error",
+        description: "All members must have a name and employee ID",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const committee: Omit<Committee, 'id'> = {
       name,
       purpose,
@@ -90,6 +101,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   };
 
   const handleAddMember = () => {
+    // Initialize with default values
     const newMember: CommitteeMember = {
       id: Date.now(),
       employeeId: "",
@@ -164,3 +176,4 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
+
