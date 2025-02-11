@@ -8,6 +8,7 @@ import ProcurementManagement from "@/components/procurement/ProcurementManagemen
 import BidEvaluationModule from "@/components/evaluation/BidEvaluationModule";
 import ClarificationManager from "@/components/procurement/ClarificationManager";
 import ComplaintManagement from "@/components/complaint/ComplaintManagement";
+import EmployeeManagement from "@/components/employee/EmployeeManagement";
 
 interface RoleBasedTabsProps {
   user: User | null;
@@ -31,7 +32,10 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
         )}
         <TabsTrigger value="clarifications">Clarifications</TabsTrigger>
         {user?.role === 'admin' && (
-          <TabsTrigger value="complaints">Complaints</TabsTrigger>
+          <>
+            <TabsTrigger value="complaints">Complaints</TabsTrigger>
+            <TabsTrigger value="employees">Employees</TabsTrigger>
+          </>
         )}
       </TabsList>
 
@@ -78,8 +82,15 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
           <ComplaintManagement />
         </div>
       </TabsContent>
+
+      <TabsContent value="employees">
+        <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
+          <EmployeeManagement />
+        </div>
+      </TabsContent>
     </Tabs>
   );
 };
 
 export default RoleBasedTabs;
+
