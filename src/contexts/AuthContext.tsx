@@ -1,13 +1,13 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { User, AuthState } from "@/types/auth";
+import { User, AuthState, ModulePermission } from "@/types/auth";
 import { mockUsers } from "@/mock/authData";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  hasPermission: (permission: string) => boolean;
+  hasPermission: (permission: ModulePermission) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const hasPermission = (permission: string): boolean => {
+  const hasPermission = (permission: ModulePermission): boolean => {
     return authState.user?.permissions.includes(permission) || false;
   };
 
@@ -72,3 +72,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
