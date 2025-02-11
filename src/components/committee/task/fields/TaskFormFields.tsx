@@ -24,17 +24,6 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
     memberCount: members?.length,
     membersData: members 
   });
-  
-  // Filter out invalid members
-  const validMembers = members?.filter(member => member && member.id && member.name) || [];
-  
-  // Log valid members for debugging
-  console.log('Valid members for assignment:', validMembers.map(m => ({ 
-    id: m.id, 
-    name: m.name, 
-    role: m.role,
-    employeeId: m.employeeId 
-  })));
 
   return (
     <>
@@ -66,13 +55,13 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           value={assignedTo || ""}
           onChange={(e) => {
             const selectedValue = Number(e.target.value);
-            const selectedMember = validMembers.find(m => m.id === selectedValue);
+            const selectedMember = members?.find(m => m.id === selectedValue);
             
             console.log('Assign To selection changed:', {
               rawValue: e.target.value,
               parsedValue: selectedValue,
               selectedMember,
-              availableMembers: validMembers.map(m => ({ id: m.id, name: m.name }))
+              availableMembers: members?.map(m => ({ id: m.id, name: m.name }))
             });
 
             if (selectedMember) {
@@ -87,8 +76,8 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           required
         >
           <option value="">Select Member</option>
-          {validMembers && validMembers.length > 0 ? (
-            validMembers.map((member) => (
+          {members && members.length > 0 ? (
+            members.map((member) => (
               <option key={member.id} value={member.id}>
                 {member.name}{member.role ? ` (${member.role})` : ''}
                 {member.employeeId ? ` - ${member.employeeId}` : ''}
