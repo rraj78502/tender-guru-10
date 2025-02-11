@@ -19,35 +19,58 @@ interface MemberFormItemProps {
 const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemProps) => {
   const { toast } = useToast();
   const [employees] = useState<Employee[]>(mockEmployees);
-  const [employeeId, setEmployeeId] = useState(member.employeeId);
+  const [localFields, setLocalFields] = useState({
+    employeeId: member.employeeId,
+    name: member.name,
+    email: member.email,
+    phone: member.phone,
+    department: member.department
+  });
   const hasPopulatedRef = useRef(false);
 
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmployeeId = e.target.value;
-    setEmployeeId(newEmployeeId);
-    onUpdate(index, "employeeId", newEmployeeId);
+    setLocalFields(prev => ({ ...prev, employeeId: newEmployeeId }));
     
-    // Reset the ref and clear fields if employee ID is changed
+    // Reset fields if employee ID is changed
     if (newEmployeeId.length < 6) {
       hasPopulatedRef.current = false;
-      onUpdate(index, "name", "");
-      onUpdate(index, "email", "");
-      onUpdate(index, "phone", "");
-      onUpdate(index, "department", "");
+      const emptyFields = {
+        employeeId: newEmployeeId,
+        name: "",
+        email: "",
+        phone: "",
+        department: ""
+      };
+      setLocalFields(emptyFields);
+      // Update parent state
+      Object.keys(emptyFields).forEach(field => {
+        onUpdate(index, field as keyof CommitteeMember, emptyFields[field as keyof typeof emptyFields]);
+      });
     }
   };
 
   // Use useEffect to watch for changes in employeeId and populate data
   useEffect(() => {
-    if (employeeId.length === 6 && !hasPopulatedRef.current) {
-      const employee = employees.find(emp => emp.employeeId === employeeId);
+    if (localFields.employeeId.length === 6 && !hasPopulatedRef.current) {
+      const employee = employees.find(emp => emp.employeeId === localFields.employeeId);
       
       if (employee) {
-        // Update all fields with employee data
-        onUpdate(index, "name", employee.name);
-        onUpdate(index, "email", employee.email);
-        onUpdate(index, "phone", employee.phone);
-        onUpdate(index, "department", employee.department);
+        const updatedFields = {
+          employeeId: employee.employeeId,
+          name: employee.name,
+          email: employee.email,
+          phone: employee.phone,
+          department: employee.department
+        };
+        
+        // Update local state
+        setLocalFields(updatedFields);
+        
+        // Update parent state
+        Object.keys(updatedFields).forEach(field => {
+          onUpdate(index, field as keyof CommitteeMember, updatedFields[field as keyof typeof updatedFields]);
+        });
         
         hasPopulatedRef.current = true;
         
@@ -57,7 +80,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         });
       }
     }
-  }, [employeeId, employees, index, onUpdate, toast]);
+  }, [localFields.employeeId, employees, index, onUpdate, toast]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
@@ -65,7 +88,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Label htmlFor={`employee-id-${index}`}>Employee ID</Label>
         <Input
           id={`employee-id-${index}`}
-          value={employeeId}
+          value={localFields.employeeId}
           onChange={handleEmployeeIdChange}
           placeholder="Enter employee ID (e.g., EMP001)"
           required
@@ -76,8 +99,11 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Label htmlFor={`name-${index}`}>Name</Label>
         <Input
           id={`name-${index}`}
-          value={member.name}
-          onChange={(e) => onUpdate(index, "name", e.target.value)}
+          value={localFields.name}
+          onChange={(e) => {
+            setLocalFields(prev => ({ ...prev, name: e.target.value }));
+            onUpdate(index, "name", e.target.value);
+          }}
           placeholder="Enter member name"
           required
         />
@@ -101,8 +127,11 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`email-${index}`}
           type="email"
-          value={member.email}
-          onChange={(e) => onUpdate(index, "email", e.target.value)}
+          value={localFields.email}
+          onChange={(e) => {
+            setLocalFields(prev => ({ ...prev, email: e.target.value }));
+            onUpdate(index, "email", e.target.value);
+          }}
           placeholder="Enter email address"
         />
       </div>
@@ -111,8 +140,11 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`phone-${index}`}
           type="tel"
-          value={member.phone}
-          onChange={(e) => onUpdate(index, "phone", e.target.value)}
+          value={localFields.phone}
+          onChange={(e) => {
+            setLocalFields(prev => ({ ...prev, phone: e.target.value }));
+            onUpdate(index, "phone", e.target.value);
+          }}
           placeholder="Enter phone number"
         />
       </div>
@@ -120,8 +152,11 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Label htmlFor={`department-${index}`}>Department</Label>
         <Input
           id={`department-${index}`}
-          value={member.department}
-          onChange={(e) => onUpdate(index, "department", e.target.value)}
+          value={localFields.department}
+          onChange={(e) => {
+            setLocalFields(prev => ({ ...prev, department: e.target.value }));
+            onUpdate(index, "department", e.target.value);
+          }}
           placeholder="Enter department"
         />
       </div>
@@ -139,3 +174,4 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
+
