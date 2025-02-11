@@ -15,19 +15,25 @@ const NotificationHandler = ({
   onUpdateReminderPreferences
 }: NotificationHandlerProps) => {
   return (
-    <div className="flex justify-between items-start mb-8">
+    <div className="flex justify-between items-start mb-8 animate-fade-in">
       <div className="flex-1">
         <Welcome />
       </div>
-      <div className="ml-4">
-        <NotificationCenter 
-          notifications={notifications}
-          onMarkAsRead={onMarkAsRead}
-          onUpdateReminderPreferences={onUpdateReminderPreferences}
-        />
+      <div className="ml-4 relative">
+        <div className="transition-all duration-200 hover:scale-105">
+          <NotificationCenter 
+            notifications={notifications}
+            onMarkAsRead={onMarkAsRead}
+            onUpdateReminderPreferences={onUpdateReminderPreferences}
+          />
+        </div>
+        {notifications.filter(n => !n.read).length > 0 && (
+          <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse" />
+        )}
       </div>
     </div>
   );
 };
 
 export default NotificationHandler;
+

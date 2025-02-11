@@ -8,6 +8,7 @@ import { mockNotifications } from "@/mock/committeeNotifications";
 import { useAuthNavigation } from "@/hooks/useAuthNavigation";
 import NotificationHandler from "@/components/home/NotificationHandler";
 import RoleBasedTabs from "@/components/home/RoleBasedTabs";
+import DashboardStats from "@/components/dashboard/DashboardStats";
 
 const Index = () => {
   const { user, isAuthenticated } = useAuth();
@@ -52,6 +53,11 @@ const Index = () => {
           />
         )}
 
+        {/* Add Dashboard Stats */}
+        <div className="mb-8">
+          <DashboardStats />
+        </div>
+
         <div className="mt-8">
           <RoleBasedTabs user={user} defaultTab={defaultTab} />
         </div>
@@ -72,3 +78,4 @@ const Index = () => {
 };
 
 export default Index;
+
