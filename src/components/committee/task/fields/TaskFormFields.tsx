@@ -2,7 +2,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CommitteeMember } from "@/types/committee";
+import { Select } from "@/components/ui/select";
+import type { CommitteeMember } from "@/types/committee";
 
 interface TaskFormFieldsProps {
   title: string;
@@ -40,14 +41,14 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
         <select
           id="assignedTo"
           className="w-full p-2 border rounded-md"
-          value={assignedTo}
+          value={assignedTo || ""}
           onChange={(e) => onChange("assignedTo", Number(e.target.value))}
           required
         >
           <option value="">Select Member</option>
           {members.map((member) => (
             <option key={member.id} value={member.id}>
-              {member.name} ({member.role})
+              {member.name} - {member.role} ({member.department})
             </option>
           ))}
         </select>
@@ -57,3 +58,4 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
 };
 
 export default TaskFormFields;
+
