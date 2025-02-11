@@ -1,5 +1,6 @@
 
 import type { Notification } from "@/types/notification";
+import { sendNotification } from "@/utils/notificationUtils";
 
 export const mockNotifications: Notification[] = [
   {
@@ -30,9 +31,16 @@ export const mockNotifications: Notification[] = [
   }
 ];
 
-export const sendNotification = (userId: number, message: string, type: 'email' | 'sms') => {
-  console.log(`Sending ${type} to user ${userId}: ${message}`);
-  // In a real implementation, this would integrate with an email/SMS service
+export const sendCommitteeNotification = (
+  members: { email: string; phone: string; role: string }[],
+  message: string
+) => {
+  members.forEach(member => {
+    // Mock sending email
+    console.log(`Sending email to ${member.email}: ${message}`);
+    // Mock sending SMS
+    console.log(`Sending SMS to ${member.phone}: ${message}`);
+  });
 };
 
 export const createCommitteeNotification = (

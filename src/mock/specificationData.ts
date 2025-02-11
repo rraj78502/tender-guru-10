@@ -1,3 +1,4 @@
+
 import type { SpecificationDocument, ReviewSession, CommitteeFormation, DocumentVersion } from "@/types/specification";
 import type { CommitteeMember } from "@/types/committee";
 
@@ -20,16 +21,6 @@ const mockMembers: CommitteeMember[] = [
     department: "Quality Assurance",
     email: "sarah.j@example.com",
     phone: "+1-555-0102",
-    tasks: [],
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    employeeId: "EMP003",
-    role: "secretary",
-    department: "Technical",
-    email: "m.chen@example.com",
-    phone: "+1-555-0103",
     tasks: [],
   },
 ];
@@ -71,19 +62,6 @@ export const mockSpecifications: SpecificationDocument[] = [
     ],
     versionHistory: mockVersionHistory,
   },
-  {
-    id: 2,
-    title: "Data Center Cooling System Specification",
-    description: "Technical specifications for new data center cooling system",
-    version: 1,
-    status: "submitted",
-    submittedBy: 2,
-    submittedAt: "2024-03-14T15:30:00Z",
-    lastModified: "2024-03-14T15:30:00Z",
-    documentUrl: "/docs/cooling-spec-v1.pdf",
-    committeeId: 1,
-    comments: [],
-  },
 ];
 
 export const mockReviews: ReviewSession[] = [
@@ -95,15 +73,7 @@ export const mockReviews: ReviewSession[] = [
     reviewers: mockMembers,
     minutes: "",
     comments: [],
-    documents: [
-      {
-        id: 1,
-        name: "Initial Review Notes.pdf",
-        url: "/docs/review-notes.pdf",
-        uploadedAt: "2024-03-15T10:30:00Z",
-        type: "review_minutes",
-      },
-    ],
+    documents: [],
   },
 ];
 
