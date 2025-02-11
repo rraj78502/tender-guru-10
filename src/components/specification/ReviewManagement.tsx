@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { Calendar as CalendarIcon, Send, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ReviewSession } from "@/types/specification";
 import { mockReviews } from "@/mock/specificationData";
-import { sendNotification } from "@/mock/committeeNotifications";
+import { sendNotification } from "@/utils/notificationUtils";
 
 interface ReviewManagementProps {
   specificationId: number;
@@ -143,4 +142,3 @@ const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
 };
 
 export default ReviewManagement;
-
