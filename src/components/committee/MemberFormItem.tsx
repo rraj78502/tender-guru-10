@@ -19,17 +19,26 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
   const { data: employees } = useMockDb<Employee>('employees');
   const { toast } = useToast();
 
+  console.log('Available employees:', employees); // Debug log
+
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const employeeId = e.target.value;
-    onUpdate(index, "employeeId", employeeId);
+    console.log('Searching for employee with ID:', employeeId); // Debug log
     
-    const employee = employees.find(emp => emp.employeeId === employeeId);
+    const employee = employees?.find(emp => emp.employeeId === employeeId);
+    console.log('Found employee:', employee); // Debug log
+
     if (employee) {
-      // Update all relevant fields with employee data
-      onUpdate(index, "name", employee.name);
-      onUpdate(index, "email", employee.email);
-      onUpdate(index, "phone", employee.phone);
-      onUpdate(index, "department", employee.department);
+      // First update employee ID
+      onUpdate(index, "employeeId", employeeId);
+
+      // Then update other fields one by one with slight delay to ensure state updates
+      setTimeout(() => {
+        onUpdate(index, "name", employee.name);
+        onUpdate(index, "email", employee.email);
+        onUpdate(index, "phone", employee.phone);
+        onUpdate(index, "department", employee.department);
+      }, 0);
       
       toast({
         title: "Employee Data Imported",
@@ -37,6 +46,8 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
       });
     }
   };
+
+  console.log('Current member data:', member); // Debug log
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
@@ -46,7 +57,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
           id={`employee-id-${index}`}
           value={member.employeeId}
           onChange={handleEmployeeIdChange}
-          placeholder="Enter employee ID"
+          placeholder="Enter employee ID (e.g., EMP001)"
           required
         />
       </div>
@@ -117,4 +128,3 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
-
