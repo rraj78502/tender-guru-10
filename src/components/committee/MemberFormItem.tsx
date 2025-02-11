@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { CommitteeMember } from "@/types/committee";
+import { useMockDb } from "@/hooks/useMockDb";
+import { useToast } from "@/hooks/use-toast";
+import type { Employee } from "@/types/employee";
 
 interface MemberFormItemProps {
   member: CommitteeMember;
@@ -13,6 +16,26 @@ interface MemberFormItemProps {
 }
 
 const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemProps) => {
+  const { data: employees } = useMockDb<Employee>('employees');
+  const { toast } = useToast();
+
+  const handleEmployeeIdChange = (employeeId: string) => {
+    onUpdate(index, "employeeId", employeeId);
+    
+    const employee = employees.find(emp => emp.employeeId === employeeId);
+    if (employee) {
+      onUpdate(index, "name", employee.name);
+      onUpdate(index, "email", employee.email);
+      onUpdate(index, "phone", employee.phone);
+      onUpdate(index, "department", employee.department);
+      
+      toast({
+        title: "Employee Data Imported",
+        description: "Employee information has been automatically filled",
+      });
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
       <div>
@@ -20,7 +43,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`employee-id-${index}`}
           value={member.employeeId}
-          onChange={(e) => onUpdate(index, "employeeId", e.target.value)}
+          onChange={(e) => handleEmployeeIdChange(e.target.value)}
           placeholder="Enter employee ID"
           required
         />
