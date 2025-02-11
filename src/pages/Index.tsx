@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,15 +16,58 @@ import ClarificationManager from "@/components/procurement/ClarificationManager"
 import ComplaintManagement from "@/components/complaint/ComplaintManagement";
 import type { Notification } from "@/types/notification";
 import { mockNotifications } from "@/mock/committeeNotifications";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
   const [showComplaints, setShowComplaints] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [defaultTab, setDefaultTab] = useState("dashboard");
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    // Set default tab based on user role
+    if (user) {
+      switch (user.role) {
+        case 'procurement_officer':
+          setDefaultTab('tenders');
+          toast({
+            title: "Welcome Procurement Officer",
+            description: "You can manage tenders and procurement processes here.",
+          });
+          break;
+        case 'evaluator':
+          setDefaultTab('evaluation');
+          toast({
+            title: "Welcome Evaluator",
+            description: "You can access bid evaluation modules here.",
+          });
+          break;
+        case 'committee_member':
+          setDefaultTab('procurement');
+          toast({
+            title: "Welcome Committee Member",
+            description: "You can review procurement details and specifications here.",
+          });
+          break;
+        default:
+          setDefaultTab('dashboard');
+          toast({
+            title: `Welcome ${user.role}`,
+            description: "You have access to the admin dashboard.",
+          });
+      }
+    }
+  }, [isAuthenticated, user, navigate, toast]);
 
   const handleMarkAsRead = (id: number) => {
     setNotifications(notifications.map(notification => 
@@ -39,7 +82,6 @@ const Index = () => {
   };
 
   if (!isAuthenticated) {
-    navigate('/login');
     return null;
   }
 
@@ -59,23 +101,33 @@ const Index = () => {
           </div>
         </div>
 
-        <QuickActions 
-          onShowCommitteeForm={() => setShowCommitteeForm(true)}
-          onShowTenderForm={() => setShowTenderForm(true)}
-          onShowVendorForm={() => setShowVendorForm(true)}
-          onShowComplaints={() => setShowComplaints(true)}
-        />
+        {user?.role === 'admin' && (
+          <QuickActions 
+            onShowCommitteeForm={() => setShowCommitteeForm(true)}
+            onShowTenderForm={() => setShowTenderForm(true)}
+            onShowVendorForm={() => setShowVendorForm(true)}
+            onShowComplaints={() => setShowComplaints(true)}
+          />
+        )}
 
         <div className="mt-8">
-          <Tabs defaultValue="dashboard" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="w-full justify-start mb-6 bg-white/50 backdrop-blur-sm p-1 rounded-lg">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="partners">Partners</TabsTrigger>
+              {(user?.role === 'admin' || user?.role === 'procurement_officer') && (
+                <TabsTrigger value="partners">Partners</TabsTrigger>
+              )}
               <TabsTrigger value="tenders">Tenders</TabsTrigger>
-              <TabsTrigger value="procurement">Procurement</TabsTrigger>
-              <TabsTrigger value="evaluation">Evaluation</TabsTrigger>
+              {(user?.role === 'admin' || user?.role === 'committee_member') && (
+                <TabsTrigger value="procurement">Procurement</TabsTrigger>
+              )}
+              {(user?.role === 'admin' || user?.role === 'evaluator') && (
+                <TabsTrigger value="evaluation">Evaluation</TabsTrigger>
+              )}
               <TabsTrigger value="clarifications">Clarifications</TabsTrigger>
-              <TabsTrigger value="complaints">Complaints</TabsTrigger>
+              {user?.role === 'admin' && (
+                <TabsTrigger value="complaints">Complaints</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="dashboard" className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
