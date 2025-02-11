@@ -15,7 +15,7 @@ interface TaskFormFieldsProps {
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
   console.log('TaskFormFields render with props:', { title, description, assignedTo, memberCount: members?.length });
   
-  // Filter out members without a name
+  // Filter out members without a name and log them for debugging
   const validMembers = members.filter(member => member.name && member.name.trim() !== '');
   console.log('Valid members for assignment:', validMembers.map(m => ({ id: m.id, name: m.name, role: m.role })));
 
@@ -71,4 +71,3 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
 };
 
 export default TaskFormFields;
-
