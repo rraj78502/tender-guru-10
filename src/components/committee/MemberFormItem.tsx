@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 import { CommitteeMember } from "@/types/committee";
-import { useMockDb } from "@/hooks/useMockDb";
 import { useToast } from "@/hooks/use-toast";
 import type { Employee } from "@/types/employee";
 import { useEffect, useState, useRef } from "react";
@@ -20,21 +19,28 @@ interface MemberFormItemProps {
 const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemProps) => {
   const { toast } = useToast();
   const [employees] = useState<Employee[]>(mockEmployees);
+  const [employeeId, setEmployeeId] = useState(member.employeeId);
   const hasPopulatedRef = useRef(false);
 
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const employeeId = e.target.value;
-    onUpdate(index, "employeeId", employeeId);
-    // Reset the ref when employee ID changes
-    if (employeeId.length < 6) {
+    const newEmployeeId = e.target.value;
+    setEmployeeId(newEmployeeId);
+    onUpdate(index, "employeeId", newEmployeeId);
+    
+    // Reset the ref and clear fields if employee ID is changed
+    if (newEmployeeId.length < 6) {
       hasPopulatedRef.current = false;
+      onUpdate(index, "name", "");
+      onUpdate(index, "email", "");
+      onUpdate(index, "phone", "");
+      onUpdate(index, "department", "");
     }
   };
 
   // Use useEffect to watch for changes in employeeId and populate data
   useEffect(() => {
-    if (member.employeeId.length >= 6 && !hasPopulatedRef.current) {
-      const employee = employees.find(emp => emp.employeeId === member.employeeId);
+    if (employeeId.length === 6 && !hasPopulatedRef.current) {
+      const employee = employees.find(emp => emp.employeeId === employeeId);
       
       if (employee) {
         // Update all fields with employee data
@@ -43,16 +49,15 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         onUpdate(index, "phone", employee.phone);
         onUpdate(index, "department", employee.department);
         
-        // Set the ref to true after populating data
         hasPopulatedRef.current = true;
         
         toast({
           title: "Employee Data Imported",
-          description: "Employee information has been automatically filled",
+          description: `Employee information for ${employee.name} has been automatically filled`,
         });
       }
     }
-  }, [member.employeeId, employees, index, onUpdate, toast]);
+  }, [employeeId, employees, index, onUpdate, toast]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
@@ -60,10 +65,11 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Label htmlFor={`employee-id-${index}`}>Employee ID</Label>
         <Input
           id={`employee-id-${index}`}
-          value={member.employeeId}
+          value={employeeId}
           onChange={handleEmployeeIdChange}
           placeholder="Enter employee ID (e.g., EMP001)"
           required
+          maxLength={6}
         />
       </div>
       <div>
@@ -133,4 +139,3 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
-
