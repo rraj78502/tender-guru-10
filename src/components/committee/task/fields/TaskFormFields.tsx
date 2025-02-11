@@ -15,8 +15,8 @@ interface TaskFormFieldsProps {
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
   console.log('TaskFormFields render with props:', { title, description, assignedTo, memberCount: members?.length });
   
-  // Filter out members without required fields
-  const validMembers = members.filter(member => member.name && member.employeeId);
+  // Filter out members without a name
+  const validMembers = members.filter(member => member.name && member.name.trim() !== '');
   console.log('Valid members for assignment:', validMembers.map(m => ({ id: m.id, name: m.name, role: m.role })));
 
   return (
@@ -46,7 +46,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
         <select
           id="assignedTo"
           className="w-full p-2 border rounded-md bg-white"
-          value={assignedTo}
+          value={assignedTo || ""}
           onChange={(e) => {
             const selectedValue = Number(e.target.value);
             console.log('Assign To selection changed:', {
@@ -61,7 +61,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           <option value="">Select Member</option>
           {validMembers.map((member) => (
             <option key={member.id} value={member.id}>
-              {`${member.name} (${member.role})`}
+              {`${member.name}${member.role ? ` (${member.role})` : ''}`}
             </option>
           ))}
         </select>
