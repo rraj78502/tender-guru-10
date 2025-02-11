@@ -7,7 +7,7 @@ import { CommitteeMember } from "@/types/committee";
 import { useMockDb } from "@/hooks/useMockDb";
 import { useToast } from "@/hooks/use-toast";
 import type { Employee } from "@/types/employee";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { mockEmployees } from "@/mock/employeeData";
 
 interface MemberFormItemProps {
@@ -20,27 +20,31 @@ interface MemberFormItemProps {
 const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemProps) => {
   const { toast } = useToast();
   const [employees] = useState<Employee[]>(mockEmployees);
+  const hasPopulatedRef = useRef(false);
 
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const employeeId = e.target.value;
     onUpdate(index, "employeeId", employeeId);
+    // Reset the ref when employee ID changes
+    if (employeeId.length < 6) {
+      hasPopulatedRef.current = false;
+    }
   };
 
   // Use useEffect to watch for changes in employeeId and populate data
   useEffect(() => {
-    if (member.employeeId.length >= 6) {
-      console.log("Searching for employee with ID:", member.employeeId);
-      console.log("Available employees:", employees);
-      
+    if (member.employeeId.length >= 6 && !hasPopulatedRef.current) {
       const employee = employees.find(emp => emp.employeeId === member.employeeId);
-      console.log("Found employee:", employee);
-
+      
       if (employee) {
         // Update all fields with employee data
         onUpdate(index, "name", employee.name);
         onUpdate(index, "email", employee.email);
         onUpdate(index, "phone", employee.phone);
         onUpdate(index, "department", employee.department);
+        
+        // Set the ref to true after populating data
+        hasPopulatedRef.current = true;
         
         toast({
           title: "Employee Data Imported",
