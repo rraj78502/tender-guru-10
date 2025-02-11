@@ -7,6 +7,7 @@ import { CommitteeMember } from "@/types/committee";
 import { useMockDb } from "@/hooks/useMockDb";
 import { useToast } from "@/hooks/use-toast";
 import type { Employee } from "@/types/employee";
+import { useEffect } from "react";
 
 interface MemberFormItemProps {
   member: CommitteeMember;
@@ -19,20 +20,16 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
   const { data: employees } = useMockDb<Employee>('employees');
   const { toast } = useToast();
 
-  console.log('Available employees:', employees);
-
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const employeeId = e.target.value;
-    // First update the input field value
     onUpdate(index, "employeeId", employeeId);
-    
-    console.log('Searching for employee with ID:', employeeId);
-    
-    // Only try to find and update other fields if we have a complete employee ID
-    if (employeeId.length >= 6) { // EMP001 format
-      const employee = employees?.find(emp => emp.employeeId === employeeId);
-      console.log('Found employee:', employee);
+  };
 
+  // Use useEffect to watch for changes in employeeId and populate data
+  useEffect(() => {
+    if (member.employeeId.length >= 6) {
+      const employee = employees?.find(emp => emp.employeeId === member.employeeId);
+      
       if (employee) {
         onUpdate(index, "name", employee.name);
         onUpdate(index, "email", employee.email);
@@ -45,9 +42,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         });
       }
     }
-  };
-
-  console.log('Current member data:', member);
+  }, [member.employeeId, employees, index, onUpdate, toast]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
