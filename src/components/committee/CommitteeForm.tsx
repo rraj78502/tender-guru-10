@@ -1,14 +1,14 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DateInputs from "./DateInputs";
 import FileUpload from "./FileUpload";
 import TaskManager from "./TaskManager";
 import BasicInfoFields from "./BasicInfoFields";
 import CommitteeMembers from "./CommitteeMembers";
+import FormHeader from "./form/FormHeader";
+import FormActions from "./form/FormActions";
 import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
 import { useMockDb } from "@/hooks/useMockDb";
 
@@ -28,33 +28,6 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const [tasks, setTasks] = useState<CommitteeTask[]>([]);
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
-
-  const addMember = () => {
-    const newMember: CommitteeMember = {
-      id: Date.now(),
-      employeeId: "",
-      name: "",
-      email: "",
-      phone: "",
-      role: "member",
-      department: "",
-      tasks: [],
-    };
-    setMembers([...members, newMember]);
-  };
-
-  const removeMember = (index: number) => {
-    setMembers(members.filter((_, i) => i !== index));
-  };
-
-  const updateMember = (index: number, field: keyof CommitteeMember, value: string) => {
-    const updatedMembers = [...members];
-    updatedMembers[index] = {
-      ...updatedMembers[index],
-      [field]: value,
-    };
-    setMembers(updatedMembers);
-  };
 
   const handleCreateTask = (task: Omit<CommitteeTask, 'id'>) => {
     const newTask: CommitteeTask = {
@@ -119,12 +92,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Create Committee</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <FormHeader onClose={onClose} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <BasicInfoFields
@@ -145,9 +113,30 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
           <CommitteeMembers
             members={members}
-            onAddMember={addMember}
-            onUpdateMember={updateMember}
-            onRemoveMember={removeMember}
+            onAddMember={() => {
+              const newMember: CommitteeMember = {
+                id: Date.now(),
+                employeeId: "",
+                name: "",
+                email: "",
+                phone: "",
+                role: "member",
+                department: "",
+                tasks: [],
+              };
+              setMembers([...members, newMember]);
+            }}
+            onUpdateMember={(index, field, value) => {
+              const updatedMembers = [...members];
+              updatedMembers[index] = {
+                ...updatedMembers[index],
+                [field]: value,
+              };
+              setMembers(updatedMembers);
+            }}
+            onRemoveMember={(index) => {
+              setMembers(members.filter((_, i) => i !== index));
+            }}
           />
 
           <div className="space-y-4">
@@ -162,15 +151,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
           <FileUpload onFileChange={setSelectedFile} />
 
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Create & Notify
-            </Button>
-          </div>
+          <FormActions onClose={onClose} />
         </form>
       </Card>
     </div>
@@ -178,3 +159,4 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
+
