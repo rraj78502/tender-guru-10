@@ -89,6 +89,30 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
     onClose();
   };
 
+  const handleAddMember = () => {
+    const newMember: CommitteeMember = {
+      id: Date.now(),
+      employeeId: "",
+      name: "",
+      email: "",
+      phone: "",
+      role: "member",
+      department: "",
+      tasks: [],
+    };
+    setMembers([...members, newMember]);
+  };
+
+  const handleUpdateMember = (index: number, field: keyof CommitteeMember, value: string) => {
+    const updatedMembers = [...members];
+    updatedMembers[index] = {
+      ...updatedMembers[index],
+      [field]: value,
+    };
+    console.log('Updated member:', updatedMembers[index]); // Debug log
+    setMembers(updatedMembers);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
@@ -113,27 +137,8 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
           <CommitteeMembers
             members={members}
-            onAddMember={() => {
-              const newMember: CommitteeMember = {
-                id: Date.now(),
-                employeeId: "",
-                name: "",
-                email: "",
-                phone: "",
-                role: "member",
-                department: "",
-                tasks: [],
-              };
-              setMembers([...members, newMember]);
-            }}
-            onUpdateMember={(index, field, value) => {
-              const updatedMembers = [...members];
-              updatedMembers[index] = {
-                ...updatedMembers[index],
-                [field]: value,
-              };
-              setMembers(updatedMembers);
-            }}
+            onAddMember={handleAddMember}
+            onUpdateMember={handleUpdateMember}
             onRemoveMember={(index) => {
               setMembers(members.filter((_, i) => i !== index));
             }}
@@ -159,4 +164,3 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
-
