@@ -34,6 +34,19 @@ const EmployeeManagement = () => {
     emp.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const resetForm = () => {
+    setNewEmployee({
+      employeeId: "",
+      name: "",
+      email: "",
+      phone: "",
+      department: "",
+      designation: "",
+      dateJoined: "",
+      isActive: true
+    });
+  };
+
   const handleInputChange = (name: keyof Omit<Employee, 'id'>, value: string) => {
     setNewEmployee(prev => ({
       ...prev,
@@ -60,36 +73,23 @@ const EmployeeManagement = () => {
       description: "Employee added successfully"
     });
     
-    // Reset form and close modal
-    setShowAddForm(false);
-    setNewEmployee({
-      employeeId: "",
-      name: "",
-      email: "",
-      phone: "",
-      department: "",
-      designation: "",
-      dateJoined: "",
-      isActive: true
-    });
+    handleCloseModal();
   };
 
   const handleAddClick = () => {
+    resetForm();
     setShowAddForm(true);
   };
 
   const handleCloseModal = () => {
     setShowAddForm(false);
-    setNewEmployee({
-      employeeId: "",
-      name: "",
-      email: "",
-      phone: "",
-      department: "",
-      designation: "",
-      dateJoined: "",
-      isActive: true
-    });
+    resetForm();
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleCloseModal();
+    }
   };
 
   return (
@@ -110,7 +110,7 @@ const EmployeeManagement = () => {
         <EmployeeList employees={displayedEmployees} />
       </div>
 
-      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+      <Dialog open={showAddForm} onOpenChange={handleOpenChange}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <EmployeeForm
             employee={newEmployee}
@@ -125,3 +125,4 @@ const EmployeeManagement = () => {
 };
 
 export default EmployeeManagement;
+
