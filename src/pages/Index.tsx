@@ -9,6 +9,10 @@ import { useAuthNavigation } from "@/hooks/useAuthNavigation";
 import NotificationHandler from "@/components/home/NotificationHandler";
 import RoleBasedTabs from "@/components/home/RoleBasedTabs";
 import DashboardStats from "@/components/dashboard/DashboardStats";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { exportToCSV } from "@/utils/exportUtils";
 
 const Index = () => {
   const { user, isAuthenticated } = useAuth();
@@ -18,6 +22,7 @@ const Index = () => {
   const [showVendorForm, setShowVendorForm] = useState(false);
   const [showComplaints, setShowComplaints] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleMarkAsRead = (id: number) => {
     setNotifications(notifications.map(notification => 
@@ -31,6 +36,10 @@ const Index = () => {
     ));
   };
 
+  const handleExport = () => {
+    exportToCSV(notifications, 'notifications');
+  };
+
   if (!isAuthenticated) {
     return null;
   }
@@ -38,6 +47,26 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
+        <div className="flex justify-between items-center mb-6">
+          <div className="relative w-64">
+            <Input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          </div>
+          <Button
+            onClick={handleExport}
+            variant="outline"
+            className="ml-4"
+          >
+            Export Data
+          </Button>
+        </div>
+
         <NotificationHandler
           notifications={notifications}
           onMarkAsRead={handleMarkAsRead}
@@ -53,7 +82,6 @@ const Index = () => {
           />
         )}
 
-        {/* Add Dashboard Stats */}
         <div className="mb-8">
           <DashboardStats />
         </div>
@@ -78,4 +106,3 @@ const Index = () => {
 };
 
 export default Index;
-
