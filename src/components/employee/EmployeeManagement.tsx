@@ -9,6 +9,7 @@ import { useMockDb } from "@/hooks/useMockDb";
 import SearchBar from "./SearchBar";
 import EmployeeList from "./EmployeeList";
 import EmployeeForm from "./EmployeeForm";
+import { mockEmployees } from "@/mock/employeeData";
 
 const EmployeeManagement = () => {
   const { toast } = useToast();
@@ -26,7 +27,8 @@ const EmployeeManagement = () => {
     isActive: true
   });
 
-  const filteredEmployees = employees.filter(emp => 
+  const filteredEmployees = employees.length ? employees : mockEmployees;
+  const displayedEmployees = filteredEmployees.filter(emp => 
     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.department.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,7 +74,7 @@ const EmployeeManagement = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Employee Management</h1>
         <Button onClick={() => setShowAddForm(true)}>
@@ -81,14 +83,16 @@ const EmployeeManagement = () => {
         </Button>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-6">
         <SearchBar value={searchTerm} onChange={setSearchTerm} />
       </div>
 
-      <EmployeeList employees={filteredEmployees} />
+      <div className="bg-white rounded-xl shadow-sm">
+        <EmployeeList employees={displayedEmployees} />
+      </div>
 
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <EmployeeForm
             employee={newEmployee}
             onChange={handleInputChange}
