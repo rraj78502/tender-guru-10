@@ -19,35 +19,35 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
   const { data: employees } = useMockDb<Employee>('employees');
   const { toast } = useToast();
 
-  console.log('Available employees:', employees); // Debug log
+  console.log('Available employees:', employees);
 
   const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const employeeId = e.target.value;
-    console.log('Searching for employee with ID:', employeeId); // Debug log
+    // First update the input field value
+    onUpdate(index, "employeeId", employeeId);
     
-    const employee = employees?.find(emp => emp.employeeId === employeeId);
-    console.log('Found employee:', employee); // Debug log
+    console.log('Searching for employee with ID:', employeeId);
+    
+    // Only try to find and update other fields if we have a complete employee ID
+    if (employeeId.length >= 6) { // EMP001 format
+      const employee = employees?.find(emp => emp.employeeId === employeeId);
+      console.log('Found employee:', employee);
 
-    if (employee) {
-      // First update employee ID
-      onUpdate(index, "employeeId", employeeId);
-
-      // Then update other fields one by one with slight delay to ensure state updates
-      setTimeout(() => {
+      if (employee) {
         onUpdate(index, "name", employee.name);
         onUpdate(index, "email", employee.email);
         onUpdate(index, "phone", employee.phone);
         onUpdate(index, "department", employee.department);
-      }, 0);
-      
-      toast({
-        title: "Employee Data Imported",
-        description: "Employee information has been automatically filled",
-      });
+        
+        toast({
+          title: "Employee Data Imported",
+          description: "Employee information has been automatically filled",
+        });
+      }
     }
   };
 
-  console.log('Current member data:', member); // Debug log
+  console.log('Current member data:', member);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg relative">
