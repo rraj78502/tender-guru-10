@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,14 +38,14 @@ const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
     // Mock sending notifications to reviewers
     reviews[0].reviewers.forEach(reviewer => {
       sendNotification(
-        reviewer.id,
-        `Review scheduled for ${format(date, "PPP")}`,
-        "email"
+        "email",
+        reviewer.email || "",
+        `Review scheduled for ${format(date, "PPP")}`
       );
       sendNotification(
-        reviewer.id,
-        `Review scheduled for ${format(date, "PPP")}`,
-        "sms"
+        "sms",
+        reviewer.phone || "",
+        `Review scheduled for ${format(date, "PPP")}`
       );
     });
 
