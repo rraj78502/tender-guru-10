@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import type { CommitteeMember } from "@/types/committee";
 
 interface TaskFormFieldsProps {
@@ -13,6 +14,7 @@ interface TaskFormFieldsProps {
 }
 
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
+  const { toast } = useToast();
   console.log('TaskFormFields render with props:', { title, description, assignedTo, memberCount: members?.length });
   
   // Filter out members without a name and log them for debugging
@@ -49,11 +51,21 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           value={assignedTo || ""}
           onChange={(e) => {
             const selectedValue = Number(e.target.value);
+            const selectedMember = validMembers.find(m => m.id === selectedValue);
+            
             console.log('Assign To selection changed:', {
               rawValue: e.target.value,
               parsedValue: selectedValue,
               availableMembers: validMembers.map(m => ({ id: m.id, name: m.name }))
             });
+
+            if (selectedMember) {
+              toast({
+                title: "Member Selected",
+                description: `Task will be assigned to ${selectedMember.name}${selectedMember.role ? ` (${selectedMember.role})` : ''}`,
+              });
+            }
+            
             onChange("assignedTo", selectedValue);
           }}
           required
