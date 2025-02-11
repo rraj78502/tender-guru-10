@@ -11,6 +11,8 @@ interface TaskManagerProps {
 }
 
 const TaskManager = ({ members, tasks, onTaskCreate, onTaskUpdate }: TaskManagerProps) => {
+  console.log('TaskManager members:', members); // Debug log
+  
   return (
     <div className="space-y-6">
       <TaskForm members={members} onTaskCreate={onTaskCreate} />

@@ -23,6 +23,7 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
   });
 
   const handleFieldChange = (field: string, value: string | number) => {
+    console.log('Field changed:', field, value); // Debug log
     setNewTask({ ...newTask, [field]: value });
   };
 
@@ -36,6 +37,9 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
       });
       return;
     }
+
+    console.log('Creating task with members:', members); // Debug log
+    console.log('Task data:', newTask); // Debug log
 
     onTaskCreate({
       ...newTask,

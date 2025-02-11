@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
 import type { CommitteeMember } from "@/types/committee";
 
 interface TaskFormFieldsProps {
@@ -14,6 +13,9 @@ interface TaskFormFieldsProps {
 }
 
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
+  console.log('TaskFormFields members:', members); // Debug log
+  console.log('Current assignedTo:', assignedTo); // Debug log
+
   return (
     <>
       <div>
@@ -41,20 +43,19 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
         <select
           id="assignedTo"
           className="w-full p-2 border rounded-md bg-white"
-          value={assignedTo}
-          onChange={(e) => onChange("assignedTo", Number(e.target.value))}
+          value={assignedTo || ''}
+          onChange={(e) => {
+            console.log('Selected value:', e.target.value); // Debug log
+            onChange("assignedTo", Number(e.target.value));
+          }}
           required
         >
           <option value="">Select Member</option>
-          {Array.isArray(members) && members.length > 0 ? (
-            members.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name} ({member.role})
-              </option>
-            ))
-          ) : (
-            <option value="" disabled>No members available</option>
-          )}
+          {Array.isArray(members) && members.map((member) => (
+            <option key={member.id} value={member.id}>
+              {`${member.name} (${member.role})`}
+            </option>
+          ))}
         </select>
       </div>
     </>
@@ -62,4 +63,3 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
 };
 
 export default TaskFormFields;
-
