@@ -5,18 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { useAuthNavigation } from "@/hooks/useAuthNavigation";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { defaultTab } = useAuthNavigation(true, null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await login(email, password);
     if (success) {
-      navigate("/tenders");
+      navigate(`/${defaultTab}`);
     }
   };
 
@@ -64,3 +66,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
