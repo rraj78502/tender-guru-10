@@ -60,6 +60,25 @@ const EmployeeManagement = () => {
       description: "Employee added successfully"
     });
     
+    // Reset form and close modal
+    setShowAddForm(false);
+    setNewEmployee({
+      employeeId: "",
+      name: "",
+      email: "",
+      phone: "",
+      department: "",
+      designation: "",
+      dateJoined: "",
+      isActive: true
+    });
+  };
+
+  const handleAddClick = () => {
+    setShowAddForm(true);
+  };
+
+  const handleCloseModal = () => {
     setShowAddForm(false);
     setNewEmployee({
       employeeId: "",
@@ -77,7 +96,7 @@ const EmployeeManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Employee Management</h1>
-        <Button onClick={() => setShowAddForm(true)}>
+        <Button onClick={handleAddClick}>
           <Plus className="mr-2 h-4 w-4" />
           Add Employee
         </Button>
@@ -97,7 +116,7 @@ const EmployeeManagement = () => {
             employee={newEmployee}
             onChange={handleInputChange}
             onSubmit={handleSubmit}
-            onCancel={() => setShowAddForm(false)}
+            onCancel={handleCloseModal}
           />
         </div>
       </Dialog>
