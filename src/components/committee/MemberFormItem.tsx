@@ -19,11 +19,13 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
   const { data: employees } = useMockDb<Employee>('employees');
   const { toast } = useToast();
 
-  const handleEmployeeIdChange = (employeeId: string) => {
+  const handleEmployeeIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const employeeId = e.target.value;
     onUpdate(index, "employeeId", employeeId);
     
     const employee = employees.find(emp => emp.employeeId === employeeId);
     if (employee) {
+      // Update all relevant fields with employee data
       onUpdate(index, "name", employee.name);
       onUpdate(index, "email", employee.email);
       onUpdate(index, "phone", employee.phone);
@@ -43,7 +45,7 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
         <Input
           id={`employee-id-${index}`}
           value={member.employeeId}
-          onChange={(e) => handleEmployeeIdChange(e.target.value)}
+          onChange={handleEmployeeIdChange}
           placeholder="Enter employee ID"
           required
         />
@@ -115,3 +117,4 @@ const MemberFormItem = ({ member, index, onUpdate, onRemove }: MemberFormItemPro
 };
 
 export default MemberFormItem;
+
