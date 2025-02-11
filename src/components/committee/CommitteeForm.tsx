@@ -102,7 +102,6 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   };
 
   const handleAddMember = () => {
-    // Get the first available employee that isn't already in the committee
     const existingEmployeeIds = new Set(members.map(m => m.employeeId));
     const availableEmployee = mockEmployees.find(emp => !existingEmployeeIds.has(emp.employeeId));
 
@@ -127,32 +126,34 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
     };
     
     console.log('Adding new member:', newMember);
-    setMembers([...members, newMember]);
+    setMembers(prevMembers => [...prevMembers, newMember]);
   };
 
   const handleUpdateMember = (index: number, field: keyof CommitteeMember, value: string) => {
-    const updatedMembers = [...members];
-    updatedMembers[index] = {
-      ...updatedMembers[index],
-      [field]: value,
-    };
+    setMembers(prevMembers => {
+      const updatedMembers = [...prevMembers];
+      updatedMembers[index] = {
+        ...updatedMembers[index],
+        [field]: value,
+      };
 
-    // If employeeId is being updated, populate other fields from mockEmployees
-    if (field === 'employeeId') {
-      const employee = mockEmployees.find(emp => emp.employeeId === value);
-      if (employee) {
-        updatedMembers[index] = {
-          ...updatedMembers[index],
-          name: employee.name,
-          email: employee.email,
-          phone: employee.phone,
-          department: employee.department,
-        };
+      // If employeeId is being updated, populate other fields from mockEmployees
+      if (field === 'employeeId') {
+        const employee = mockEmployees.find(emp => emp.employeeId === value);
+        if (employee) {
+          updatedMembers[index] = {
+            ...updatedMembers[index],
+            name: employee.name,
+            email: employee.email,
+            phone: employee.phone,
+            department: employee.department,
+          };
+        }
       }
-    }
 
-    console.log('Updated member:', updatedMembers[index]);
-    setMembers(updatedMembers);
+      console.log('Updated member:', updatedMembers[index]);
+      return updatedMembers;
+    });
   };
 
   return (
