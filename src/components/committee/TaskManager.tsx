@@ -11,7 +11,11 @@ interface TaskManagerProps {
 }
 
 const TaskManager = ({ members, tasks, onTaskCreate, onTaskUpdate }: TaskManagerProps) => {
-  console.log('TaskManager members:', members); // Debug log
+  console.log('TaskManager render with:', {
+    memberCount: members?.length,
+    membersData: members?.map(m => ({ id: m.id, name: m.name, role: m.role })),
+    taskCount: tasks?.length
+  });
   
   return (
     <div className="space-y-6">

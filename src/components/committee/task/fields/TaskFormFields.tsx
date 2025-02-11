@@ -13,8 +13,8 @@ interface TaskFormFieldsProps {
 }
 
 const TaskFormFields = ({ title, description, assignedTo, members, onChange }: TaskFormFieldsProps) => {
-  console.log('TaskFormFields members:', members); // Debug log
-  console.log('Current assignedTo:', assignedTo); // Debug log
+  console.log('TaskFormFields render with props:', { title, description, assignedTo, memberCount: members?.length });
+  console.log('Members array:', members);
 
   return (
     <>
@@ -43,10 +43,15 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
         <select
           id="assignedTo"
           className="w-full p-2 border rounded-md bg-white"
-          value={assignedTo || ''}
+          value={assignedTo}
           onChange={(e) => {
-            console.log('Selected value:', e.target.value); // Debug log
-            onChange("assignedTo", Number(e.target.value));
+            const selectedValue = Number(e.target.value);
+            console.log('Assign To selection changed:', {
+              rawValue: e.target.value,
+              parsedValue: selectedValue,
+              availableMembers: members?.map(m => ({ id: m.id, name: m.name }))
+            });
+            onChange("assignedTo", selectedValue);
           }}
           required
         >

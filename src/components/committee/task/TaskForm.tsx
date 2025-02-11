@@ -22,8 +22,14 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
     dueDate: "",
   });
 
+  console.log('TaskForm render with:', {
+    memberCount: members?.length,
+    currentAssignedTo: newTask.assignedTo,
+    membersData: members?.map(m => ({ id: m.id, name: m.name, role: m.role }))
+  });
+
   const handleFieldChange = (field: string, value: string | number) => {
-    console.log('Field changed:', field, value); // Debug log
+    console.log('TaskForm field change:', { field, value });
     setNewTask({ ...newTask, [field]: value });
   };
 
@@ -37,9 +43,6 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
       });
       return;
     }
-
-    console.log('Creating task with members:', members); // Debug log
-    console.log('Task data:', newTask); // Debug log
 
     onTaskCreate({
       ...newTask,
