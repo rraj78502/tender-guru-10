@@ -48,7 +48,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           <option value="">Select Member</option>
           {members.map((member) => (
             <option key={member.id} value={member.id}>
-              {`${member.name} (${member.department} - ${member.role})`}
+              {member.name} ({member.role})
             </option>
           ))}
         </select>
