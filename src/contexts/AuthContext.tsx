@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User, AuthState, ModulePermission } from "@/types/auth";
 import { mockUsers } from "@/mock/authData";
 import { useToast } from "@/hooks/use-toast";
@@ -13,14 +13,28 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
+  const [authState, setAuthState] = useState<AuthState>(() => {
+    const savedAuth = localStorage.getItem("auth");
+    return savedAuth ? JSON.parse(savedAuth) : {
+      user: null,
+      isAuthenticated: false,
+    };
   });
+  
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (authState.isAuthenticated) {
+      localStorage.setItem("auth", JSON.stringify(authState));
+    } else {
+      localStorage.removeItem("auth");
+    }
+  }, [authState]);
+
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock authentication
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     const user = mockUsers.find(u => u.email === email);
     if (user) {
       setAuthState({
@@ -34,12 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       return true;
     }
-    toast({
-      title: "Login Failed",
-      description: "Invalid credentials",
-      variant: "destructive"
-    });
-    return false;
+    throw new Error("Invalid credentials");
   };
 
   const logout = () => {
@@ -48,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: false,
       token: undefined
     });
+    localStorage.removeItem("auth");
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out."
