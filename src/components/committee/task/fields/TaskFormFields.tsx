@@ -40,7 +40,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
         <Label htmlFor="assignedTo">Assign To</Label>
         <select
           id="assignedTo"
-          className="w-full p-2 border rounded-md"
+          className="w-full p-2 border rounded-md bg-white"
           value={assignedTo || ""}
           onChange={(e) => onChange("assignedTo", Number(e.target.value))}
           required
@@ -48,7 +48,7 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
           <option value="">Select Member</option>
           {members.map((member) => (
             <option key={member.id} value={member.id}>
-              {member.name} - {member.role}
+              {`${member.name} (${member.department} - ${member.role})`}
             </option>
           ))}
         </select>
@@ -58,4 +58,3 @@ const TaskFormFields = ({ title, description, assignedTo, members, onChange }: T
 };
 
 export default TaskFormFields;
-
