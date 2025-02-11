@@ -129,6 +129,7 @@ class MockDatabase {
       preBidMeetings: [],
       clarifications: [],
       committees: [],
+      employees: [], // Added employees array
     };
   }
 
@@ -141,9 +142,11 @@ class MockDatabase {
       preBidMeetings: mockPreBidMeetings,
       clarifications: mockClarifications,
       committees: mockCommittees,
+      employees: mockEmployees, // Added mockEmployees
     };
     this.saveToStorage();
   }
 }
 
 export default MockDatabase;
+
