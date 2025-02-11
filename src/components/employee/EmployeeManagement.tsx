@@ -15,7 +15,7 @@ const EmployeeManagement = () => {
   const { toast } = useToast();
   const { data: employees, create: createEmployee } = useMockDb<Employee>('employees');
   const [searchTerm, setSearchTerm] = useState("");
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);  // Initialize to false
   const [newEmployee, setNewEmployee] = useState<Omit<Employee, 'id'>>({
     employeeId: "",
     name: "",
@@ -110,16 +110,18 @@ const EmployeeManagement = () => {
         <EmployeeList employees={displayedEmployees} />
       </div>
 
-      <Dialog open={showAddForm} onOpenChange={handleOpenChange}>
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <EmployeeForm
-            employee={newEmployee}
-            onChange={handleInputChange}
-            onSubmit={handleSubmit}
-            onCancel={handleCloseModal}
-          />
-        </div>
-      </Dialog>
+      {showAddForm && (
+        <Dialog open={showAddForm} onOpenChange={handleOpenChange}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <EmployeeForm
+              employee={newEmployee}
+              onChange={handleInputChange}
+              onSubmit={handleSubmit}
+              onCancel={handleCloseModal}
+            />
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 };
