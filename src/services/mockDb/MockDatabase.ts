@@ -28,9 +28,10 @@ class MockDatabase {
   private constructor() {
     const savedData = localStorage.getItem('mockDb');
     if (savedData) {
+      console.log('Loading data from localStorage:', savedData);
       this.data = JSON.parse(savedData);
     } else {
-      // Initialize with mock data
+      console.log('Initializing with mock data');
       this.data = {
         tenders: mockTenders,
         vendors: mockVendors,
@@ -53,10 +54,12 @@ class MockDatabase {
   }
 
   private saveToStorage(): void {
+    console.log('Saving data to localStorage:', this.data);
     localStorage.setItem('mockDb', JSON.stringify(this.data));
   }
 
   public getAll<K extends keyof Collections>(collection: K): Collections[K] {
+    console.log(`Getting all items from ${collection}:`, this.data[collection]);
     return this.data[collection];
   }
 
@@ -71,10 +74,12 @@ class MockDatabase {
     collection: K,
     item: Omit<Collections[K][number], 'id'>
   ): Collections[K][number] {
+    console.log(`Creating new item in ${collection}:`, item);
     const newId = Math.max(...this.data[collection].map((i) => i.id), 0) + 1;
     const newItem = { ...item, id: newId } as Collections[K][number];
     this.data[collection] = [...this.data[collection], newItem] as Collections[K];
     this.saveToStorage();
+    console.log(`Updated ${collection} collection:`, this.data[collection]);
     return newItem;
   }
 
@@ -129,7 +134,7 @@ class MockDatabase {
       preBidMeetings: [],
       clarifications: [],
       committees: [],
-      employees: [], // Added employees array
+      employees: [],
     };
   }
 
@@ -142,11 +147,10 @@ class MockDatabase {
       preBidMeetings: mockPreBidMeetings,
       clarifications: mockClarifications,
       committees: mockCommittees,
-      employees: mockEmployees, // Added mockEmployees
+      employees: mockEmployees,
     };
     this.saveToStorage();
   }
 }
 
 export default MockDatabase;
-
