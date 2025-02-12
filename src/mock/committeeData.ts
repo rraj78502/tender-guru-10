@@ -32,6 +32,26 @@ export const mockMembers: CommitteeMember[] = [
     department: "Finance",
     tasks: [],
   },
+  {
+    id: 4,
+    employeeId: "EMP004",
+    name: "Emily Davis",
+    email: "emily.d@company.com",
+    phone: "+1234567893",
+    role: "chairperson",
+    department: "Legal",
+    tasks: [],
+  },
+  {
+    id: 5,
+    employeeId: "EMP005",
+    name: "Robert Chen",
+    email: "robert.c@company.com",
+    phone: "+1234567894",
+    role: "member",
+    department: "IT",
+    tasks: [],
+  }
 ];
 
 export const mockTasks: CommitteeTask[] = [
@@ -65,6 +85,26 @@ export const mockTasks: CommitteeTask[] = [
     attachments: [],
     comments: [],
   },
+  {
+    id: 4,
+    title: "Legal Compliance Check",
+    description: "Review legal compliance of specifications",
+    assignedTo: 4,
+    dueDate: "2024-04-30",
+    status: "completed",
+    attachments: [],
+    comments: ["All legal requirements met"],
+  },
+  {
+    id: 5,
+    title: "Technical Review",
+    description: "Review technical aspects of specifications",
+    assignedTo: 5,
+    dueDate: "2024-05-05",
+    status: "in_progress",
+    attachments: [],
+    comments: ["Technical review in progress"],
+  }
 ];
 
 export const mockReviews: SpecificationReview[] = [
@@ -75,7 +115,7 @@ export const mockReviews: SpecificationReview[] = [
     actualDate: "2024-04-10",
     minutes: "Initial review completed. Major points discussed:\n1. Technical specifications alignment\n2. Budget considerations\n3. Timeline feasibility",
     status: "under_review",
-    reviewers: mockMembers,
+    reviewers: mockMembers.slice(0, 3),
     documents: [],
     comments: [
       "Technical specifications need more detail",
@@ -91,6 +131,17 @@ export const mockReviews: SpecificationReview[] = [
     documents: [],
     comments: [],
   },
+  {
+    id: 3,
+    committeeId: 2,
+    scheduledDate: "2024-05-01",
+    actualDate: "2024-05-01",
+    minutes: "Detailed technical review session. Key points:\n1. Security requirements\n2. Performance metrics\n3. Integration specifications",
+    status: "approved",
+    reviewers: mockMembers.slice(2, 5),
+    documents: [],
+    comments: ["All technical requirements approved"],
+  }
 ];
 
 export const mockCommittees: Committee[] = [
@@ -99,29 +150,74 @@ export const mockCommittees: Committee[] = [
     name: "Network Infrastructure Upgrade Committee",
     formationDate: "2024-03-01",
     purpose: "Review and prepare specifications for network infrastructure upgrade project",
-    members: mockMembers,
-    tasks: mockTasks,
+    members: mockMembers.slice(0, 3),
+    tasks: mockTasks.slice(0, 3),
     specifications: {
       submissionDate: "2024-04-30",
       documents: [],
       status: "draft",
     },
-    reviews: mockReviews,
-    approvalStatus: "pending",
+    reviews: mockReviews.slice(0, 2),
+    approvalStatus: "pending_review",
   },
   {
     id: 2,
     name: "Data Center Equipment Committee",
     formationDate: "2024-03-15",
     purpose: "Prepare specifications for new data center equipment",
-    members: mockMembers.slice(1),
-    tasks: mockTasks.slice(0, 2),
+    members: mockMembers.slice(1, 4),
+    tasks: mockTasks.slice(1, 4),
     specifications: {
       submissionDate: "2024-05-15",
       documents: [],
       status: "draft",
     },
+    reviews: [mockReviews[2]],
+    approvalStatus: "approved",
+  },
+  {
+    id: 3,
+    name: "Software Licensing Committee",
+    formationDate: "2024-02-28",
+    purpose: "Review and standardize software licensing requirements",
+    members: mockMembers.slice(2, 5),
+    tasks: mockTasks.slice(2, 5),
+    specifications: {
+      submissionDate: "2024-05-30",
+      documents: [],
+      status: "under_review",
+    },
     reviews: [],
     approvalStatus: "draft",
   },
+  {
+    id: 4,
+    name: "Security Systems Evaluation Committee",
+    formationDate: "2024-03-20",
+    purpose: "Evaluate and specify requirements for new security systems",
+    members: [mockMembers[0], mockMembers[2], mockMembers[4]],
+    tasks: [mockTasks[0], mockTasks[2], mockTasks[4]],
+    specifications: {
+      submissionDate: "2024-06-15",
+      documents: [],
+      status: "draft",
+    },
+    reviews: [],
+    approvalStatus: "pending_review",
+  },
+  {
+    id: 5,
+    name: "Cloud Infrastructure Migration Committee",
+    formationDate: "2024-03-10",
+    purpose: "Plan and specify requirements for cloud infrastructure migration",
+    members: mockMembers,
+    tasks: mockTasks,
+    specifications: {
+      submissionDate: "2024-05-20",
+      documents: [],
+      status: "under_review",
+    },
+    reviews: [],
+    approvalStatus: "approved",
+  }
 ];
