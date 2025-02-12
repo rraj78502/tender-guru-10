@@ -12,7 +12,6 @@ import EmployeeForm from "./EmployeeForm";
 import { mockEmployees } from "@/mock/employeeData";
 import * as XLSX from 'xlsx';
 
-// Interface for Excel row data
 interface ExcelEmployeeRow {
   employeeId: string;
   name: string;
@@ -115,9 +114,19 @@ const EmployeeManagement = () => {
 
     try {
       const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Partial<ExcelEmployeeRow>[];
+      let jsonData: Partial<ExcelEmployeeRow>[] = [];
+
+      if (file.name.endsWith('.csv')) {
+        // Handle CSV file
+        const workbook = XLSX.read(data, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        jsonData = XLSX.utils.sheet_to_json(worksheet);
+      } else {
+        // Handle Excel file
+        const workbook = XLSX.read(data);
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        jsonData = XLSX.utils.sheet_to_json(worksheet);
+      }
 
       let successCount = 0;
       let errorCount = 0;
@@ -154,7 +163,7 @@ const EmployeeManagement = () => {
     } catch (error) {
       toast({
         title: "Import Error",
-        description: "Failed to process the Excel file. Please check the format.",
+        description: "Failed to process the file. Please check the format.",
         variant: "destructive"
       });
     }
@@ -172,7 +181,7 @@ const EmployeeManagement = () => {
             ref={fileInputRef}
             type="file"
             className="hidden"
-            accept=".xlsx,.xls"
+            accept=".xlsx,.xls,.csv"
             onChange={handleFileUpload}
           />
           <Button 
@@ -181,7 +190,7 @@ const EmployeeManagement = () => {
             onClick={handleImportClick}
           >
             <Upload className="h-4 w-4" />
-            Import Excel
+            Import Excel/CSV
           </Button>
           <Button onClick={handleAddClick}>
             <Plus className="mr-2 h-4 w-4" />
