@@ -6,13 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Users, Calendar } from "lucide-react";
+import { Search, Filter, Users, Calendar, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const CommitteeSearch = () => {
   const { data: committees } = useMockDb<Committee>("committees");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const navigate = useNavigate();
 
   const departments = Array.from(
     new Set(
@@ -30,6 +32,10 @@ const CommitteeSearch = () => {
       committee.members.some((member) => member.department === departmentFilter);
     return matchesSearch && matchesStatus && matchesDepartment;
   });
+
+  const handleCommitteeClick = (committeeId: number) => {
+    navigate(`/committees/${committeeId}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -76,10 +82,17 @@ const CommitteeSearch = () => {
 
       <div className="grid gap-4">
         {filteredCommittees.map((committee) => (
-          <Card key={committee.id} className="p-4">
+          <Card 
+            key={committee.id} 
+            className="p-4 cursor-pointer hover:shadow-md transition-all"
+            onClick={() => handleCommitteeClick(committee.id)}
+          >
             <div className="flex flex-col gap-2">
               <div className="flex items-start justify-between">
-                <h3 className="font-semibold">{committee.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">{committee.name}</h3>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </div>
                 <Badge variant={committee.approvalStatus === "approved" ? "default" : "secondary"}>
                   {committee.approvalStatus}
                 </Badge>
