@@ -11,8 +11,8 @@ import { Search, Filter, Users, Calendar } from "lucide-react";
 const CommitteeSearch = () => {
   const { data: committees } = useMockDb<Committee>("committees");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [departmentFilter, setDepartmentFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
 
   const departments = Array.from(
     new Set(
@@ -25,8 +25,8 @@ const CommitteeSearch = () => {
   const filteredCommittees = committees.filter((committee) => {
     const matchesSearch = committee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       committee.purpose.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || committee.approvalStatus === statusFilter;
-    const matchesDepartment = !departmentFilter ||
+    const matchesStatus = statusFilter === "all" || committee.approvalStatus === statusFilter;
+    const matchesDepartment = departmentFilter === "all" ||
       committee.members.some((member) => member.department === departmentFilter);
     return matchesSearch && matchesStatus && matchesDepartment;
   });
@@ -50,7 +50,7 @@ const CommitteeSearch = () => {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="approved">Approved</SelectItem>
@@ -63,7 +63,7 @@ const CommitteeSearch = () => {
               <SelectValue placeholder="Filter by department" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Departments</SelectItem>
+              <SelectItem value="all">All Departments</SelectItem>
               {departments.map((dept) => (
                 <SelectItem key={dept} value={dept}>
                   {dept}
