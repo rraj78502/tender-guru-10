@@ -9,6 +9,7 @@ import Navigation from "./components/layout/Navigation";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LoginForm from "./components/auth/LoginForm";
+import CommitteeDetail from "./components/committee/CommitteeDetail";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<LoginForm />} />
+                <Route path="/committees/:id" element={<CommitteeDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
