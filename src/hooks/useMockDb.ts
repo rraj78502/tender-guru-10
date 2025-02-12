@@ -8,9 +8,11 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
 
   useEffect(() => {
     const loadData = () => {
+      console.log(`Loading data from collection: ${collection}`);
       const result = query 
         ? db.query(collection as any, query)
         : db.getAll(collection as any);
+      console.log(`Data loaded from ${collection}:`, result);
       setData(result as T[]);
     };
 
@@ -19,6 +21,7 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
     // Add event listener for storage changes
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'mockDb') {
+        console.log('MockDb storage changed, reloading data');
         loadData();
       }
     };
@@ -28,12 +31,15 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
   }, [collection, query]);
 
   const create = (item: Omit<T, 'id'>) => {
+    console.log(`Creating new item in ${collection}:`, item);
     const result = db.create(collection as any, item);
+    console.log(`Created item result:`, result);
     setData(prev => [...prev, result as T]);
     return result;
   };
 
   const update = (id: number, updates: Partial<T>) => {
+    console.log(`Updating item ${id} in ${collection}:`, updates);
     const result = db.update(collection as any, id, updates);
     if (result) {
       setData(prev => prev.map(item => 
@@ -44,6 +50,7 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
   };
 
   const remove = (id: number) => {
+    console.log(`Removing item ${id} from ${collection}`);
     const success = db.delete(collection as any, id);
     if (success) {
       setData(prev => prev.filter(item => (item as any).id !== id));
@@ -52,6 +59,7 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
   };
 
   const getById = (id: number) => {
+    console.log(`Getting item ${id} from ${collection}`);
     return db.getById(collection as any, id);
   };
 

@@ -46,6 +46,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Creating committee with name:', name);
     
     if (!members.some(m => m.role === 'chairperson')) {
       toast({
@@ -82,7 +83,9 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       approvalStatus: 'draft'
     };
 
+    console.log('About to create committee:', committee);
     const createdCommittee = createCommittee(committee);
+    console.log('Created committee:', createdCommittee);
     
     if (onCreateCommittee) {
       onCreateCommittee(createdCommittee);
@@ -207,3 +210,4 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
+
