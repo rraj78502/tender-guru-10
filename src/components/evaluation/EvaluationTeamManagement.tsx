@@ -1,21 +1,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { Badge } from "@/components/ui/badge";
-import { UserPlus, Key, Mail } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { EvaluationTeam, EvaluationTeamMember, EvaluationTeamRole } from "@/types/evaluation";
+import AddMemberForm from "./team/AddMemberForm";
+import MemberList from "./team/MemberList";
+import OTPVerification from "./team/OTPVerification";
 
 interface Props {
   team: EvaluationTeam;
@@ -41,7 +32,11 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
 
   const handleGenerateOTP = async (member: EvaluationTeamMember) => {
     const mockOTP = Math.random().toString(36).slice(-6);
-    setSelectedMember({ ...member, otp: mockOTP, otpValidUntil: new Date(Date.now() + 30 * 60000).toISOString() });
+    setSelectedMember({ 
+      ...member, 
+      otp: mockOTP, 
+      otpValidUntil: new Date(Date.now() + 30 * 60000).toISOString() 
+    });
     setShowOTPInput(true);
     
     toast({
@@ -73,6 +68,10 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
     }
     setShowOTPInput(false);
     setSelectedMember(null);
+  };
+
+  const handleNewMemberChange = (field: string, value: string) => {
+    setNewMember(prev => ({ ...prev, [field]: value }));
   };
 
   const handleAddMember = () => {
@@ -112,6 +111,13 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
     });
   };
 
+  const handleSendInstructions = (member: EvaluationTeamMember) => {
+    toast({
+      title: "Access Instructions Sent",
+      description: `Instructions have been sent to ${member.email}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -128,134 +134,25 @@ const EvaluationTeamManagement = ({ team, onTeamUpdate }: Props) => {
       </div>
 
       {showAddMember && (
-        <div className="p-4 border rounded-lg space-y-4">
-          <h4 className="font-medium">Add New Team Member</h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={newMember.name}
-                onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={newMember.email}
-                onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="role">Role</Label>
-              <select
-                id="role"
-                className="w-full p-2 border rounded-md"
-                value={newMember.role}
-                onChange={(e) => setNewMember({ ...newMember, role: e.target.value as EvaluationTeamRole })}
-              >
-                <option value="member">Member</option>
-                <option value="chair">Chair</option>
-                <option value="secretary">Secretary</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="department">Department</Label>
-              <Input
-                id="department"
-                value={newMember.department}
-                onChange={(e) => setNewMember({ ...newMember, department: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setShowAddMember(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddMember}>
-              Add Member
-            </Button>
-          </div>
-        </div>
+        <AddMemberForm
+          newMember={newMember}
+          onNewMemberChange={handleNewMemberChange}
+          onCancel={() => setShowAddMember(false)}
+          onAdd={handleAddMember}
+        />
       )}
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Department</TableHead>
-            <TableHead>Access Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {team.members.map((member) => (
-            <TableRow key={member.id}>
-              <TableCell>
-                <div>
-                  <p className="font-medium">{member.name}</p>
-                  <p className="text-sm text-gray-500">{member.email}</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline" className="capitalize">{member.role}</Badge>
-              </TableCell>
-              <TableCell>{member.department}</TableCell>
-              <TableCell>
-                <Badge variant={member.hasAccess ? "secondary" : "outline"}>
-                  {member.hasAccess ? "Active" : "Inactive"}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleGenerateOTP(member)}
-                  >
-                    <Key className="mr-2 h-4 w-4" />
-                    Generate OTP
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Access Instructions Sent",
-                        description: `Instructions have been sent to ${member.email}`,
-                      });
-                    }}
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    Send Instructions
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <MemberList
+        members={team.members}
+        onGenerateOTP={handleGenerateOTP}
+        onSendInstructions={handleSendInstructions}
+      />
 
-      {showOTPInput && (
-        <div className="mt-4 p-4 border rounded-lg">
-          <h4 className="text-sm font-medium mb-2">Enter OTP sent to {selectedMember?.email}</h4>
-          <div className="flex gap-4 items-center">
-            <InputOTP
-              maxLength={6}
-              render={({ slots }) => (
-                <InputOTPGroup>
-                  {slots.map((slot, index) => (
-                    <InputOTPSlot key={index} {...slot} index={index} />
-                  ))}
-                </InputOTPGroup>
-              )}
-              onComplete={handleVerifyOTP}
-            />
-          </div>
-        </div>
+      {showOTPInput && selectedMember && (
+        <OTPVerification
+          memberEmail={selectedMember.email}
+          onComplete={handleVerifyOTP}
+        />
       )}
     </div>
   );
