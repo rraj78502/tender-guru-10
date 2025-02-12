@@ -158,7 +158,7 @@ export const mockCommittees: Committee[] = [
       status: "draft",
     },
     reviews: mockReviews.slice(0, 2),
-    approvalStatus: "pending_review",
+    approvalStatus: "pending",
   },
   {
     id: 2,
@@ -203,7 +203,7 @@ export const mockCommittees: Committee[] = [
       status: "draft",
     },
     reviews: [],
-    approvalStatus: "pending_review",
+    approvalStatus: "pending",
   },
   {
     id: 5,
