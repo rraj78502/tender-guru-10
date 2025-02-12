@@ -18,13 +18,11 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
-    assignedTo: 0,
     dueDate: "",
   });
 
   console.log('TaskForm render with:', {
     memberCount: members?.length,
-    currentAssignedTo: newTask.assignedTo,
     membersData: members?.map(m => ({ id: m.id, name: m.name, role: m.role }))
   });
 
@@ -44,24 +42,29 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
       return;
     }
 
-    onTaskCreate({
-      ...newTask,
-      dueDate: date.toISOString(),
-      status: "pending",
-    });
+    if (members && members.length > 0) {
+      // Create a task for each member
+      members.forEach(member => {
+        onTaskCreate({
+          ...newTask,
+          assignedTo: member.id,
+          dueDate: date.toISOString(),
+          status: "pending",
+        });
+      });
 
-    setNewTask({
-      title: "",
-      description: "",
-      assignedTo: 0,
-      dueDate: "",
-    });
-    setDate(undefined);
+      setNewTask({
+        title: "",
+        description: "",
+        dueDate: "",
+      });
+      setDate(undefined);
 
-    toast({
-      title: "Task Created",
-      description: "New task has been assigned successfully",
-    });
+      toast({
+        title: "Tasks Created",
+        description: `Task has been assigned to all ${members.length} committee members`,
+      });
+    }
   };
 
   return (
@@ -70,7 +73,7 @@ const TaskForm = ({ members, onTaskCreate }: TaskFormProps) => {
       <TaskFormFields
         title={newTask.title}
         description={newTask.description}
-        assignedTo={newTask.assignedTo}
+        assignedTo={0}
         members={members}
         onChange={handleFieldChange}
       />
