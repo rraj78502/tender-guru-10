@@ -74,12 +74,17 @@ class MockDatabase {
     collection: K,
     item: Omit<Collections[K][number], 'id'>
   ): Collections[K][number] {
-    console.log(`Creating new item in ${collection}:`, item);
+    console.log(`MockDatabase: Creating new item in ${collection}:`, item);
     const newId = Math.max(...this.data[collection].map((i) => i.id), 0) + 1;
     const newItem = { ...item, id: newId } as Collections[K][number];
+    
+    // Create a new array with the new item
     this.data[collection] = [...this.data[collection], newItem] as Collections[K];
+    
+    // Save to storage immediately
     this.saveToStorage();
-    console.log(`Updated ${collection} collection:`, this.data[collection]);
+    
+    console.log(`MockDatabase: Updated ${collection} collection:`, this.data[collection]);
     return newItem;
   }
 

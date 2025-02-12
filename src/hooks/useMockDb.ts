@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import MockDatabase from '@/services/mockDb/MockDatabase';
 
@@ -18,20 +19,16 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
     console.log(`useMockDb hook initializing for collection: ${collection}`);
     loadData();
 
-    const handleStorageChange = (e: StorageEvent) => {
-      console.log('Storage event detected:', e);
-      if (e.key === 'mockDb') {
-        console.log('MockDb storage changed, reloading data');
-        loadData();
-      }
+    const handleStorageChange = () => {
+      console.log(`Storage change detected for ${collection}, reloading data`);
+      loadData();
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('mockDbUpdate', loadData as any);
+    // Listen for both storage events and custom events
+    window.addEventListener('mockDbUpdate', handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('mockDbUpdate', loadData as any);
+      window.removeEventListener('mockDbUpdate', handleStorageChange);
     };
   }, [collection, query]);
 
@@ -40,11 +37,10 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
     const result = db.create(collection as any, item);
     console.log(`Created item result:`, result);
     
-    // Update local state
+    // Update local state immediately
     setData(prev => [...prev, result as T]);
     
     // Notify other components about the change
-    window.dispatchEvent(new StorageEvent('storage', { key: 'mockDb' }));
     window.dispatchEvent(new Event('mockDbUpdate'));
     
     return result;
@@ -57,8 +53,6 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
       setData(prev => prev.map(item => 
         (item as any).id === id ? result : item
       ));
-      // Notify other components
-      window.dispatchEvent(new StorageEvent('storage', { key: 'mockDb' }));
       window.dispatchEvent(new Event('mockDbUpdate'));
     }
     return result;
@@ -69,8 +63,6 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
     const success = db.delete(collection as any, id);
     if (success) {
       setData(prev => prev.filter(item => (item as any).id !== id));
-      // Notify other components
-      window.dispatchEvent(new StorageEvent('storage', { key: 'mockDb' }));
       window.dispatchEvent(new Event('mockDbUpdate'));
     }
     return success;
@@ -84,16 +76,14 @@ export function useMockDb<T>(collection: string, query?: (item: T) => boolean) {
   const reset = () => {
     console.log(`Resetting ${collection} collection`);
     db.reset();
-    // Notify other components
-    window.dispatchEvent(new StorageEvent('storage', { key: 'mockDb' }));
+    loadData(); // Reload data immediately
     window.dispatchEvent(new Event('mockDbUpdate'));
   };
 
   const clear = () => {
     console.log(`Clearing ${collection} collection`);
     db.clear();
-    // Notify other components
-    window.dispatchEvent(new StorageEvent('storage', { key: 'mockDb' }));
+    loadData(); // Reload data immediately
     window.dispatchEvent(new Event('mockDbUpdate'));
   };
 
