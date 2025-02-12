@@ -9,6 +9,7 @@ import BidEvaluationModule from "@/components/evaluation/BidEvaluationModule";
 import ClarificationManager from "@/components/procurement/ClarificationManager";
 import ComplaintManagement from "@/components/complaint/ComplaintManagement";
 import EmployeeManagement from "@/components/employee/EmployeeManagement";
+import CommitteeSearch from "@/components/committee/search/CommitteeSearch";
 
 interface RoleBasedTabsProps {
   user: User | null;
@@ -24,6 +25,7 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
           <TabsTrigger value="partners">Partners</TabsTrigger>
         )}
         <TabsTrigger value="tenders">Tenders</TabsTrigger>
+        <TabsTrigger value="committees">Committees</TabsTrigger>
         {(user?.role === 'admin' || user?.role === 'committee_member') && (
           <TabsTrigger value="procurement">Procurement</TabsTrigger>
         )}
@@ -51,6 +53,13 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
         <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
           <h1 className="text-3xl font-bold mb-6">Tender Management</h1>
           <TenderList />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="committees">
+        <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
+          <h1 className="text-3xl font-bold mb-6">Committee Search</h1>
+          <CommitteeSearch />
         </div>
       </TabsContent>
 
@@ -93,4 +102,3 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
 };
 
 export default RoleBasedTabs;
-
