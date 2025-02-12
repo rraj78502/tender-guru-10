@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import type { SpecificationReview as SpecificationReviewType, DocumentStatus } from "@/types/committee";
+import type { SpecificationReview as SpecificationReviewType, DocumentStatus, CommitteeMember } from "@/types/committee";
 import ReviewScheduler from "./review/ReviewScheduler";
 import ReviewDocuments from "./review/ReviewDocuments";
 import ReviewInfo from "./review/ReviewInfo";

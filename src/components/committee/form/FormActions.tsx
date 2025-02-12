@@ -21,4 +21,3 @@ const FormActions = ({ onClose }: FormActionsProps) => {
 };
 
 export default FormActions;
-

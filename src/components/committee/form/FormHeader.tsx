@@ -18,4 +18,3 @@ const FormHeader = ({ onClose }: FormHeaderProps) => {
 };
 
 export default FormHeader;
-
