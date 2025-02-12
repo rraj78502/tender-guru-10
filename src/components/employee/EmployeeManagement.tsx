@@ -1,7 +1,5 @@
 
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog } from "@/components/ui/dialog";
 import type { Employee } from "@/types/employee";
@@ -9,22 +7,11 @@ import { useMockDb } from "@/hooks/useMockDb";
 import SearchBar from "./SearchBar";
 import EmployeeList from "./EmployeeList";
 import EmployeeForm from "./EmployeeForm";
+import EmployeeHeader from "./EmployeeHeader";
 import { mockEmployees } from "@/mock/employeeData";
-import * as XLSX from 'xlsx';
-
-interface ExcelEmployeeRow {
-  employeeId: string;
-  name: string;
-  email: string;
-  phone: string;
-  department: string;
-  designation: string;
-  dateJoined: string;
-}
 
 const EmployeeManagement = () => {
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: employees, create: createEmployee } = useMockDb<Employee>('employees');
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -104,100 +91,12 @@ const EmployeeManagement = () => {
     }
   };
 
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const data = await file.arrayBuffer();
-      let jsonData: Partial<ExcelEmployeeRow>[] = [];
-
-      if (file.name.endsWith('.csv')) {
-        // Handle CSV file
-        const workbook = XLSX.read(data, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        jsonData = XLSX.utils.sheet_to_json(worksheet);
-      } else {
-        // Handle Excel file
-        const workbook = XLSX.read(data);
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        jsonData = XLSX.utils.sheet_to_json(worksheet);
-      }
-
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const row of jsonData) {
-        try {
-          const employee: Omit<Employee, 'id'> = {
-            employeeId: String(row.employeeId || ''),
-            name: String(row.name || ''),
-            email: String(row.email || ''),
-            phone: String(row.phone || ''),
-            department: String(row.department || ''),
-            designation: String(row.designation || ''),
-            dateJoined: String(row.dateJoined || new Date().toISOString().split('T')[0]),
-            isActive: true
-          };
-
-          if (!employee.employeeId || !employee.name || !employee.email) {
-            errorCount++;
-            continue;
-          }
-
-          createEmployee(employee);
-          successCount++;
-        } catch (error) {
-          errorCount++;
-        }
-      }
-
-      toast({
-        title: "Bulk Import Complete",
-        description: `Successfully imported ${successCount} employees. ${errorCount} entries had errors.`
-      });
-    } catch (error) {
-      toast({
-        title: "Import Error",
-        description: "Failed to process the file. Please check the format.",
-        variant: "destructive"
-      });
-    }
-
-    // Reset the input
-    e.target.value = '';
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Employee Management</h1>
-        <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept=".xlsx,.xls,.csv"
-            onChange={handleFileUpload}
-          />
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={handleImportClick}
-          >
-            <Upload className="h-4 w-4" />
-            Import Excel/CSV
-          </Button>
-          <Button onClick={handleAddClick}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Employee
-          </Button>
-        </div>
-      </div>
+      <EmployeeHeader 
+        onAddClick={handleAddClick}
+        onImport={createEmployee}
+      />
 
       <div className="flex items-center gap-4 mb-6">
         <SearchBar value={searchTerm} onChange={setSearchTerm} />
