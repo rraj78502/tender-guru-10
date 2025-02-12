@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -57,28 +56,6 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       tasksCount: tasks.length,
       tasks
     });
-    
-    if (!members.some(m => m.role === 'chairperson')) {
-      console.log('Validation failed: No chairperson assigned');
-      toast({
-        title: "Validation Error",
-        description: "Please assign a chairperson to the committee",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate that all members have required fields
-    const invalidMembers = members.filter(m => !m.name || !m.employeeId);
-    if (invalidMembers.length > 0) {
-      console.log('Validation failed: Invalid members found:', invalidMembers);
-      toast({
-        title: "Validation Error",
-        description: "All members must have a name and employee ID",
-        variant: "destructive"
-      });
-      return;
-    }
 
     const committee: Omit<Committee, 'id'> = {
       name,
@@ -223,4 +200,3 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
-
