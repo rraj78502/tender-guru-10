@@ -1,5 +1,6 @@
+
 export type CommitteeTaskStatus = 'pending' | 'in_progress' | 'completed' | 'overdue';
-export type CommitteeApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type CommitteeApprovalStatus = 'draft' | 'pending' | 'pending_review' | 'approved' | 'rejected';
 export type DocumentStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
 
 export interface CommitteeTask {

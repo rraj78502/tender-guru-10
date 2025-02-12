@@ -79,7 +79,7 @@ class MockDatabase {
 
   public getAll<K extends keyof Collections>(collection: K): Collections[K] {
     console.log(`Getting all items from ${collection}:`, this.data[collection]);
-    return [...this.data[collection]]; // Return a copy to prevent direct mutations
+    return [...this.data[collection]];
   }
 
   public getById<K extends keyof Collections>(
@@ -102,15 +102,17 @@ class MockDatabase {
     const newId = Math.max(...this.data[collection].map((i) => i.id), 0) + 1;
     console.log('Generated new ID:', newId);
     
-    // Create new item with ID
+    // Create new item with ID and cast it to the correct type
     const newItem = { ...item, id: newId } as Collections[K][number];
     console.log('Created new item:', newItem);
     
-    // Update collection with new item
-    this.data[collection] = [...this.data[collection], newItem] as Collections[K];
-    console.log(`Updated ${collection} collection:`, this.data[collection]);
+    // Update collection using type assertion
+    this.data = {
+      ...this.data,
+      [collection]: [...this.data[collection], newItem]
+    };
     
-    // Save changes to storage
+    console.log(`Updated ${collection} collection:`, this.data[collection]);
     this.saveToStorage();
     
     return newItem;
@@ -134,9 +136,15 @@ class MockDatabase {
       ...updates,
     } as Collections[K][number];
 
-    const updatedCollection = [...this.data[collection]];
-    updatedCollection[index] = updatedItem;
-    this.data[collection] = updatedCollection as Collections[K];
+    // Update collection using type assertion
+    this.data = {
+      ...this.data,
+      [collection]: [
+        ...this.data[collection].slice(0, index),
+        updatedItem,
+        ...this.data[collection].slice(index + 1)
+      ]
+    };
     
     this.saveToStorage();
     console.log('Update successful:', updatedItem);
@@ -150,7 +158,13 @@ class MockDatabase {
   ): boolean {
     console.log(`Attempting to delete item ${id} from ${collection}`);
     const initialLength = this.data[collection].length;
-    this.data[collection] = this.data[collection].filter((item) => item.id !== id) as Collections[K];
+    
+    // Update collection using type assertion
+    this.data = {
+      ...this.data,
+      [collection]: this.data[collection].filter((item) => item.id !== id)
+    };
+    
     const deleted = initialLength > this.data[collection].length;
     
     if (deleted) {
@@ -168,9 +182,9 @@ class MockDatabase {
     predicate: (item: Collections[K][number]) => boolean
   ): Collections[K] {
     console.log(`Querying ${collection} with predicate`);
-    const results = this.data[collection].filter(predicate) as Collections[K];
+    const results = this.data[collection].filter(predicate);
     console.log('Query results:', results);
-    return results;
+    return results as Collections[K];
   }
 
   public clear(): void {
