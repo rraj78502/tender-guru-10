@@ -20,7 +20,7 @@ interface CommitteeFormProps {
 
 const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   const { toast } = useToast();
-  const { create: createCommittee } = useMockDb<Committee>('committees');
+  const { create: createCommittee, data: committees } = useMockDb<Committee>('committees');
   const [members, setMembers] = useState<CommitteeMember[]>([]);
   const [formDate, setFormDate] = useState("");
   const [specificationDate, setSpecificationDate] = useState("");
@@ -46,9 +46,20 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating committee with name:', name);
+    console.log('Starting committee creation process...');
+    console.log('Current form state:', {
+      name,
+      purpose,
+      formDate,
+      specificationDate,
+      membersCount: members.length,
+      members,
+      tasksCount: tasks.length,
+      tasks
+    });
     
     if (!members.some(m => m.role === 'chairperson')) {
+      console.log('Validation failed: No chairperson assigned');
       toast({
         title: "Validation Error",
         description: "Please assign a chairperson to the committee",
@@ -60,6 +71,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
     // Validate that all members have required fields
     const invalidMembers = members.filter(m => !m.name || !m.employeeId);
     if (invalidMembers.length > 0) {
+      console.log('Validation failed: Invalid members found:', invalidMembers);
       toast({
         title: "Validation Error",
         description: "All members must have a name and employee ID",
@@ -83,9 +95,10 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       approvalStatus: 'draft'
     };
 
-    console.log('About to create committee:', committee);
+    console.log('Attempting to create committee:', committee);
     const createdCommittee = createCommittee(committee);
-    console.log('Created committee:', createdCommittee);
+    console.log('Committee creation result:', createdCommittee);
+    console.log('Current committees in DB:', committees);
     
     if (onCreateCommittee) {
       onCreateCommittee(createdCommittee);
