@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Users, CalendarClock, CheckCircle, AlertCircle } from "lucide-react";
@@ -34,6 +34,15 @@ const getStatusBadge = (status: string) => {
 
 const CommitteeList = () => {
   const { data: committees = [] } = useMockDb<Committee>('committees');
+  
+  useEffect(() => {
+    console.log('CommitteeList component mounted');
+    console.log('Initial committees data:', committees);
+  }, []);
+
+  useEffect(() => {
+    console.log('Committees data updated:', committees);
+  }, [committees]);
   
   console.log('Rendering CommitteeList with committees:', committees);
 
