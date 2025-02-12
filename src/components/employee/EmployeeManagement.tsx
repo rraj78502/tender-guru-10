@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +25,7 @@ interface ExcelEmployeeRow {
 
 const EmployeeManagement = () => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: employees, create: createEmployee } = useMockDb<Employee>('employees');
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -104,6 +105,10 @@ const EmployeeManagement = () => {
     }
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -163,18 +168,21 @@ const EmployeeManagement = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Employee Management</h1>
         <div className="flex gap-2">
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              className="hidden"
-              accept=".xlsx,.xls"
-              onChange={handleFileUpload}
-            />
-            <Button variant="outline" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Import Excel
-            </Button>
-          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".xlsx,.xls"
+            onChange={handleFileUpload}
+          />
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleImportClick}
+          >
+            <Upload className="h-4 w-4" />
+            Import Excel
+          </Button>
           <Button onClick={handleAddClick}>
             <Plus className="mr-2 h-4 w-4" />
             Add Employee
