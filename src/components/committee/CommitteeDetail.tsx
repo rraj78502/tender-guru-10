@@ -15,7 +15,11 @@ const CommitteeDetail = () => {
   const { toast } = useToast();
   const { data: committees } = useMockDb<Committee>("committees");
   
-  const committee = committees.find(c => c.id === Number(id));
+  // Add console.log to debug
+  console.log("Committee ID:", id, "Type:", typeof id);
+  console.log("Committees:", committees);
+  
+  const committee = committees.find(c => c.id === parseInt(id || "0"));
 
   if (!committee) {
     toast({
