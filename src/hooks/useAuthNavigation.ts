@@ -17,11 +17,19 @@ export const useAuthNavigation = (isAuthenticated: boolean, user: User | null) =
       return;
     }
 
-    // If authenticated and on login page, redirect to dashboard
-    if (isAuthenticated && location.pathname === '/login') {
-      if (user) {
-        setDefaultTab(getDefaultTabForRole(user.role));
+    // If authenticated, handle navigation
+    if (isAuthenticated && user) {
+      // Set default tab based on role
+      const newDefaultTab = getDefaultTabForRole(user.role);
+      setDefaultTab(newDefaultTab);
+
+      // Show welcome message only when coming from login
+      if (location.pathname === '/login') {
         showWelcomeToast(user.role, toast);
+      }
+
+      // Navigate to home page if not already there
+      if (location.pathname === '/login' || location.pathname === '/dashboard') {
         navigate('/');
       }
     }
