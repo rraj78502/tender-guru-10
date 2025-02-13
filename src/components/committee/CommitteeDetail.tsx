@@ -15,15 +15,28 @@ const CommitteeDetail = () => {
   const { toast } = useToast();
   const { data: committees } = useMockDb<Committee>("committees");
   
-  const committee = committees.find(c => c.id === parseInt(id || "0"));
+  // Add debug logs
+  console.log("Looking for committee with ID:", id);
+  console.log("Available committees:", committees);
+  
+  // Ensure committees is loaded and properly handle ID comparison
+  const committee = committees?.find(c => c.id === Number(id));
+  
+  console.log("Found committee:", committee);
 
-  if (!committee) {
+  // Only show not found toast if committees are loaded and committee isn't found
+  if (committees.length > 0 && !committee) {
     toast({
       title: "Committee not found",
       description: "The requested committee could not be found.",
       variant: "destructive",
     });
     navigate("/");
+    return null;
+  }
+
+  // Return loading or null while committees are loading
+  if (!committee) {
     return null;
   }
 
