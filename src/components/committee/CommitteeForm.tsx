@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -57,12 +58,20 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
       tasks
     });
 
+    // Create a clean committee object without circular references
     const committee: Omit<Committee, 'id'> = {
       name,
       purpose,
       formationDate: formDate,
-      members,
-      tasks,
+      members: members.map(member => ({
+        ...member,
+        tasks: [] // Initialize with empty tasks array to prevent circular refs
+      })),
+      tasks: tasks.map(task => ({
+        ...task,
+        attachments: [],
+        comments: []
+      })),
       specifications: {
         submissionDate: specificationDate,
         documents: [],
