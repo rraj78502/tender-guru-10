@@ -33,19 +33,26 @@ const getStatusBadge = (status: string) => {
 };
 
 const CommitteeList = () => {
-  const { data: committees = [] } = useMockDb<Committee>('committees');
+  const { data: committees = [], reset } = useMockDb<Committee>('committees');
   
   useEffect(() => {
-    console.log('CommitteeList component mounted');
-    console.log('Initial committees data:', committees);
-  }, []);
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      console.log('Storage changed, reloading committees data');
+      reset();
+    };
+
+    window.addEventListener('mockDbUpdate', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('mockDbUpdate', handleStorageChange);
+    };
+  }, [reset]);
 
   useEffect(() => {
-    console.log('Committees data updated:', committees);
+    console.log('CommitteeList render with committees:', committees);
   }, [committees]);
   
-  console.log('Rendering CommitteeList with committees:', committees);
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -53,57 +60,54 @@ const CommitteeList = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        {committees.map((committee) => {
-          console.log('Rendering committee:', committee);
-          return (
-            <Card key={committee.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex flex-col md:flex-row justify-between gap-4">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">{committee.name}</h3>
-                    {getStatusBadge(committee.approvalStatus)}
-                  </div>
+        {committees.map((committee) => (
+          <Card key={committee.id} className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold">{committee.name}</h3>
+                  {getStatusBadge(committee.approvalStatus)}
+                </div>
 
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <CalendarClock className="h-4 w-4" />
-                      <span>Formed: {new Date(committee.formationDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <FileText className="h-4 w-4" />
-                      <span>Specification Due: {new Date(committee.specifications.submissionDate).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>{committee.members.length} Members</span>
-                    </div>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <CalendarClock className="h-4 w-4" />
+                    <span>Formed: {new Date(committee.formationDate).toLocaleDateString()}</span>
                   </div>
-
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Committee Members:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {committee.members.map((member, index) => (
-                        <Badge
-                          key={index}
-                          variant={member.role === "chairperson" ? "default" : "outline"}
-                          className="capitalize"
-                        >
-                          {member.name || 'Unnamed Member'} ({member.role})
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-4 w-4" />
+                    <span>Specification Due: {new Date(committee.specifications.submissionDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{committee.members.length} Members</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 min-w-[120px]">
-                  <Badge variant="outline" className="text-center">
-                    Tasks: {committee.tasks.length}
-                  </Badge>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Committee Members:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {committee.members.map((member, index) => (
+                      <Badge
+                        key={index}
+                        variant={member.role === "chairperson" ? "default" : "outline"}
+                        className="capitalize"
+                      >
+                        {member.name || 'Unnamed Member'} ({member.role})
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </Card>
-          );
-        })}
+
+              <div className="flex flex-col gap-2 min-w-[120px]">
+                <Badge variant="outline" className="text-center">
+                  Tasks: {committee.tasks.length}
+                </Badge>
+              </div>
+            </div>
+          </Card>
+        ))}
 
         {committees.length === 0 && (
           <div className="text-center py-8 text-gray-500">

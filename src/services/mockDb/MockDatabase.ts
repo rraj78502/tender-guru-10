@@ -71,6 +71,7 @@ class MockDatabase {
     try {
       console.log('Saving data to localStorage:', this.data);
       localStorage.setItem('mockDb', JSON.stringify(this.data));
+      window.dispatchEvent(new Event('mockDbUpdate'));
       console.log('Data successfully saved to localStorage');
     } catch (error) {
       console.error('Error saving to localStorage:', error);
