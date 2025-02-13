@@ -1,11 +1,11 @@
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useMockDb } from "@/hooks/useMockDb";
 import { Committee } from "@/types/committee";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, Users, FileText, Clock } from "lucide-react";
+import { Calendar, ArrowLeft, Users, FileText, Clock, Home } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,10 +14,6 @@ const CommitteeDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: committees } = useMockDb<Committee>("committees");
-  
-  // Add console.log to debug
-  console.log("Committee ID:", id, "Type:", typeof id);
-  console.log("Committees:", committees);
   
   const committee = committees.find(c => c.id === parseInt(id || "0"));
 
@@ -33,14 +29,22 @@ const CommitteeDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <Button 
-        variant="outline" 
-        onClick={() => navigate(-1)}
-        className="mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
-      </Button>
+      <div className="flex items-center gap-2 mb-6">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+        <Link to="/">
+          <Button variant="ghost" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Home
+          </Button>
+        </Link>
+      </div>
 
       <div className="space-y-6">
         <div className="flex justify-between items-start">
