@@ -16,6 +16,8 @@ export const useAuthNavigation = (isAuthenticated: boolean, user: User | null) =
     }
 
     if (user) {
+      navigate('/'); // Redirect to index route which contains our dashboard
+      
       switch (user.role) {
         case 'procurement_officer':
           setDefaultTab('tenders');
