@@ -6,7 +6,7 @@ import CommitteeSearch from '@/components/committee/search/CommitteeSearch';
 import CommitteeForm from '@/components/committee/CommitteeForm';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Committee } from '@/types/committee';
 
@@ -26,14 +26,30 @@ const CommitteePage = () => {
 
   if (isCreateRoute) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
-          <Card className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 shadow-lg">
-            <CommitteeForm 
-              onClose={() => navigate('/committee')}
-              onCreateCommittee={handleCreateCommittee}
-            />
-          </Card>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+          <div className="max-w-4xl mx-auto">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/committee')}
+              className="mb-4 -ml-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Committee List
+            </Button>
+            
+            <Card className="overflow-hidden bg-white/95 backdrop-blur-sm shadow-xl ring-1 ring-gray-900/5">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-50" />
+                <div className="relative p-4 sm:p-6 lg:p-8">
+                  <CommitteeForm 
+                    onClose={() => navigate('/committee')}
+                    onCreateCommittee={handleCreateCommittee}
+                  />
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     );
@@ -44,23 +60,33 @@ const CommitteePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
-        <Card className="p-4 sm:p-6 lg:p-8 shadow-lg">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h1 className="text-2xl font-bold">Committee Management</h1>
-            <Button 
-              onClick={handleCreateClick}
-              className="flex items-center gap-2 w-full sm:w-auto"
-            >
-              <UserPlus className="h-4 w-4" />
-              Create Committee
-            </Button>
-          </div>
-          
-          <CommitteeSearch />
-          <div className="mt-8">
-            <CommitteeList />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <Card className="overflow-hidden bg-white/95 backdrop-blur-sm shadow-xl ring-1 ring-gray-900/5">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-50" />
+            <div className="relative p-4 sm:p-6 lg:p-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Committee Management</h1>
+                  <p className="mt-1 text-sm text-gray-500">Create and manage your committees</p>
+                </div>
+                <Button 
+                  onClick={handleCreateClick}
+                  className="flex items-center gap-2 w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Create Committee
+                </Button>
+              </div>
+              
+              <div className="mt-6 space-y-6">
+                <CommitteeSearch />
+                <div className="mt-8">
+                  <CommitteeList />
+                </div>
+              </div>
+            </div>
           </div>
         </Card>
       </div>

@@ -8,11 +8,9 @@ interface FormHeaderProps {
 
 const FormHeader = ({ onClose }: FormHeaderProps) => {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-2xl font-bold">Create Committee</h2>
-      <Button variant="ghost" size="icon" onClick={onClose}>
-        <X className="h-4 w-4" />
-      </Button>
+    <div className="space-y-2 mb-8">
+      <h2 className="text-2xl font-bold text-gray-900">Create Committee</h2>
+      <p className="text-sm text-gray-500">Fill in the details to create a new committee</p>
     </div>
   );
 };
