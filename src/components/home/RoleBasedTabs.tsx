@@ -27,12 +27,8 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
         <TabsTrigger value="procurement">Procurement</TabsTrigger>
         <TabsTrigger value="evaluation">Evaluation</TabsTrigger>
         <TabsTrigger value="clarifications">Clarifications</TabsTrigger>
-        {user.role === 'admin' && (
-          <>
-            <TabsTrigger value="complaints">Complaints</TabsTrigger>
-            <TabsTrigger value="employees">Employees</TabsTrigger>
-          </>
-        )}
+        <TabsTrigger value="complaints">Complaints</TabsTrigger>
+        <TabsTrigger value="employees">Employees</TabsTrigger>
       </TabsList>
 
       <TabsContent value="dashboard" className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
