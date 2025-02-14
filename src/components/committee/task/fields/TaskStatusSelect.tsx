@@ -39,4 +39,3 @@ const TaskStatusSelect = ({ status, onStatusChange }: TaskStatusSelectProps) => 
 };
 
 export default TaskStatusSelect;
-
