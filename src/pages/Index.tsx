@@ -1,11 +1,9 @@
 
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import QuickActions from "@/components/home/QuickActions";
 import Modals from "@/components/home/Modals";
 import type { Notification } from "@/types/notification";
 import { mockNotifications } from "@/mock/committeeNotifications";
-import { useAuthNavigation } from "@/hooks/useAuthNavigation";
 import NotificationHandler from "@/components/home/NotificationHandler";
 import RoleBasedTabs from "@/components/home/RoleBasedTabs";
 import DashboardStats from "@/components/dashboard/DashboardStats";
@@ -15,14 +13,20 @@ import { Button } from "@/components/ui/button";
 import { exportToCSV } from "@/utils/exportUtils";
 
 const Index = () => {
-  const { user, isAuthenticated } = useAuth();
-  const { defaultTab } = useAuthNavigation(isAuthenticated, user);
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
   const [showTenderForm, setShowTenderForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
   const [showComplaints, setShowComplaints] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Mock user for dashboard display
+  const mockUser = {
+    id: 1,
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin"
+  };
 
   const handleMarkAsRead = (id: number) => {
     setNotifications(notifications.map(notification => 
@@ -91,7 +95,7 @@ const Index = () => {
 
           {/* Tabs Section */}
           <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn delay-300">
-            <RoleBasedTabs user={user} defaultTab={defaultTab} />
+            <RoleBasedTabs user={mockUser} defaultTab="dashboard" />
           </div>
 
           {/* Modals */}
