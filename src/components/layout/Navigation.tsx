@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell } from "lucide-react";
+import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell, UserPlus, FolderOpen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -35,7 +38,15 @@ const Navigation = () => {
   const navigationItems = [
     { name: "Dashboard", path: "/", icon: Home },
     { name: "Tenders", path: "/tenders", icon: FileText },
-    { name: "Committee", path: "/committee", icon: Users },
+    {
+      name: "Committee",
+      path: "/committee",
+      icon: Users,
+      subItems: [
+        { name: "Create Committee", path: "/committee/create", icon: UserPlus },
+        { name: "View Committees", path: "/committee", icon: FolderOpen },
+      ],
+    },
     { name: "Settings", path: "/settings", icon: Settings },
     { name: "Notifications", path: "/notifications", icon: Bell },
   ];
@@ -73,6 +84,42 @@ const Navigation = () => {
           <div className="hidden lg:flex items-center gap-6">
             {navigationItems.map((item) => {
               const Icon = item.icon;
+              
+              if (item.subItems) {
+                return (
+                  <DropdownMenu key={item.path}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={`flex items-center gap-2 ${
+                          location.pathname.startsWith(item.path)
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.name}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {item.subItems.map((subItem) => {
+                        const SubIcon = subItem.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={subItem.path}
+                            className="cursor-pointer"
+                            onClick={() => navigate(subItem.path)}
+                          >
+                            <SubIcon className="mr-2 h-4 w-4" />
+                            <span>{subItem.name}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
               return (
                 <Button
                   key={item.path}
@@ -129,6 +176,48 @@ const Navigation = () => {
             <div className="space-y-1 pt-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
+
+                if (item.subItems) {
+                  return (
+                    <div key={item.path} className="space-y-1">
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start text-left font-semibold ${
+                          location.pathname.startsWith(item.path)
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        <Icon className="mr-2 h-4 w-4" />
+                        {item.name}
+                      </Button>
+                      <div className="pl-4 space-y-1">
+                        {item.subItems.map((subItem) => {
+                          const SubIcon = subItem.icon;
+                          return (
+                            <Button
+                              key={subItem.path}
+                              variant="ghost"
+                              className={`w-full justify-start text-left ${
+                                isActive(subItem.path)
+                                  ? "bg-gray-100 text-gray-900"
+                                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                              }`}
+                              onClick={() => {
+                                navigate(subItem.path);
+                                setIsMenuOpen(false);
+                              }}
+                            >
+                              <SubIcon className="mr-2 h-4 w-4" />
+                              {subItem.name}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <Button
                     key={item.path}
