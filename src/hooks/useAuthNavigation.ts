@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -26,10 +25,6 @@ export const useAuthNavigation = (isAuthenticated: boolean, user: User | null) =
       // Show welcome message only when coming from login
       if (location.pathname === '/login') {
         showWelcomeToast(user.role, toast);
-      }
-
-      // Navigate to home page if on login or dashboard
-      if (location.pathname === '/login' || location.pathname === '/dashboard') {
         navigate('/');
       }
     }

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,7 @@ const LoginForm = () => {
         } else {
           localStorage.removeItem("rememberedEmail");
         }
-        navigate(`/${defaultTab}`);
+        navigate('/');
       }
     } catch (error) {
       toast({
@@ -264,4 +263,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-
