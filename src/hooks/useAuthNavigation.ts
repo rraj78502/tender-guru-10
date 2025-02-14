@@ -11,10 +11,9 @@ export const useAuthNavigation = (isAuthenticated: boolean, user: User | null) =
   const [defaultTab, setDefaultTab] = useState("dashboard");
 
   useEffect(() => {
-    // If not authenticated and not on login page, redirect to login
-    if (!isAuthenticated && location.pathname !== '/login') {
-      navigate('/login');
-      return;
+    // Temporarily bypass authentication check
+    if (location.pathname === '/login') {
+      navigate('/');
     }
 
     // If authenticated, handle navigation
