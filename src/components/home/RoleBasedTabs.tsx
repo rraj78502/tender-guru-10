@@ -2,7 +2,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User } from "@/types/auth";
 import DashboardContent from "@/components/home/DashboardContent";
-import VendorDashboard from "@/components/vendor/VendorDashboard";
 import TenderList from "@/components/tender/TenderList";
 import ProcurementManagement from "@/components/procurement/ProcurementManagement";
 import BidEvaluationModule from "@/components/evaluation/BidEvaluationModule";
@@ -17,23 +16,18 @@ interface RoleBasedTabsProps {
 }
 
 const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
+  if (!user) return null;
+
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <TabsList className="w-full justify-start mb-6 bg-white/50 backdrop-blur-sm p-1 rounded-lg">
+      <TabsList className="w-full justify-start mb-6 bg-white/50 backdrop-blur-sm p-1 rounded-lg overflow-x-auto flex-nowrap">
         <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-        {(user?.role === 'admin' || user?.role === 'procurement_officer') && (
-          <TabsTrigger value="partners">Partners</TabsTrigger>
-        )}
         <TabsTrigger value="tenders">Tenders</TabsTrigger>
         <TabsTrigger value="committees">Committees</TabsTrigger>
-        {(user?.role === 'admin' || user?.role === 'committee_member') && (
-          <TabsTrigger value="procurement">Procurement</TabsTrigger>
-        )}
-        {(user?.role === 'admin' || user?.role === 'evaluator') && (
-          <TabsTrigger value="evaluation">Evaluation</TabsTrigger>
-        )}
+        <TabsTrigger value="procurement">Procurement</TabsTrigger>
+        <TabsTrigger value="evaluation">Evaluation</TabsTrigger>
         <TabsTrigger value="clarifications">Clarifications</TabsTrigger>
-        {user?.role === 'admin' && (
+        {user.role === 'admin' && (
           <>
             <TabsTrigger value="complaints">Complaints</TabsTrigger>
             <TabsTrigger value="employees">Employees</TabsTrigger>
@@ -45,10 +39,6 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
         <DashboardContent />
       </TabsContent>
 
-      <TabsContent value="partners">
-        <VendorDashboard />
-      </TabsContent>
-
       <TabsContent value="tenders">
         <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
           <h1 className="text-3xl font-bold mb-6">Tender Management</h1>
@@ -58,19 +48,21 @@ const RoleBasedTabs = ({ user, defaultTab }: RoleBasedTabsProps) => {
 
       <TabsContent value="committees">
         <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
-          <h1 className="text-3xl font-bold mb-6">Committee Search</h1>
+          <h1 className="text-3xl font-bold mb-6">Committee Management</h1>
           <CommitteeSearch />
         </div>
       </TabsContent>
 
       <TabsContent value="procurement">
         <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
+          <h1 className="text-3xl font-bold mb-6">Procurement Management</h1>
           <ProcurementManagement tenderId={1} />
         </div>
       </TabsContent>
 
       <TabsContent value="evaluation">
         <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm p-6">
+          <h1 className="text-3xl font-bold mb-6">Bid Evaluation</h1>
           <BidEvaluationModule />
         </div>
       </TabsContent>
