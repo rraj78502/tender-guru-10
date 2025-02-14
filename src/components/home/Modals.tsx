@@ -2,7 +2,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import CommitteeForm from "@/components/CommitteeForm";
+import CommitteeForm from "@/components/committee/CommitteeForm";
 import TenderForm from "@/components/tender/TenderForm";
 import VendorRegistrationForm from "@/components/vendor/VendorRegistrationForm";
 import ComplaintManagement from "@/components/complaint/ComplaintManagement";
