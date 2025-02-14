@@ -2,34 +2,19 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMockDb } from "@/hooks/useMockDb";
-import type { Committee, CommitteeMember, CommitteeTask } from "@/types/committee";
+import type { Committee, CommitteeMember } from "@/types/committee";
 import { mockEmployees } from "@/mock/employeeData";
 
 export const useCommitteeForm = (onClose: () => void, onCreateCommittee?: (committee: Committee) => void) => {
   const { toast } = useToast();
-  const { create: createCommittee, data: committees } = useMockDb<Committee>('committees');
+  const { create: createCommittee } = useMockDb<Committee>('committees');
   const [members, setMembers] = useState<CommitteeMember[]>([]);
   const [formDate, setFormDate] = useState("");
   const [specificationDate, setSpecificationDate] = useState("");
   const [reviewDate, setReviewDate] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [tasks, setTasks] = useState<CommitteeTask[]>([]);
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
-
-  const handleCreateTask = (task: Omit<CommitteeTask, 'id'>) => {
-    const newTask: CommitteeTask = {
-      id: Date.now(),
-      ...task,
-    };
-    setTasks([...tasks, newTask]);
-  };
-
-  const handleUpdateTask = (taskId: number, status: CommitteeTask['status']) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status } : task
-    ));
-  };
 
   const handleAddMember = () => {
     const existingEmployeeIds = new Set(members.map(m => m.employeeId));
@@ -94,11 +79,7 @@ export const useCommitteeForm = (onClose: () => void, onCreateCommittee?: (commi
         ...member,
         tasks: []
       })),
-      tasks: tasks.map(task => ({
-        ...task,
-        attachments: [],
-        comments: []
-      })),
+      tasks: [],
       specifications: {
         submissionDate: specificationDate,
         documents: [],
@@ -133,11 +114,8 @@ export const useCommitteeForm = (onClose: () => void, onCreateCommittee?: (commi
     specificationDate,
     reviewDate,
     selectedFile,
-    tasks,
     name,
     purpose,
-    handleCreateTask,
-    handleUpdateTask,
     handleAddMember,
     handleUpdateMember,
     handleSubmit,

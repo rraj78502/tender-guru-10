@@ -5,7 +5,6 @@ import FormActions from "./form/FormActions";
 import BasicInfoFields from "./BasicInfoFields";
 import DateInputs from "./DateInputs";
 import CommitteeMembers from "./CommitteeMembers";
-import TaskManager from "./TaskManager";
 import FileUpload from "./FileUpload";
 import { useCommitteeForm } from "@/hooks/useCommitteeForm";
 import type { Committee } from "@/types/committee";
@@ -22,11 +21,8 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
     specificationDate,
     reviewDate,
     selectedFile,
-    tasks,
     name,
     purpose,
-    handleCreateTask,
-    handleUpdateTask,
     handleAddMember,
     handleUpdateMember,
     handleSubmit,
@@ -68,16 +64,6 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
             setMembers(members.filter((_, i) => i !== index));
           }}
         />
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Task Management</h3>
-          <TaskManager
-            members={members}
-            tasks={tasks}
-            onTaskCreate={handleCreateTask}
-            onTaskUpdate={handleUpdateTask}
-          />
-        </div>
 
         <FileUpload onFileChange={setSelectedFile} />
 
