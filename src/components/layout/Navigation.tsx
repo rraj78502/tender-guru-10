@@ -1,6 +1,6 @@
 
-import { useNavigate } from "react-router-dom";
-import { LogOut, Menu, User, X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,19 +11,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navigation = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
     navigate("/");
+    setIsMenuOpen(false);
   };
+
+  const navigationItems = [
+    { name: "Dashboard", path: "/", icon: Home },
+    { name: "Tenders", path: "/tenders", icon: FileText },
+    { name: "Committee", path: "/committee", icon: Users },
+    { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Notifications", path: "/notifications", icon: Bell },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-gray-100 z-50">
@@ -35,7 +52,7 @@ const Navigation = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden"
+                className="lg:hidden transition-colors"
               >
                 {isMenuOpen ? (
                   <X className="h-5 w-5" />
@@ -44,16 +61,46 @@ const Navigation = () => {
                 )}
               </Button>
             )}
-            <h1 className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            <h1 
+              onClick={() => navigate("/")}
+              className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent cursor-pointer"
+            >
               Admin Portal
             </h1>
           </div>
+
+          {/* Desktop Navigation */}
+          {!isMobile && isAuthenticated && (
+            <div className="hidden lg:flex items-center gap-6">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    className={`flex items-center gap-2 ${
+                      isActive(item.path)
+                        ? "bg-gray-100 text-gray-900"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                    onClick={() => navigate(item.path)}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.name}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
 
           {isAuthenticated && user && (
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-gray-100">
+                  <Button 
+                    variant="ghost" 
+                    className="relative h-8 w-8 rounded-full hover:bg-gray-100"
+                  >
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -83,15 +130,37 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {isMobile && isMenuOpen && isAuthenticated && (
           <div className="lg:hidden pb-4 animate-slideIn">
-            <div className="space-y-1">
+            <div className="space-y-1 pt-2">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    className={`w-full justify-start text-left ${
+                      isActive(item.path)
+                        ? "bg-gray-100 text-gray-900"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                    onClick={() => {
+                      navigate(item.path);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    {item.name}
+                  </Button>
+                );
+              })}
+              <DropdownMenuSeparator className="my-2" />
               <Button
                 variant="ghost"
-                className="w-full text-left justify-start hover:bg-gray-100"
-                onClick={() => navigate("/")}
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={handleLogout}
               >
-                Dashboard
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
               </Button>
-              {/* Add more mobile menu items here */}
             </div>
           </div>
         )}
