@@ -6,7 +6,6 @@ import { Tender } from "@/types/tender";
 import { getStatusBadge, getApprovalStatusBadge, canTransitionStatus } from "@/utils/tenderUtils";
 import TenderDocuments from "./TenderDocuments";
 import CommentsSection from "../review/CommentsSection";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface TenderTableProps {
   tenders: Tender[];
@@ -31,8 +30,8 @@ const TenderTable = ({
   showComments,
   setShowComments,
 }: TenderTableProps) => {
-  const { user } = useAuth();
-  const canEdit = user?.role === "admin" || user?.role === "procurement_officer";
+  // Mock user permissions - for now we'll allow all actions
+  const canEdit = true;
 
   return (
     <div className="border rounded-lg">
