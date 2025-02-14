@@ -1,17 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import CommitteeList from '@/components/CommitteeList';
 import CommitteeSearch from '@/components/committee/search/CommitteeSearch';
 import CommitteeForm from '@/components/committee/CommitteeForm';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import type { Committee } from '@/types/committee';
 
 const CommitteePage = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const { toast } = useToast();
+  const location = useLocation();
+
+  // Show create form when route is /committee/create
+  useEffect(() => {
+    if (location.pathname === '/committee/create') {
+      setShowCreateForm(true);
+    }
+  }, [location.pathname]);
 
   const handleCreateCommittee = (committee: Committee) => {
     toast({
