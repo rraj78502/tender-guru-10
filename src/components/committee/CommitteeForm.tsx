@@ -36,10 +36,10 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   } = useCommitteeForm(onClose, onCreateCommittee);
 
   return (
-    <FormContainer>
+    <div className="w-full">
       <FormHeader onClose={onClose} />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8 mt-6">
         <BasicInfoFields
           name={name}
           purpose={purpose}
@@ -69,7 +69,7 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 
         <FormActions onClose={onClose} />
       </form>
-    </FormContainer>
+    </div>
   );
 };
 
