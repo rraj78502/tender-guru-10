@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,7 +64,7 @@ const Navigation = () => {
               onClick={() => navigate("/")}
               className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent cursor-pointer"
             >
-              Admin Portal
+              Procurement Portal
             </h1>
           </div>
 
