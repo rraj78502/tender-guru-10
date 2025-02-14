@@ -10,9 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,11 +19,13 @@ const Navigation = () => {
   const location = useLocation();
   const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showCommitteeSubItems, setShowCommitteeSubItems] = useState(false);
   const isMobile = useIsMobile();
 
   // Close menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
+    setShowCommitteeSubItems(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -87,36 +86,45 @@ const Navigation = () => {
               
               if (item.subItems) {
                 return (
-                  <DropdownMenu key={item.path}>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className={`flex items-center gap-2 ${
-                          location.pathname.startsWith(item.path)
-                            ? "bg-gray-100 text-gray-900"
-                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.name}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {item.subItems.map((subItem) => {
-                        const SubIcon = subItem.icon;
-                        return (
-                          <DropdownMenuItem
-                            key={subItem.path}
-                            className="cursor-pointer"
-                            onClick={() => navigate(subItem.path)}
-                          >
-                            <SubIcon className="mr-2 h-4 w-4" />
-                            <span>{subItem.name}</span>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div key={item.path} className="relative">
+                    <Button
+                      variant="ghost"
+                      className={`flex items-center gap-2 ${
+                        location.pathname.startsWith(item.path)
+                          ? "bg-gray-100 text-gray-900"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                      onClick={() => setShowCommitteeSubItems(!showCommitteeSubItems)}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.name}
+                    </Button>
+                    {showCommitteeSubItems && (
+                      <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        {item.subItems.map((subItem) => {
+                          const SubIcon = subItem.icon;
+                          return (
+                            <Button
+                              key={subItem.path}
+                              variant="ghost"
+                              className={`w-full justify-start text-left ${
+                                isActive(subItem.path)
+                                  ? "bg-gray-100 text-gray-900"
+                                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                              }`}
+                              onClick={() => {
+                                navigate(subItem.path);
+                                setShowCommitteeSubItems(false);
+                              }}
+                            >
+                              <SubIcon className="mr-2 h-4 w-4" />
+                              {subItem.name}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               }
 
@@ -187,33 +195,37 @@ const Navigation = () => {
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-600"
                         }`}
+                        onClick={() => setShowCommitteeSubItems(!showCommitteeSubItems)}
                       >
                         <Icon className="mr-2 h-4 w-4" />
                         {item.name}
                       </Button>
-                      <div className="pl-4 space-y-1">
-                        {item.subItems.map((subItem) => {
-                          const SubIcon = subItem.icon;
-                          return (
-                            <Button
-                              key={subItem.path}
-                              variant="ghost"
-                              className={`w-full justify-start text-left ${
-                                isActive(subItem.path)
-                                  ? "bg-gray-100 text-gray-900"
-                                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                              }`}
-                              onClick={() => {
-                                navigate(subItem.path);
-                                setIsMenuOpen(false);
-                              }}
-                            >
-                              <SubIcon className="mr-2 h-4 w-4" />
-                              {subItem.name}
-                            </Button>
-                          );
-                        })}
-                      </div>
+                      {showCommitteeSubItems && (
+                        <div className="pl-4 space-y-1">
+                          {item.subItems.map((subItem) => {
+                            const SubIcon = subItem.icon;
+                            return (
+                              <Button
+                                key={subItem.path}
+                                variant="ghost"
+                                className={`w-full justify-start text-left ${
+                                  isActive(subItem.path)
+                                    ? "bg-gray-100 text-gray-900"
+                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                }`}
+                                onClick={() => {
+                                  navigate(subItem.path);
+                                  setIsMenuOpen(false);
+                                  setShowCommitteeSubItems(false);
+                                }}
+                              >
+                                <SubIcon className="mr-2 h-4 w-4" />
+                                {subItem.name}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   );
                 }
