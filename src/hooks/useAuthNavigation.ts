@@ -28,7 +28,7 @@ export const useAuthNavigation = (isAuthenticated: boolean, user: User | null) =
         showWelcomeToast(user.role, toast);
       }
 
-      // Navigate to home page if not already there
+      // Navigate to home page if on login or dashboard
       if (location.pathname === '/login' || location.pathname === '/dashboard') {
         navigate('/');
       }
