@@ -17,7 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -43,11 +43,11 @@ const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-gray-100 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            {isMobile && isAuthenticated && (
+            {isMobile && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -63,35 +63,33 @@ const Navigation = () => {
             )}
             <h1 
               onClick={() => navigate("/")}
-              className="text-xl font-semibold text-gray-900 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent cursor-pointer"
+              className="text-xl font-semibold text-gray-900 cursor-pointer"
             >
               Procurement Portal
             </h1>
           </div>
 
           {/* Desktop Navigation */}
-          {!isMobile && (
-            <div className="hidden lg:flex items-center gap-6">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Button
-                    key={item.path}
-                    variant="ghost"
-                    className={`flex items-center gap-2 ${
-                      isActive(item.path)
-                        ? "bg-gray-100 text-gray-900"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                    onClick={() => navigate(item.path)}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.name}
-                  </Button>
-                );
-              })}
-            </div>
-          )}
+          <div className="hidden lg:flex items-center gap-6">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={`flex items-center gap-2 ${
+                    isActive(item.path)
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                  onClick={() => navigate(item.path)}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.name}
+                </Button>
+              );
+            })}
+          </div>
 
           <div className="flex items-center gap-4">
             <DropdownMenu>
@@ -127,7 +125,7 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
         {isMobile && isMenuOpen && (
-          <div className="lg:hidden pb-4 animate-slideIn">
+          <div className="lg:hidden pb-4">
             <div className="space-y-1 pt-2">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
