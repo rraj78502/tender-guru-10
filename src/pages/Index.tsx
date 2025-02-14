@@ -40,10 +40,7 @@ const Index = () => {
     exportToCSV(notifications, 'notifications');
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // Removed the authentication check that was preventing content from showing
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -79,16 +76,14 @@ const Index = () => {
           </div>
 
           {/* Quick Actions Section */}
-          {user?.role === 'admin' && (
-            <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn delay-100">
-              <QuickActions 
-                onShowCommitteeForm={() => setShowCommitteeForm(true)}
-                onShowTenderForm={() => setShowTenderForm(true)}
-                onShowVendorForm={() => setShowVendorForm(true)}
-                onShowComplaints={() => setShowComplaints(true)}
-              />
-            </div>
-          )}
+          <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn delay-100">
+            <QuickActions 
+              onShowCommitteeForm={() => setShowCommitteeForm(true)}
+              onShowTenderForm={() => setShowTenderForm(true)}
+              onShowVendorForm={() => setShowVendorForm(true)}
+              onShowComplaints={() => setShowComplaints(true)}
+            />
+          </div>
 
           {/* Stats Section */}
           <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn delay-200">
