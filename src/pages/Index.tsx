@@ -40,7 +40,6 @@ const Index = () => {
     exportToCSV(notifications, 'notifications');
   };
 
-  // Removed the authentication check that was preventing content from showing
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">

@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,7 +70,7 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Navigation */}
-          {!isMobile && isAuthenticated && (
+          {!isMobile && (
             <div className="hidden lg:flex items-center gap-6">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -92,42 +93,40 @@ const Navigation = () => {
             </div>
           )}
 
-          {isAuthenticated && user && (
-            <div className="flex items-center gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="relative h-8 w-8 rounded-full hover:bg-gray-100"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={handleLogout}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="relative h-8 w-8 rounded-full hover:bg-gray-100"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Guest User</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      guest@example.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMobile && isMenuOpen && isAuthenticated && (
+        {isMobile && isMenuOpen && (
           <div className="lg:hidden pb-4 animate-slideIn">
             <div className="space-y-1 pt-2">
               {navigationItems.map((item) => {
