@@ -11,6 +11,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { exportToCSV } from "@/utils/exportUtils";
+import type { User, UserRole } from "@/types/auth";
 
 const Index = () => {
   const [showCommitteeForm, setShowCommitteeForm] = useState(false);
@@ -21,11 +22,11 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
   // Mock user for dashboard display with correct User type properties
-  const mockUser = {
+  const mockUser: User = {
     id: 1,
     name: "Admin User",
     email: "admin@example.com",
-    role: "admin",
+    role: "admin" as UserRole,
     permissions: ["manage_users", "manage_tenders", "manage_committees"],
     isActive: true
   };

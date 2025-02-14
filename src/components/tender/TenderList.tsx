@@ -1,7 +1,5 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TenderPreview from "./TenderPreview";
@@ -15,7 +13,6 @@ import { mockTenders } from "@/mock/tenderData";
 
 const TenderList = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [tenders, setTenders] = useState<Tender[]>(mockTenders);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TenderStatus | "all">("all");
@@ -26,8 +23,8 @@ const TenderList = () => {
   const [showComments, setShowComments] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const canCreateTender = user?.role === "admin" || user?.role === "procurement_officer";
-  const canApproveTender = user?.role === "admin";
+  const canCreateTender = true;
+  const canApproveTender = true;
 
   const handleCreateTender = (tenderData: Omit<Tender, "id" | "comments" | "documents">) => {
     const newTender: Tender = {
@@ -84,7 +81,7 @@ const TenderList = () => {
     const newComment: TenderComment = {
       id: Date.now(),
       text,
-      author: user?.name || "Unknown User",
+      author: "Unknown User",
       createdAt: now.toISOString(),
       timestamp: now.toISOString(),
     };
