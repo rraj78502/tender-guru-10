@@ -36,36 +36,38 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
   } = useCommitteeForm(onClose, onCreateCommittee);
 
   return (
-    <div className="w-full">
+    <div className="w-full slide-in fade-in">
       <FormHeader onClose={onClose} />
 
       <form onSubmit={handleSubmit} className="space-y-8 mt-6">
-        <BasicInfoFields
-          name={name}
-          purpose={purpose}
-          onNameChange={setName}
-          onPurposeChange={setPurpose}
-        />
+        <div className="space-y-6">
+          <BasicInfoFields
+            name={name}
+            purpose={purpose}
+            onNameChange={setName}
+            onPurposeChange={setPurpose}
+          />
 
-        <DateInputs
-          formDate={formDate}
-          specificationDate={specificationDate}
-          reviewDate={reviewDate}
-          onFormDateChange={setFormDate}
-          onSpecificationDateChange={setSpecificationDate}
-          onReviewDateChange={setReviewDate}
-        />
+          <DateInputs
+            formDate={formDate}
+            specificationDate={specificationDate}
+            reviewDate={reviewDate}
+            onFormDateChange={setFormDate}
+            onSpecificationDateChange={setSpecificationDate}
+            onReviewDateChange={setReviewDate}
+          />
 
-        <CommitteeMembers
-          members={members}
-          onAddMember={handleAddMember}
-          onUpdateMember={handleUpdateMember}
-          onRemoveMember={(index) => {
-            setMembers(members.filter((_, i) => i !== index));
-          }}
-        />
+          <CommitteeMembers
+            members={members}
+            onAddMember={handleAddMember}
+            onUpdateMember={handleUpdateMember}
+            onRemoveMember={(index) => {
+              setMembers(members.filter((_, i) => i !== index));
+            }}
+          />
 
-        <FileUpload onFileChange={setSelectedFile} />
+          <FileUpload onFileChange={setSelectedFile} />
+        </div>
 
         <FormActions onClose={onClose} />
       </form>
