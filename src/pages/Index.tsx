@@ -20,12 +20,14 @@ const Index = () => {
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Mock user for dashboard display
+  // Mock user for dashboard display with correct User type properties
   const mockUser = {
     id: 1,
     name: "Admin User",
     email: "admin@example.com",
-    role: "admin"
+    role: "admin",
+    permissions: ["manage_users", "manage_tenders", "manage_committees"],
+    isActive: true
   };
 
   const handleMarkAsRead = (id: number) => {

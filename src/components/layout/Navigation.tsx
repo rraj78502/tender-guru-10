@@ -1,7 +1,6 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { LogOut, Menu, User, X, Home, FileText, Users, Settings, Bell, UserPlus, FolderOpen } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,11 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCommitteeSubItems, setShowCommitteeSubItems] = useState(false);
   const isMobile = useIsMobile();
@@ -29,7 +29,10 @@ const Navigation = () => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    logout();
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out."
+    });
     navigate("/");
     setIsMenuOpen(false);
   };
