@@ -178,3 +178,4 @@ class MockDatabase {
 }
 
 export default MockDatabase;
+

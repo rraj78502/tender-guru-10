@@ -209,3 +209,4 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
 };
 
 export default CommitteeForm;
+
