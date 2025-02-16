@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCommitteeSubItems, setShowCommitteeSubItems] = useState(false);
   const isMobile = useIsMobile();
@@ -29,10 +29,7 @@ const Navigation = () => {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out."
-    });
+    logout();
     navigate("/");
     setIsMenuOpen(false);
   };
@@ -162,9 +159,11 @@ const Navigation = () => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Guest User</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name || "Guest User"}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      guest@example.com
+                      {user?.email || "guest@example.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
