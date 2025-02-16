@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CommitteeList from '@/components/CommitteeList';
 import CommitteeSearch from '@/components/committee/search/CommitteeSearch';
 import CommitteeForm from '@/components/committee/CommitteeForm';
 import { Card } from '@/components/ui/card';
@@ -76,9 +75,8 @@ const CommitteePage = () => {
                 </Button>
               </div>
               
-              <div className="mt-6 space-y-6">
+              <div className="mt-6">
                 <CommitteeSearch />
-                <CommitteeList />
               </div>
             </div>
           </div>
