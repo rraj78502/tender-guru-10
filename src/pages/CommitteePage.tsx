@@ -55,10 +55,6 @@ const CommitteePage = () => {
     );
   }
 
-  const handleCreateClick = () => {
-    navigate('/committee/create');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
@@ -72,7 +68,7 @@ const CommitteePage = () => {
                   <p className="mt-1 text-sm text-gray-500">Create and manage your committees</p>
                 </div>
                 <Button 
-                  onClick={handleCreateClick}
+                  onClick={() => navigate('/committee/create')}
                   className="flex items-center gap-2 w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <UserPlus className="h-4 w-4" />
@@ -82,9 +78,7 @@ const CommitteePage = () => {
               
               <div className="mt-6 space-y-6">
                 <CommitteeSearch />
-                <div className="mt-8">
-                  <CommitteeList />
-                </div>
+                <CommitteeList />
               </div>
             </div>
           </div>
