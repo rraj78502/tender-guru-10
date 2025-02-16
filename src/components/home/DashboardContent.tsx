@@ -2,7 +2,6 @@
 import React from "react";
 import TenderList from "@/components/tender/TenderList";
 import ReviewModule from "@/components/ReviewModule";
-import CommitteeList from "@/components/CommitteeList";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import SpecificationTracker from "@/components/specification/SpecificationTracker";
 import ProcurementManagement from "@/components/procurement/ProcurementManagement";
@@ -29,9 +28,6 @@ const DashboardContent = () => {
         <div>
           <h2 className="text-2xl font-bold mb-6">Pending Reviews</h2>
           <ReviewModule {...reviewData} />
-        </div>
-        <div>
-          <CommitteeList />
         </div>
       </div>
 
