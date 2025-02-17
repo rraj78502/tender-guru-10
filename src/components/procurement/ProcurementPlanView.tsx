@@ -38,7 +38,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: Users,
       status: "Pending Formation",
       statusColor: "text-yellow-600",
-      path: `/committee/${plan.id}`
+      path: `/committees/${plan.id}`
     },
     {
       title: "Specification",
