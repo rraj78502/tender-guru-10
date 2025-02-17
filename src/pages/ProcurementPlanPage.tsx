@@ -110,8 +110,9 @@ const ProcurementPlanPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[80px]">ID</TableHead>
-                    <TableHead className="w-[140px]">Policy Number</TableHead>
-                    <TableHead className="w-[140px]">Department</TableHead>
+                    <TableHead className="w-[120px]">Policy Number</TableHead>
+                    <TableHead className="w-[120px]">Department</TableHead>
+                    <TableHead className="w-[100px]">Dept. Index</TableHead>
                     <TableHead>Project Name</TableHead>
                     <TableHead>Project Description</TableHead>
                     <TableHead className="text-right">Estimated Cost</TableHead>
@@ -124,43 +125,49 @@ const ProcurementPlanPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPlans.map((plan) => (
-                    <TableRow key={plan.id}>
-                      <TableCell>{plan.id}</TableCell>
-                      <TableCell>{plan.policy_number}</TableCell>
-                      <TableCell>{plan.department}</TableCell>
-                      <TableCell className="font-medium max-w-[200px] truncate">
-                        {plan.project_name}
-                      </TableCell>
-                      <TableCell className="max-w-[300px] truncate">
-                        {plan.project_description}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(plan.estimated_cost)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(plan.proposed_budget)}
-                      </TableCell>
-                      {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => (
-                        <TableCell key={quarter} className="text-center">
-                          {getQuarterStatusDisplay(
-                            plan.quarterly_targets.find(t => t.quarter === quarter) || 
-                            { status: 'Planned', target_details: 'No task planned' }
-                          )}
+                  {filteredPlans.map((plan) => {
+                    const deptIndex = plan.policy_number.split('-').slice(-1)[0];
+                    const policyNumber = plan.policy_number.split('-').slice(0, -1).join('-');
+                    
+                    return (
+                      <TableRow key={plan.id}>
+                        <TableCell>{plan.id}</TableCell>
+                        <TableCell>{policyNumber}</TableCell>
+                        <TableCell>{plan.department}</TableCell>
+                        <TableCell>{deptIndex}</TableCell>
+                        <TableCell className="font-medium max-w-[200px] truncate">
+                          {plan.project_name}
                         </TableCell>
-                      ))}
-                      <TableCell>
-                        <div className="flex gap-2 justify-end">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <TableCell className="max-w-[300px] truncate">
+                          {plan.project_description}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(plan.estimated_cost)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(plan.proposed_budget)}
+                        </TableCell>
+                        {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => (
+                          <TableCell key={quarter} className="text-center">
+                            {getQuarterStatusDisplay(
+                              plan.quarterly_targets.find(t => t.quarter === quarter) || 
+                              { status: 'Planned', target_details: 'No task planned' }
+                            )}
+                          </TableCell>
+                        ))}
+                        <TableCell>
+                          <div className="flex gap-2 justify-end">
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
