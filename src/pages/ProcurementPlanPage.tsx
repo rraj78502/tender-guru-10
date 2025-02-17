@@ -29,6 +29,7 @@ import {
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
+import ProcurementPlanForm from '@/components/procurement/ProcurementPlanForm';
 
 const ProcurementPlanPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,6 +40,8 @@ const ProcurementPlanPage = () => {
   const [plans, setPlans] = useState<ProcurementPlan[]>(mockProcurementPlans);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
@@ -115,6 +118,25 @@ const ProcurementPlanPage = () => {
         </Tooltip>
       </TooltipProvider>
     );
+  };
+
+  const handleAddNewPlan = (newPlan: Omit<ProcurementPlan, 'id'>) => {
+    const lastId = Math.max(...plans.map(p => p.id), 0);
+    const planWithId = {
+      ...newPlan,
+      id: lastId + 1,
+      quarterly_targets: newPlan.quarterly_targets.map((target, index) => ({
+        ...target,
+        id: (lastId + 1) * 4 + index + 1,
+        procurement_plan_id: lastId + 1
+      }))
+    };
+
+    setPlans(prev => [...prev, planWithId]);
+    toast({
+      title: "Success",
+      description: "New procurement plan has been added successfully.",
+    });
   };
 
   return (
@@ -291,7 +313,10 @@ const ProcurementPlanPage = () => {
                 <Download className="h-4 w-4 mr-2" />
                 Export to Excel
               </Button>
-              <Button className="w-full sm:w-auto">
+              <Button 
+                className="w-full sm:w-auto"
+                onClick={() => setIsAddDialogOpen(true)}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Procurement Item
               </Button>
@@ -299,6 +324,11 @@ const ProcurementPlanPage = () => {
           </div>
         </Card>
       </div>
+      <ProcurementPlanForm
+        open={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSubmit={handleAddNewPlan}
+      />
     </div>
   );
 };
