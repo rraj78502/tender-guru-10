@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +31,7 @@ import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { addDays } from "date-fns";
 import ProcurementPlanForm from '@/components/procurement/ProcurementPlanForm';
+import ProcurementPlanView from '@/components/procurement/ProcurementPlanView';
 
 const ProcurementPlanPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,6 +43,8 @@ const ProcurementPlanPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<ProcurementPlan | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const formatCurrency = (amount: number) => {
@@ -139,6 +141,11 @@ const ProcurementPlanPage = () => {
       title: "Success",
       description: "New procurement plan has been added successfully.",
     });
+  };
+
+  const handleView = (plan: ProcurementPlan) => {
+    setSelectedPlan(plan);
+    setIsViewDialogOpen(true);
   };
 
   return (
@@ -258,7 +265,7 @@ const ProcurementPlanPage = () => {
                         ))}
                         <TableCell>
                           <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" onClick={() => handleView(plan)}>
                               <Eye className="h-4 w-4" />
                             </Button>
                             <Button variant="outline" size="sm">
@@ -331,6 +338,16 @@ const ProcurementPlanPage = () => {
         onClose={() => setIsAddDialogOpen(false)}
         onSubmit={handleAddNewPlan}
       />
+      {selectedPlan && (
+        <ProcurementPlanView
+          open={isViewDialogOpen}
+          onClose={() => {
+            setIsViewDialogOpen(false);
+            setSelectedPlan(null);
+          }}
+          plan={selectedPlan}
+        />
+      )}
     </div>
   );
 };
