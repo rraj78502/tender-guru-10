@@ -22,7 +22,7 @@ function App() {
           <main>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/committees" element={<CommitteePage />} />
+              <Route path="/committee" element={<CommitteePage />} />
               <Route path="/committee/create" element={<CommitteePage />} />
               <Route path="/committees/:id" element={<CommitteeDetail />} />
               <Route path="/tenders" element={<TendersPage />} />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CommitteeSearch from '@/components/committee/search/CommitteeSearch';
@@ -21,7 +20,7 @@ const CommitteePage = () => {
       title: "Committee Created",
       description: `${committee.name} has been successfully created.`,
     });
-    navigate('/committees'); // Updated to plural form
+    navigate('/committee');
   };
 
   if (isCreateRoute) {
@@ -31,7 +30,7 @@ const CommitteePage = () => {
           <div className="max-w-4xl mx-auto">
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/committees')} // Updated to plural form
+              onClick={() => navigate('/committee')}
               className="mb-4 -ml-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -43,7 +42,7 @@ const CommitteePage = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 opacity-50" />
                 <div className="relative p-4 sm:p-6 lg:p-8">
                   <CommitteeForm 
-                    onClose={() => navigate('/committees')} // Updated to plural form
+                    onClose={() => navigate('/committee')}
                     onCreateCommittee={handleCreateCommittee}
                   />
                 </div>
