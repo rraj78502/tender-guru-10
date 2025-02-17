@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { NavigationItem } from "@/types/navigation";
-import { DesktopNavigation } from "./DesktopNavigation";
+import DesktopNavigation from "./DesktopNavigation";
 import { MobileNavigation } from "./MobileNavigation";
 import { UserMenu } from "./UserMenu";
 
@@ -66,7 +66,7 @@ const Navigation = () => {
             </h1>
           </div>
 
-          <DesktopNavigation items={navigationItems} />
+          <DesktopNavigation />
 
           <div className="flex items-center gap-4">
             <UserMenu />
