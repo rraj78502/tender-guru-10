@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,14 @@ interface ProcurementPlanFormProps {
   onSubmit: (plan: Omit<ProcurementPlan, 'id'>) => void;
 }
 
-const INITIAL_QUARTERLY_TARGETS: Omit<QuarterlyTarget, 'id' | 'procurement_plan_id'>[] = [
+type FormQuarterlyTarget = {
+  quarter: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+  target_details: string;
+  status: 'Planned' | 'In Progress' | 'Completed';
+  created_at: string;
+};
+
+const INITIAL_QUARTERLY_TARGETS: FormQuarterlyTarget[] = [
   { quarter: 'Q1', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
   { quarter: 'Q2', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
   { quarter: 'Q3', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
@@ -62,10 +68,24 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
 
     const proposedBudgetPercentage = (formData.proposed_budget / formData.estimated_cost) * 100;
 
-    const newPlan = {
-      ...formData,
+    // Generate temporary IDs for the quarterly targets
+    const tempId = Date.now();
+    const quarterlyTargets: QuarterlyTarget[] = formData.quarterly_targets.map((target, index) => ({
+      ...target,
+      id: tempId + index,
+      procurement_plan_id: tempId
+    }));
+
+    const newPlan: Omit<ProcurementPlan, 'id'> = {
+      policy_number: formData.policy_number,
+      department: formData.department,
+      project_name: formData.project_name,
+      project_description: formData.project_description,
+      estimated_cost: formData.estimated_cost,
+      proposed_budget: formData.proposed_budget,
       proposed_budget_percentage: Math.round(proposedBudgetPercentage),
       created_at: new Date().toISOString(),
+      quarterly_targets: quarterlyTargets
     };
 
     onSubmit(newPlan);
