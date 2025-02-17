@@ -8,25 +8,28 @@ import TendersPage from "./pages/TendersPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProcurementPlanPage from "./pages/ProcurementPlanPage";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen">
-        <Navigation />
-        <main>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/committee/*" element={<CommitteePage />} />
-            <Route path="/tenders" element={<TendersPage />} />
-            <Route path="/procurement-plan" element={<ProcurementPlanPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen">
+          <Navigation />
+          <main>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/committee/*" element={<CommitteePage />} />
+              <Route path="/tenders" element={<TendersPage />} />
+              <Route path="/procurement-plan" element={<ProcurementPlanPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
