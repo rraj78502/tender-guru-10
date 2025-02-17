@@ -23,7 +23,7 @@ const DesktopNavigation = () => {
   const location = useLocation();
 
   return (
-    <nav className="hidden md:flex flex-col gap-1 px-4 py-2">
+    <nav className="hidden md:flex items-center space-x-4">
       {navigation.map((item) => {
         const isActive = location.pathname === item.path;
         const Icon = item.icon;
