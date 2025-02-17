@@ -13,6 +13,7 @@ export interface QuarterlyTarget {
 export interface ProcurementPlan {
   id: number;
   policy_number: string;
+  department: string;
   project_name: string;
   project_description: string;
   estimated_cost: number;

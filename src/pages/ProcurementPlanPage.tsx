@@ -17,24 +17,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableCaption,
 } from "@/components/ui/table";
 import { Search, Download, Plus, Eye, Edit } from "lucide-react";
 import { mockProcurementPlans } from "@/mock/procurementPlanData";
 import type { ProcurementPlan } from "@/types/procurement-plan";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ProcurementPlanPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [plans, setPlans] = useState<ProcurementPlan[]>(mockProcurementPlans);
-
-  const getStatusEmoji = (status: string) => {
-    switch (status) {
-      case 'Completed': return '✅';
-      case 'In Progress': return '🔄';
-      case 'Planned': return '❌';
-      default: return '❌';
-    }
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
@@ -50,6 +48,29 @@ const ProcurementPlanPage = () => {
     plan.project_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (selectedCategory === 'all' || plan.policy_number.includes(selectedCategory))
   );
+
+  const getQuarterStatusDisplay = (target: { status: string, target_details: string }) => {
+    const statusColors = {
+      'Completed': 'text-green-600',
+      'In Progress': 'text-blue-600',
+      'Planned': 'text-gray-600'
+    };
+
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className={`text-xs font-medium ${statusColors[target.status as keyof typeof statusColors]}`}>
+              {target.status}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-sm">{target.target_details}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16">
@@ -89,13 +110,16 @@ const ProcurementPlanPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[80px]">ID</TableHead>
+                    <TableHead className="w-[140px]">Policy Number</TableHead>
+                    <TableHead className="w-[140px]">Department</TableHead>
                     <TableHead>Project Name</TableHead>
+                    <TableHead>Project Description</TableHead>
                     <TableHead className="text-right">Estimated Cost</TableHead>
                     <TableHead className="text-right">Budget</TableHead>
-                    <TableHead className="w-[60px]">Q1</TableHead>
-                    <TableHead className="w-[60px]">Q2</TableHead>
-                    <TableHead className="w-[60px]">Q3</TableHead>
-                    <TableHead className="w-[60px]">Q4</TableHead>
+                    <TableHead className="min-w-[100px]">Q1</TableHead>
+                    <TableHead className="min-w-[100px]">Q2</TableHead>
+                    <TableHead className="min-w-[100px]">Q3</TableHead>
+                    <TableHead className="min-w-[100px]">Q4</TableHead>
                     <TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -103,8 +127,13 @@ const ProcurementPlanPage = () => {
                   {filteredPlans.map((plan) => (
                     <TableRow key={plan.id}>
                       <TableCell>{plan.id}</TableCell>
+                      <TableCell>{plan.policy_number}</TableCell>
+                      <TableCell>{plan.department}</TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate">
                         {plan.project_name}
+                      </TableCell>
+                      <TableCell className="max-w-[300px] truncate">
+                        {plan.project_description}
                       </TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(plan.estimated_cost)}
@@ -114,8 +143,9 @@ const ProcurementPlanPage = () => {
                       </TableCell>
                       {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => (
                         <TableCell key={quarter} className="text-center">
-                          {getStatusEmoji(
-                            plan.quarterly_targets.find(t => t.quarter === quarter)?.status || 'Planned'
+                          {getQuarterStatusDisplay(
+                            plan.quarterly_targets.find(t => t.quarter === quarter) || 
+                            { status: 'Planned', target_details: 'No task planned' }
                           )}
                         </TableCell>
                       ))}

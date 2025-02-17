@@ -4,9 +4,10 @@ import { ProcurementPlan } from "@/types/procurement-plan";
 export const mockProcurementPlans: ProcurementPlan[] = [
   {
     id: 1,
-    policy_number: "PP-2080-001",
+    policy_number: "PP-2080-WL-N-01",
+    department: "Wireline",
     project_name: "LTE Upgrade",
-    project_description: "Network infrastructure upgrade for LTE services",
+    project_description: "Network infrastructure upgrade for LTE services in central region",
     estimated_cost: 543280000,
     proposed_budget: 217312000,
     proposed_budget_percentage: 40,
@@ -48,9 +49,10 @@ export const mockProcurementPlans: ProcurementPlan[] = [
   },
   {
     id: 2,
-    policy_number: "PP-2080-002",
+    policy_number: "PP-2080-WL-O-01",
+    department: "Wireless",
     project_name: "2G Expansion",
-    project_description: "2G network expansion in rural areas",
+    project_description: "2G network expansion in rural areas of western region",
     estimated_cost: 107900000,
     proposed_budget: 102505000,
     proposed_budget_percentage: 95,
