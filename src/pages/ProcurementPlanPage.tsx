@@ -17,9 +17,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableCaption,
 } from "@/components/ui/table";
-import { Search, Download, Plus, Eye, Edit } from "lucide-react";
+import { Search, Download, Plus, Eye, Edit, Calendar } from "lucide-react";
 import { mockProcurementPlans } from "@/mock/procurementPlanData";
 import type { ProcurementPlan } from "@/types/procurement-plan";
 import {
@@ -28,10 +27,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DateRange } from "react-day-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { addDays } from "date-fns";
 
 const ProcurementPlanPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedProgress, setSelectedProgress] = useState("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [plans, setPlans] = useState<ProcurementPlan[]>(mockProcurementPlans);
 
   const formatCurrency = (amount: number) => {
@@ -40,14 +45,47 @@ const ProcurementPlanPage = () => {
     }).format(amount);
   };
 
+  const calculatePlanStatus = (plan: ProcurementPlan) => {
+    const targets = plan.quarterly_targets;
+    const completedCount = targets.filter(t => t.status === 'Completed').length;
+    const inProgressCount = targets.filter(t => t.status === 'In Progress').length;
+
+    if (completedCount === targets.length) return 'Completed';
+    if (inProgressCount > 0) return 'In Progress';
+    return 'Planning Phase';
+  };
+
+  const calculateProgress = (plan: ProcurementPlan) => {
+    const targets = plan.quarterly_targets;
+    const completedCount = targets.filter(t => t.status === 'Completed').length;
+    const progress = (completedCount / targets.length) * 100;
+
+    if (progress === 0) return 'Not Started';
+    if (progress <= 25) return 'Early Stage';
+    if (progress <= 75) return 'Mid Stage';
+    if (progress < 100) return 'Final Stage';
+    return 'Completed';
+  };
+
+  const isWithinDateRange = (date: string) => {
+    if (!dateRange?.from || !dateRange?.to) return true;
+    const planDate = new Date(date);
+    return planDate >= dateRange.from && planDate <= dateRange.to;
+  };
+
+  const filteredPlans = plans.filter(plan => {
+    const matchesSearch = plan.project_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDepartment = selectedDepartment === 'all' || plan.department === selectedDepartment;
+    const matchesStatus = selectedStatus === 'all' || calculatePlanStatus(plan) === selectedStatus;
+    const matchesProgress = selectedProgress === 'all' || calculateProgress(plan) === selectedProgress;
+    const matchesDateRange = isWithinDateRange(plan.created_at);
+
+    return matchesSearch && matchesDepartment && matchesStatus && matchesProgress && matchesDateRange;
+  });
+
   const handleExport = () => {
     console.log('Exporting to Excel...');
   };
-
-  const filteredPlans = plans.filter(plan => 
-    plan.project_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedCategory === 'all' || plan.policy_number.includes(selectedCategory))
-  );
 
   const getQuarterStatusDisplay = (target: { status: string, target_details: string }) => {
     const statusColors = {
@@ -82,7 +120,7 @@ const ProcurementPlanPage = () => {
             </div>
             
             {/* Search and Filter Section */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="space-y-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
                 <Input
@@ -92,16 +130,50 @@ const ProcurementPlanPage = () => {
                   className="pl-8"
                 />
               </div>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="PP-2080">FY 2080/81</SelectItem>
-                  <SelectItem value="PP-2081">FY 2081/82</SelectItem>
-                </SelectContent>
-              </Select>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    <SelectItem value="Wireline">Wireline</SelectItem>
+                    <SelectItem value="Wireless">Wireless</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Planning Phase">Planning Phase</SelectItem>
+                    <SelectItem value="In Progress">In Progress</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedProgress} onValueChange={setSelectedProgress}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Progress" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Progress</SelectItem>
+                    <SelectItem value="Not Started">Not Started (0%)</SelectItem>
+                    <SelectItem value="Early Stage">Early Stage (1-25%)</SelectItem>
+                    <SelectItem value="Mid Stage">Mid Stage (26-75%)</SelectItem>
+                    <SelectItem value="Final Stage">Final Stage (76-99%)</SelectItem>
+                    <SelectItem value="Completed">Completed (100%)</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <DateRangePicker 
+                  date={dateRange}
+                  onDateChange={setDateRange}
+                />
+              </div>
             </div>
 
             {/* Table Section */}
