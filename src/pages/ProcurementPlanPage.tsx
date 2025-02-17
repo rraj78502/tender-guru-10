@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,6 +37,8 @@ const ProcurementPlanPage = () => {
   const [selectedProgress, setSelectedProgress] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [plans, setPlans] = useState<ProcurementPlan[]>(mockProcurementPlans);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
@@ -83,6 +84,12 @@ const ProcurementPlanPage = () => {
     return matchesSearch && matchesDepartment && matchesStatus && matchesProgress && matchesDateRange;
   });
 
+  const totalPages = Math.ceil(filteredPlans.length / itemsPerPage);
+  const paginatedPlans = filteredPlans.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const handleExport = () => {
     console.log('Exporting to Excel...');
   };
@@ -119,7 +126,6 @@ const ProcurementPlanPage = () => {
               <h1 className="text-2xl font-bold text-gray-900">Annual Procurement Plan - FY 2080/81</h1>
             </div>
             
-            {/* Search and Filter Section */}
             <div className="space-y-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
@@ -176,7 +182,6 @@ const ProcurementPlanPage = () => {
               </div>
             </div>
 
-            {/* Table Section */}
             <div className="rounded-lg border overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -197,7 +202,7 @@ const ProcurementPlanPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPlans.map((plan) => {
+                  {paginatedPlans.map((plan) => {
                     const deptIndex = plan.policy_number.split('-').slice(-1)[0];
                     const policyNumber = plan.policy_number.split('-').slice(0, -1).join('-');
                     
@@ -244,7 +249,43 @@ const ProcurementPlanPage = () => {
               </Table>
             </div>
 
-            {/* Actions Section */}
+            <div className="flex items-center justify-between border-t pt-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredPlans.length)} of{' '}
+                  {filteredPlans.length} results
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
               <Button variant="outline" onClick={handleExport} className="w-full sm:w-auto">
                 <Download className="h-4 w-4 mr-2" />
