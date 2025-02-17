@@ -49,7 +49,7 @@ const Navigation = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden transition-colors"
+                className="md:hidden transition-colors"
               >
                 {isMenuOpen ? (
                   <X className="h-5 w-5" />
@@ -73,13 +73,15 @@ const Navigation = () => {
           </div>
         </div>
 
-        <MobileNavigation
-          items={navigationItems}
-          isOpen={isMenuOpen}
-          showCommitteeSubItems={showCommitteeSubItems}
-          setShowCommitteeSubItems={setShowCommitteeSubItems}
-          onClose={() => setIsMenuOpen(false)}
-        />
+        <div className="md:hidden">
+          <MobileNavigation
+            items={navigationItems}
+            isOpen={isMenuOpen}
+            showCommitteeSubItems={showCommitteeSubItems}
+            setShowCommitteeSubItems={setShowCommitteeSubItems}
+            onClose={() => setIsMenuOpen(false)}
+          />
+        </div>
       </div>
     </nav>
   );
