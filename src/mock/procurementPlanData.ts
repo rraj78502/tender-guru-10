@@ -11,6 +11,7 @@ export const mockProcurementPlans: ProcurementPlan[] = [
     proposed_budget: 217312000,
     proposed_budget_percentage: 40,
     created_at: "2024-03-15T10:00:00Z",
+    committee_id: 1, // Network Infrastructure Upgrade Committee
     quarterly_targets: [
       {
         id: 1,
@@ -56,6 +57,7 @@ export const mockProcurementPlans: ProcurementPlan[] = [
     proposed_budget: 102505000,
     proposed_budget_percentage: 95,
     created_at: "2024-03-16T09:00:00Z",
+    committee_id: 2, // Data Center Equipment Committee
     quarterly_targets: [
       {
         id: 5,

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -53,7 +52,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
     {
       title: "Committee",
       icon: plan.committee_id ? Users : UserPlus,
-      status: plan.committee_id ? "Formed" : "Formation Required",
+      status: plan.committee_id ? "View Committee" : "Formation Required",
       statusColor: plan.committee_id ? "text-green-600" : "text-yellow-600",
       path: plan.committee_id ? `/committee/${plan.committee_id}` : `/committee/create?procurement_plan_id=${plan.id}`,
       requiresCommittee: false
@@ -117,8 +116,8 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
             <div className="flex items-center gap-2">
               <span className="text-green-600 font-medium">Planning Phase</span>
               <ChevronRight className="h-4 w-4 text-gray-400" />
-              <span className={plan.committee_id ? "text-green-600" : "text-gray-400"}>
-                Committee Formation
+              <span className={plan.committee_id ? "text-green-600 font-medium" : "text-gray-400"}>
+                {plan.committee_id ? "Committee Formed" : "Committee Formation"}
               </span>
               <ChevronRight className="h-4 w-4 text-gray-400" />
               <span className="text-gray-400">Specification</span>
