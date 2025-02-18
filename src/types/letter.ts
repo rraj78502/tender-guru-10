@@ -24,3 +24,5 @@ export interface CommitteeFormationLetter {
     lastModified: string;
   };
 }
+
+export type Letter = CommitteeFormationLetter;

@@ -1,5 +1,5 @@
 
-import type { SpecificationDocument, ReviewSession, CommitteeFormation, DocumentVersion } from "@/types/specification";
+import type { SpecificationDocument, ReviewSession, DocumentVersion } from "@/types/specification";
 import type { CommitteeMember } from "@/types/committee";
 
 const mockMembers: CommitteeMember[] = [
@@ -77,26 +77,6 @@ export const mockReviews: ReviewSession[] = [
   },
 ];
 
-export const mockCommitteeFormations: CommitteeFormation[] = [
-  {
-    id: 1,
-    formationDate: "2024-03-01T00:00:00Z",
-    letterReference: "COMM/2024/001",
-    letterUrl: "/docs/committee-formation.pdf",
-    purpose: "Review and approve technical specifications for infrastructure projects",
-    chairperson: mockMembers[0],
-    members: mockMembers,
-    documents: [
-      {
-        id: 1,
-        title: "Committee Charter",
-        url: "/docs/committee-charter.pdf",
-        uploadedAt: "2024-03-01T00:00:00Z",
-      },
-    ],
-  },
-];
-
 export const getSpecificationById = (id: number): SpecificationDocument | undefined => {
   return mockSpecifications.find((spec) => spec.id === id);
 };
@@ -108,8 +88,4 @@ export const getVersionHistory = (specId: number): DocumentVersion[] | undefined
 
 export const getReviewBySpecificationId = (specId: number): ReviewSession | undefined => {
   return mockReviews.find((review) => review.specificationId === specId);
-};
-
-export const getCommitteeFormationById = (id: number): CommitteeFormation | undefined => {
-  return mockCommitteeFormations.find((committee) => committee.id === id);
 };

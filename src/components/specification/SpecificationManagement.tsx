@@ -68,7 +68,7 @@ const SpecificationManagement = () => {
   const handleReviewUpdate = (review: ReviewSession) => {
     setCurrentReview(review);
     if (currentSpecification) {
-      const updatedSpec = {
+      const updatedSpec: SpecificationDocument = {
         ...currentSpecification,
         reviewTracking: [
           ...(currentSpecification.reviewTracking || []),
@@ -82,7 +82,8 @@ const SpecificationManagement = () => {
             notifiedMembers: review.reviewers.map(reviewer => ({
               memberId: reviewer.id,
               notified: true,
-              notificationMethod: "both",
+              notificationMethod: "both" as const,
+              acknowledgedAt: undefined,
             })),
           },
         ],
