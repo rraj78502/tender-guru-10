@@ -1,4 +1,3 @@
-import { CommitteeMember } from "./committee";
 
 export type SpecificationStatus = 
   | "draft"

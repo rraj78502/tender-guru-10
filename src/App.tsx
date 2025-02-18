@@ -25,6 +25,7 @@ function App() {
               <Route path="/committee" element={<CommitteePage />} />
               <Route path="/committee/create" element={<CommitteePage />} />
               <Route path="/committees/:id" element={<CommitteeDetail />} />
+              <Route path="/specification/:id" element={<SpecificationManagement />} />
               <Route path="/tenders" element={<TendersPage />} />
               <Route path="/procurement-plan" element={<ProcurementPlanPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
