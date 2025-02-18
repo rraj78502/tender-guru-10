@@ -1,4 +1,6 @@
 
+import type { CommitteeMember } from "./committee";
+
 export type SpecificationStatus = 
   | "draft"
   | "submitted"

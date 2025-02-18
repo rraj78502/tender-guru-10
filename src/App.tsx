@@ -4,6 +4,7 @@ import Navigation from "./components/layout/Navigation";
 import Index from '@/pages/Index';
 import CommitteePage from '@/pages/CommitteePage';
 import CommitteeDetail from '@/components/committee/CommitteeDetail';
+import SpecificationManagement from '@/components/specification/SpecificationManagement';
 import NotFound from '@/pages/NotFound';
 import TendersPage from '@/pages/TendersPage';
 import ProcurementPlanPage from '@/pages/ProcurementPlanPage';
