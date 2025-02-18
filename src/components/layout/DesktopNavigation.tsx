@@ -8,11 +8,13 @@ import {
   Users,
   FileText,
   BarChart3,
+  FileSearch,
 } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", path: "/", icon: Home },
   { name: "Committee", path: "/committee", icon: Users },
+  { name: "Specification", path: "/specification/1", icon: FileSearch },
   { name: "Tenders", path: "/tenders", icon: FileText },
   { name: "Procurement Plan", path: "/procurement-plan", icon: BarChart3 },
   { name: "Notifications", path: "/notifications", icon: Bell },

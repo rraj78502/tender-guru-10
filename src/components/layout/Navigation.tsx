@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { Menu, X, Home, FileText, Users, Settings, Bell, UserPlus, FolderOpen } from "lucide-react";
+import { Menu, X, Home, FileText, Users, Settings, Bell, UserPlus, FolderOpen, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,6 +26,7 @@ const Navigation = () => {
   const navigationItems: NavigationItem[] = [
     { name: "Dashboard", path: "/", icon: Home },
     { name: "Tenders", path: "/tenders", icon: FileText },
+    { name: "Specification", path: "/specification/1", icon: FileSearch },
     {
       name: "Committee",
       path: "/committee",
