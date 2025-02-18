@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface BasicInfoFieldsProps {
   name: string;
@@ -17,29 +18,53 @@ const BasicInfoFields = ({
   onPurposeChange,
 }: BasicInfoFieldsProps) => {
   const { toast } = useToast();
+  const [touched, setTouched] = useState({
+    name: false,
+    purpose: false,
+  });
 
   const handleNameChange = (value: string) => {
-    if (value.length < 3) {
+    onNameChange(value);
+    if (touched.name && value.length < 3) {
       toast({
         title: "Invalid Name",
         description: "Committee name must be at least 3 characters long",
         variant: "destructive",
       });
-      return;
     }
-    onNameChange(value);
   };
 
   const handlePurposeChange = (value: string) => {
-    if (value.length < 10) {
+    onPurposeChange(value);
+    if (touched.purpose && value.length < 10) {
       toast({
         title: "Invalid Purpose",
         description: "Purpose must be at least 10 characters long",
         variant: "destructive",
       });
-      return;
     }
-    onPurposeChange(value);
+  };
+
+  const handleNameBlur = () => {
+    setTouched(prev => ({ ...prev, name: true }));
+    if (name.length < 3) {
+      toast({
+        title: "Invalid Name",
+        description: "Committee name must be at least 3 characters long",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePurposeBlur = () => {
+    setTouched(prev => ({ ...prev, purpose: true }));
+    if (purpose.length < 10) {
+      toast({
+        title: "Invalid Purpose",
+        description: "Purpose must be at least 10 characters long",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -50,6 +75,7 @@ const BasicInfoFields = ({
           id="name"
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
+          onBlur={handleNameBlur}
           placeholder="Enter committee name"
           required
         />
@@ -60,6 +86,7 @@ const BasicInfoFields = ({
           id="purpose"
           value={purpose}
           onChange={(e) => handlePurposeChange(e.target.value)}
+          onBlur={handlePurposeBlur}
           placeholder="Enter committee purpose"
           required
         />
