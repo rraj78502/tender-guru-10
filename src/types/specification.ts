@@ -1,5 +1,6 @@
 
 import type { CommitteeMember } from "./committee";
+import type { Letter } from "./letter";
 
 export type SpecificationStatus = 
   | "draft"
@@ -15,6 +16,8 @@ export type ReviewStatus =
   | "completed"
   | "rescheduled";
 
+export type NotificationType = "email" | "sms" | "both";
+
 export interface DocumentVersion {
   id: number;
   version: number;
@@ -22,6 +25,32 @@ export interface DocumentVersion {
   changes: string;
   submittedBy: number;
   submittedAt: string;
+}
+
+export interface TaskAssignment {
+  id: number;
+  title: string;
+  description: string;
+  assignedTo: number;
+  dueDate: string;
+  status: "pending" | "in_progress" | "completed";
+  attachments: string[];
+  notificationType: NotificationType;
+}
+
+export interface ReviewTracking {
+  id: number;
+  documentVersion: number;
+  reviewDate: string;
+  status: ReviewStatus;
+  comments: string[];
+  nextReviewDate?: string;
+  notifiedMembers: {
+    memberId: number;
+    notified: boolean;
+    notificationMethod: NotificationType;
+    acknowledgedAt?: string;
+  }[];
 }
 
 export interface SpecificationDocument {
@@ -37,6 +66,9 @@ export interface SpecificationDocument {
   committeeId: number;
   comments: string[];
   versionHistory?: DocumentVersion[];
+  committeeFormationLetter?: Letter;
+  tasks?: TaskAssignment[];
+  reviewTracking?: ReviewTracking[];
 }
 
 export interface ReviewSession {
@@ -55,21 +87,5 @@ export interface ReviewSession {
     url: string;
     uploadedAt: string;
     type: "review_minutes" | "supporting_document" | "final_approval";
-  }[];
-}
-
-export interface CommitteeFormation {
-  id: number;
-  formationDate: string;
-  letterReference: string;
-  letterUrl: string;
-  purpose: string;
-  chairperson: CommitteeMember;
-  members: CommitteeMember[];
-  documents: {
-    id: number;
-    title: string;
-    url: string;
-    uploadedAt: string;
   }[];
 }

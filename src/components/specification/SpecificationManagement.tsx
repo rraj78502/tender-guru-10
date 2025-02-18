@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +9,10 @@ import ReviewScheduler from "./ReviewScheduler";
 import ReviewMinutes from "./ReviewMinutes";
 import DocumentApproval from "./DocumentApproval";
 import VersionHistory from "./VersionHistory";
-import type { SpecificationDocument, ReviewSession, DocumentVersion } from "@/types/specification";
+import CommitteeFormation from "./CommitteeFormation";
+import TaskManager from "./TaskManager";
+import ReviewTracker from "./ReviewTracker";
+import type { SpecificationDocument, ReviewSession, DocumentVersion, TaskAssignment } from "@/types/specification";
 import { 
   mockSpecifications, 
   mockReviews, 
@@ -18,51 +22,73 @@ import {
 } from "@/mock/specificationData";
 
 const SpecificationManagement = () => {
-  const [activeTab, setActiveTab] = useState("submission");
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("committee");
   const [currentSpecification, setCurrentSpecification] = useState<SpecificationDocument | null>(null);
   const [currentReview, setCurrentReview] = useState<ReviewSession | null>(null);
   const { toast } = useToast();
 
-  // Load initial mock data
   useEffect(() => {
-    const initialSpec = mockSpecifications[0];
-    if (initialSpec) {
-      setCurrentSpecification(initialSpec);
-      const associatedReview = getReviewBySpecificationId(initialSpec.id);
-      if (associatedReview) {
-        setCurrentReview(associatedReview);
+    if (id) {
+      const spec = getSpecificationById(Number(id));
+      if (spec) {
+        setCurrentSpecification(spec);
+        const associatedReview = getReviewBySpecificationId(spec.id);
+        if (associatedReview) {
+          setCurrentReview(associatedReview);
+        }
       }
     }
-  }, []);
+  }, [id]);
 
   const handleSpecificationUpdate = (spec: SpecificationDocument) => {
     setCurrentSpecification(spec);
-    console.log("Specification updated:", spec);
     toast({
       title: "Specification Updated",
       description: "The specification has been successfully updated.",
     });
   };
 
-  const handleVersionCompare = (v1: DocumentVersion, v2: DocumentVersion) => {
-    console.log("Comparing versions:", v1, v2);
-    toast({
-      title: "Version Comparison",
-      description: `Comparing version ${v1.version} with version ${v2.version}`,
-    });
-  };
-
-  const handleViewVersion = (version: DocumentVersion) => {
-    console.log("Viewing version:", version);
-    toast({
-      title: "Version View",
-      description: `Viewing version ${version.version}`,
-    });
+  const handleTaskAssignment = (task: TaskAssignment) => {
+    if (currentSpecification) {
+      const updatedSpec = {
+        ...currentSpecification,
+        tasks: [...(currentSpecification.tasks || []), task],
+      };
+      setCurrentSpecification(updatedSpec);
+      toast({
+        title: "Task Assigned",
+        description: `Task "${task.title}" has been assigned successfully.`,
+      });
+      // Mock notification sending
+      console.log(`Sending ${task.notificationType} notification to member ${task.assignedTo}`);
+    }
   };
 
   const handleReviewUpdate = (review: ReviewSession) => {
     setCurrentReview(review);
-    console.log("Review updated:", review);
+    if (currentSpecification) {
+      const updatedSpec = {
+        ...currentSpecification,
+        reviewTracking: [
+          ...(currentSpecification.reviewTracking || []),
+          {
+            id: Date.now(),
+            documentVersion: currentSpecification.version,
+            reviewDate: review.scheduledDate,
+            status: review.status,
+            comments: review.comments,
+            nextReviewDate: review.nextReviewDate,
+            notifiedMembers: review.reviewers.map(reviewer => ({
+              memberId: reviewer.id,
+              notified: true,
+              notificationMethod: "both",
+            })),
+          },
+        ],
+      };
+      setCurrentSpecification(updatedSpec);
+    }
     toast({
       title: "Review Updated",
       description: "The review session has been successfully updated.",
@@ -73,25 +99,45 @@ const SpecificationManagement = () => {
     <div className="container mx-auto pt-20 px-4 min-h-screen">
       <Card className="max-w-5xl mx-auto bg-white/80 backdrop-blur-sm shadow-lg p-6 rounded-xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-5 gap-4 p-1 bg-muted/20 rounded-lg">
+          <TabsList className="grid grid-cols-7 gap-4 p-1 bg-muted/20 rounded-lg">
+            <TabsTrigger value="committee" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Committee
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Tasks
+            </TabsTrigger>
             <TabsTrigger value="submission" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Specification Submission
+              Submission
             </TabsTrigger>
             <TabsTrigger value="versions" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Version History
+              Versions
             </TabsTrigger>
             <TabsTrigger value="review" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Review Scheduling
+              Review
             </TabsTrigger>
-            <TabsTrigger value="minutes" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Review Minutes
+            <TabsTrigger value="tracking" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Tracking
             </TabsTrigger>
             <TabsTrigger value="approval" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
-              Document Approval
+              Approval
             </TabsTrigger>
           </TabsList>
 
           <div className="mt-6 bg-white rounded-lg shadow-sm p-6 animate-fadeIn">
+            <TabsContent value="committee">
+              <CommitteeFormation
+                specification={currentSpecification}
+                onSpecificationUpdate={handleSpecificationUpdate}
+              />
+            </TabsContent>
+
+            <TabsContent value="tasks">
+              <TaskManager
+                specification={currentSpecification}
+                onTaskAssignment={handleTaskAssignment}
+              />
+            </TabsContent>
+
             <TabsContent value="submission">
               <SpecificationSubmission
                 specification={currentSpecification}
@@ -103,8 +149,8 @@ const SpecificationManagement = () => {
               {currentSpecification?.versionHistory ? (
                 <VersionHistory
                   versions={currentSpecification.versionHistory}
-                  onCompareVersions={handleVersionCompare}
-                  onViewVersion={handleViewVersion}
+                  onCompareVersions={(v1, v2) => console.log("Comparing versions:", v1, v2)}
+                  onViewVersion={(v) => console.log("Viewing version:", v)}
                 />
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -121,10 +167,10 @@ const SpecificationManagement = () => {
               />
             </TabsContent>
 
-            <TabsContent value="minutes">
-              <ReviewMinutes
+            <TabsContent value="tracking">
+              <ReviewTracker
+                specification={currentSpecification}
                 review={currentReview}
-                onReviewUpdate={handleReviewUpdate}
               />
             </TabsContent>
 
