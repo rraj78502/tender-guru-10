@@ -20,5 +20,6 @@ export interface ProcurementPlan {
   proposed_budget: number;
   proposed_budget_percentage: number;
   created_at: string;
+  committee_id?: number;
   quarterly_targets: QuarterlyTarget[];
 }

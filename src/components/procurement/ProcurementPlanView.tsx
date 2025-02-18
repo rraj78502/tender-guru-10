@@ -13,9 +13,11 @@ import {
   MessageSquare,
   Clock,
   AlertCircle,
-  ChevronRight 
+  ChevronRight,
+  UserPlus 
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 interface ProcurementPlanViewProps {
   open: boolean;
@@ -25,6 +27,7 @@ interface ProcurementPlanViewProps {
 
 const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose, plan }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
@@ -32,55 +35,70 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
     }).format(amount);
   };
 
+  const handleNavigate = (path: string, requiresCommittee: boolean = false) => {
+    if (requiresCommittee && !plan.committee_id) {
+      toast({
+        title: "Committee Required",
+        description: "Please form a committee first before accessing this section.",
+        variant: "destructive",
+      });
+      navigate(`/committee/create?procurement_plan_id=${plan.id}`);
+      return;
+    }
+    onClose();
+    navigate(path);
+  };
+
   const projectSections = [
     {
       title: "Committee",
-      icon: Users,
-      status: "Pending Formation",
-      statusColor: "text-yellow-600",
-      path: `/committees/${plan.id}`
+      icon: plan.committee_id ? Users : UserPlus,
+      status: plan.committee_id ? "Formed" : "Formation Required",
+      statusColor: plan.committee_id ? "text-green-600" : "text-yellow-600",
+      path: plan.committee_id ? `/committee/${plan.committee_id}` : `/committee/create?procurement_plan_id=${plan.id}`,
+      requiresCommittee: false
     },
     {
       title: "Specification",
       icon: FileText,
       status: "Draft",
       statusColor: "text-blue-600",
-      path: `/specification/${plan.id}`
+      path: `/specification/${plan.id}`,
+      requiresCommittee: true
     },
     {
       title: "Review",
       icon: Search,
       status: "Not Started",
       statusColor: "text-gray-600",
-      path: `/review/${plan.id}`
+      path: `/review/${plan.id}`,
+      requiresCommittee: true
     },
     {
       title: "Tender",
       icon: Building2,
       status: "Not Created",
       statusColor: "text-gray-600",
-      path: `/tender/${plan.id}`
+      path: `/tender/${plan.id}`,
+      requiresCommittee: true
     },
     {
       title: "Evaluation",
       icon: FileCheck,
       status: "Pending",
       statusColor: "text-gray-600",
-      path: `/evaluation/${plan.id}`
+      path: `/evaluation/${plan.id}`,
+      requiresCommittee: true
     },
     {
       title: "Complaints",
       icon: MessageSquare,
       status: "No Complaints",
       statusColor: "text-green-600",
-      path: `/complaints/${plan.id}`
+      path: `/complaints/${plan.id}`,
+      requiresCommittee: true
     }
   ];
-
-  const handleNavigate = (path: string) => {
-    onClose();
-    navigate(path);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -99,7 +117,9 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
             <div className="flex items-center gap-2">
               <span className="text-green-600 font-medium">Planning Phase</span>
               <ChevronRight className="h-4 w-4 text-gray-400" />
-              <span className="text-gray-400">Committee Formation</span>
+              <span className={plan.committee_id ? "text-green-600" : "text-gray-400"}>
+                Committee Formation
+              </span>
               <ChevronRight className="h-4 w-4 text-gray-400" />
               <span className="text-gray-400">Specification</span>
               <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -151,7 +171,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
               {projectSections.map((section) => (
                 <button
                   key={section.title}
-                  onClick={() => handleNavigate(section.path)}
+                  onClick={() => handleNavigate(section.path, section.requiresCommittee)}
                   className="flex items-center justify-between p-4 bg-white border rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -172,8 +192,16 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
             <div className="flex items-center gap-2 text-orange-700">
               <AlertCircle className="h-5 w-5" />
               <div>
-                <h4 className="font-medium">Upcoming Deadline</h4>
-                <p className="text-sm">Committee formation deadline in 5 days</p>
+                <h4 className="font-medium">
+                  {!plan.committee_id 
+                    ? "Committee Formation Required"
+                    : "Upcoming Deadline"}
+                </h4>
+                <p className="text-sm">
+                  {!plan.committee_id 
+                    ? "Please form a committee to proceed with other sections"
+                    : "Committee formation deadline in 5 days"}
+                </p>
               </div>
             </div>
           </div>
