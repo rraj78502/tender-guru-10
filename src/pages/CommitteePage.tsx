@@ -1,8 +1,8 @@
+
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CommitteeSearch from '@/components/committee/search/CommitteeSearch';
 import CommitteeForm from '@/components/committee/CommitteeForm';
-import LetterManagement from '@/components/committee/letter/LetterManagement';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus, ArrowLeft } from 'lucide-react';
@@ -76,10 +76,6 @@ const CommitteePage = () => {
               </div>
               
               <div className="space-y-8">
-                <div className="mb-8">
-                  <LetterManagement />
-                </div>
-                
                 <div className="mt-6">
                   <CommitteeSearch />
                 </div>
