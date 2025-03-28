@@ -11,6 +11,16 @@ import ClarificationsTab from "./tabs/ClarificationsTab";
 import { useMockDb } from "@/hooks/useMockDb";
 
 const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
+  // BACKEND API: Get procurement management data
+  // Endpoint: GET /api/tenders/:tenderId/procurement
+  // Request: { tenderId: number }
+  // Response: { 
+  //   bidSecurities: BidSecurity[],
+  //   documentFees: DocumentFee[],
+  //   preBidMeetings: PreBidMeeting[],
+  //   clarifications: Clarification[]
+  // }
+  
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("bid-security");
   
@@ -24,6 +34,12 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
   }, [tenderId]);
 
   const handleUpdate = (type: string, data: any) => {
+    // BACKEND API: Update procurement item
+    // Endpoint: PUT /api/tenders/:tenderId/procurement/:type/:itemId
+    // Example: PUT /api/tenders/123/procurement/bid-security/456
+    // Request Body: Updated item data
+    // Response: { success: boolean, data: updated item }
+    
     switch (type) {
       case 'bid-security':
         updateBidSecurity(data.id, data);

@@ -15,6 +15,11 @@ interface Props {
 }
 
 const ComplaintRegistration = ({ onSubmit }: Props) => {
+  // BACKEND API: Get complaint categories
+  // Endpoint: GET /api/complaints/categories
+  // Request: None
+  // Response: Array of category objects { id: number, name: string, description: string }
+  
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
@@ -40,6 +45,21 @@ const ComplaintRegistration = ({ onSubmit }: Props) => {
       return;
     }
 
+    // BACKEND API: Register complaint
+    // Endpoint: POST /api/complaints
+    // Request Body: Multipart form with complaint data and documents
+    // {
+    //   title: string,
+    //   description: string,
+    //   submittedBy: string,
+    //   agencyId: number,
+    //   priority: "low" | "medium" | "high",
+    //   category: string,
+    //   emailNotifications: boolean,
+    //   documents: File[]
+    // }
+    // Response: { id: number, ...complaintData, status: "pending", submittedAt: string }
+    
     onSubmit({
       ...formData,
       documents: formData.documents.map((file, index) => ({

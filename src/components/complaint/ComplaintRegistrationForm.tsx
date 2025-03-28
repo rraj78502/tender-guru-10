@@ -15,6 +15,15 @@ interface Props {
 }
 
 const ComplaintRegistrationForm = ({ onSubmit }: Props) => {
+  // BACKEND API: Get complaint categories and priorities
+  // Endpoint: GET /api/complaints/metadata
+  // Request: None
+  // Response: { 
+  //   categories: Array of category objects,
+  //   priorities: Array of priority objects,
+  //   attachmentTypes: Array of allowed file types
+  // }
+  
   const { toast } = useToast();
   const [scanning, setScanning] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,6 +50,21 @@ const ComplaintRegistrationForm = ({ onSubmit }: Props) => {
       return;
     }
 
+    // BACKEND API: Register complaint
+    // Endpoint: POST /api/complaints
+    // Request Body: Multipart form with complaint data and documents
+    // {
+    //   title: string,
+    //   description: string,
+    //   submittedBy: string,
+    //   agencyId: number,
+    //   priority: "low" | "medium" | "high",
+    //   category: string,
+    //   emailNotifications: boolean,
+    //   documents: File[]
+    // }
+    // Response: { id: number, ...complaintData, status: "pending", submittedAt: string }
+    
     onSubmit({
       ...formData,
       documents: formData.documents.map((file, index) => ({
@@ -81,6 +105,11 @@ const ComplaintRegistrationForm = ({ onSubmit }: Props) => {
   };
 
   const simulateDocumentScanning = () => {
+    // BACKEND API: Scan document
+    // Endpoint: POST /api/uploads/scan
+    // Request: None (this would use the device camera/scanner in a real implementation)
+    // Response: { success: boolean, file: { name: string, type: string, size: number, url: string } }
+    
     setScanning(true);
     setTimeout(() => {
       setScanning(false);

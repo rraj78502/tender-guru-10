@@ -19,6 +19,11 @@ interface ReviewManagementProps {
 }
 
 const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
+  // BACKEND API: Get reviews for specification
+  // Endpoint: GET /api/specifications/:specificationId/reviews
+  // Request: { specificationId: number }
+  // Response: Array of ReviewSession objects
+  
   const { toast } = useToast();
   const [date, setDate] = useState<Date>();
   const [reviews] = useState<ReviewSession[]>(mockReviews);
@@ -35,6 +40,14 @@ const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
       return;
     }
 
+    // BACKEND API: Schedule review
+    // Endpoint: POST /api/specifications/:specificationId/reviews
+    // Request Body: {
+    //   scheduledDate: string (ISO date),
+    //   reviewers: number[] (IDs of reviewers)
+    // }
+    // Response: { id: number, scheduledDate: string, reviewers: Reviewer[], status: "scheduled" }
+    
     // Mock sending notifications to reviewers
     reviews[0].reviewers.forEach(reviewer => {
       sendNotification(
@@ -65,6 +78,11 @@ const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
       return;
     }
 
+    // BACKEND API: Upload review minutes
+    // Endpoint: PUT /api/specifications/:specificationId/reviews/:reviewId/minutes
+    // Request Body: { minutes: string }
+    // Response: { success: boolean, updatedReview: ReviewSession }
+    
     toast({
       title: "Minutes Uploaded",
       description: "Review minutes have been saved",
@@ -73,6 +91,11 @@ const ReviewManagement = ({ specificationId }: ReviewManagementProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      // BACKEND API: Upload review document
+      // Endpoint: POST /api/specifications/:specificationId/reviews/:reviewId/documents
+      // Request: Multipart form with file
+      // Response: { success: boolean, document: { id: number, name: string, url: string } }
+      
       setSelectedFile(e.target.files[0]);
       toast({
         title: "File Selected",

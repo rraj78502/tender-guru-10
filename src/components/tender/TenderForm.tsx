@@ -17,6 +17,11 @@ interface TenderFormProps {
 }
 
 const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
+  // BACKEND API: Get IFB number pattern and constraints
+  // Endpoint: GET /api/tenders/ifb-pattern
+  // Request: None
+  // Response: { pattern: string, example: string, description: string }
+  
   const { toast } = useToast();
   const [showPreview, setShowPreview] = useState(false);
   const [documents, setDocuments] = useState<File[]>([]);
@@ -46,6 +51,22 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
       return;
     }
 
+    // BACKEND API: Create tender
+    // Endpoint: POST /api/tenders
+    // Request Body: Multipart form with tender data and documents
+    // {
+    //   ifbNumber: string,
+    //   title: string,
+    //   description: string,
+    //   publishDate: string (ISO date),
+    //   openingDate: string (ISO date),
+    //   bidValidity: string,
+    //   status: "draft" | "published" | "closed",
+    //   approvalStatus: "pending" | "approved" | "rejected",
+    //   documents: File[]
+    // }
+    // Response: { id: number, ...tenderData, documents: DocumentInfo[] }
+    
     const tender = {
       ...tenderData,
       bidValidity: String(tenderData.bidValidity),
@@ -80,6 +101,11 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+      // BACKEND API: Upload tender documents
+      // Endpoint: POST /api/uploads/documents
+      // Request: Multipart form with files
+      // Response: { success: boolean, files: Array of document objects }
+      
       const newFiles = Array.from(e.target.files);
       setDocuments(prev => [...prev, ...newFiles]);
       

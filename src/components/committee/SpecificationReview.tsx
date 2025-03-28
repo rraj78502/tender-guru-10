@@ -24,11 +24,22 @@ const SpecificationReview = ({
   onUpdateStatus,
   onNotifyTeam,
 }: SpecificationReviewProps) => {
+  // BACKEND API: Get review details
+  // Endpoint: GET /api/committees/:committeeId/reviews/:reviewId
+  // Request: { committeeId: number, reviewId: number }
+  // Response: SpecificationReview object with dates, documents, minutes, etc.
+  
   const { toast } = useToast();
   const [minutes, setMinutes] = useState("");
 
   const handleMinutesSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // BACKEND API: Add review minutes
+    // Endpoint: POST /api/committees/:committeeId/reviews/:reviewId/minutes
+    // Request Body: { minutes: string }
+    // Response: { success: boolean, updatedReview: SpecificationReview }
+    
     onAddMinutes(minutes);
     setMinutes("");
     toast({
@@ -39,6 +50,11 @@ const SpecificationReview = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      // BACKEND API: Upload review document
+      // Endpoint: POST /api/committees/:committeeId/reviews/:reviewId/documents
+      // Request: Multipart form with file
+      // Response: { success: boolean, document: { id: number, name: string, url: string } }
+      
       onUploadDocument(e.target.files[0]);
       toast({
         title: "Document Uploaded",

@@ -17,6 +17,11 @@ const SpecificationSubmission = ({
   specification,
   onSpecificationUpdate,
 }: SpecificationSubmissionProps) => {
+  // BACKEND API: Get specification details
+  // Endpoint: GET /api/specifications/:id
+  // Request: { id: number }
+  // Response: SpecificationDocument object with full details
+  
   const { toast } = useToast();
   const [title, setTitle] = useState(specification?.title || "");
   const [description, setDescription] = useState(specification?.description || "");
@@ -44,6 +49,17 @@ const SpecificationSubmission = ({
       return;
     }
 
+    // BACKEND API: Submit specification document
+    // Endpoint: POST /api/specifications
+    // Request Body: Multipart form with specification data and file
+    // {
+    //   title: string,
+    //   description: string,
+    //   committeeId: number,
+    //   file: File
+    // }
+    // Response: { id: number, ...specificationData, documentUrl: string }
+    
     // Mock submission - in real app, this would call an API
     const newSpecification: SpecificationDocument = {
       id: Date.now(),

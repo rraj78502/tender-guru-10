@@ -14,6 +14,11 @@ interface EmployeeFormProps {
 }
 
 const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormProps) => {
+  // BACKEND API: Get employee data when editing
+  // Endpoint: GET /api/employees/:id
+  // Request: { id: number }
+  // Response: Employee object with full details
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     onChange(name as keyof Omit<Employee, 'id'>, value);
@@ -32,6 +37,20 @@ const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormPr
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
+        {/* BACKEND API: Create/Update employee
+           Endpoint: POST /api/employees (for create)
+                    PUT /api/employees/:id (for update)
+           Request Body: {
+             employeeId: string,
+             name: string,
+             email: string,
+             phone: string,
+             department: string,
+             designation: string,
+             dateJoined: string
+           }
+           Response: { id: number, ...employeeData }
+        */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="employeeId">Employee ID</Label>
@@ -115,4 +134,3 @@ const EmployeeForm = ({ employee, onChange, onSubmit, onCancel }: EmployeeFormPr
 };
 
 export default EmployeeForm;
-

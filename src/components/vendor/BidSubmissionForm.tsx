@@ -14,6 +14,11 @@ interface BidSubmissionFormProps {
 }
 
 const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
+  // BACKEND API: Get tender details for bid submission
+  // Endpoint: GET /api/tenders/:tenderId
+  // Request: { tenderId: number }
+  // Response: Tender object with details needed for bid submission
+  
   const { toast } = useToast();
   const [documents, setDocuments] = useState<File[]>([]);
   const [bidData, setBidData] = useState({
@@ -23,6 +28,17 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // BACKEND API: Submit bid
+    // Endpoint: POST /api/tenders/:tenderId/bids
+    // Request Body: Multipart form with bid data and documents
+    // {
+    //   bidAmount: number,
+    //   technicalDetails: string,
+    //   documents: File[]
+    // }
+    // Response: { id: number, tenderId: number, vendorId: number, status: "submitted", ...bidData }
+    
     const newBid: Partial<VendorBid> = {
       tenderId,
       vendorId: 1, // This would come from auth context in a real app
@@ -53,6 +69,11 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+      // BACKEND API: Upload bid documents
+      // Endpoint: POST /api/uploads/documents
+      // Request: Multipart form with files
+      // Response: { success: boolean, files: Array of document objects }
+      
       const newFiles = Array.from(e.target.files);
       setDocuments(prev => [...prev, ...newFiles]);
       

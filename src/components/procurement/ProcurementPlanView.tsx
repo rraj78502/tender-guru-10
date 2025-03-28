@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,11 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  // BACKEND API: When loading procurement plan details
+  // Endpoint: GET /api/procurement-plans/:id
+  // Request: { id: number }
+  // Response: { ProcurementPlan object with full details including committee_id, quarterly_targets, etc. }
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
       maximumFractionDigits: 0
@@ -36,6 +42,11 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
 
   const handleNavigate = (path: string, requiresCommittee: boolean = false) => {
     if (requiresCommittee && !plan.committee_id) {
+      // BACKEND API: Check committee existence 
+      // Endpoint: GET /api/committees/check
+      // Request: { procurement_plan_id: number }
+      // Response: { exists: boolean, committee_id?: number }
+      
       toast({
         title: "Committee Required",
         description: "Please form a committee first before accessing this section.",
@@ -98,6 +109,11 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       requiresCommittee: true
     }
   ];
+
+  // BACKEND API: Get project sections with dynamic statuses
+  // Endpoint: GET /api/procurement-plans/:id/sections
+  // Request: { id: number }
+  // Response: Array of section objects with titles, statuses, and paths
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

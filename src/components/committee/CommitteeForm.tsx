@@ -15,6 +15,11 @@ interface CommitteeFormProps {
 }
 
 const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
+  // BACKEND API: When loading existing committee data for editing
+  // Endpoint: GET /api/committees/:id
+  // Request: { id: number }
+  // Response: Committee object with members, dates, etc.
+  
   const {
     members,
     formDate,
@@ -62,6 +67,10 @@ const CommitteeForm = ({ onClose, onCreateCommittee }: CommitteeFormProps) => {
             onAddMember={handleAddMember}
             onUpdateMember={handleUpdateMember}
             onRemoveMember={(index) => {
+              // BACKEND API: When removing a member
+              // Endpoint: DELETE /api/committees/:committeeId/members/:memberId
+              // Request: { committeeId: number, memberId: number }
+              // Response: { success: boolean }
               setMembers(members.filter((_, i) => i !== index));
             }}
           />

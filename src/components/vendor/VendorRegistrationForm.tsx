@@ -26,6 +26,21 @@ const VendorRegistrationForm = ({ onClose }: VendorRegistrationFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // BACKEND API: Register new vendor
+    // Endpoint: POST /api/vendors
+    // Request Body: Multipart form with vendor data and documents
+    // {
+    //   companyName: string,
+    //   registrationNumber: string,
+    //   email: string,
+    //   phone: string,
+    //   address: string,
+    //   category: string[],
+    //   documents: File[]
+    // }
+    // Response: { id: number, ...vendorData, status: "pending" }
+    
     const newVendor: Partial<Vendor> = {
       ...vendorData,
       documents,
