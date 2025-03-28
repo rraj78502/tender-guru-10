@@ -20,6 +20,42 @@ const ComplaintRegistration = ({ onSubmit }: Props) => {
   // Request: None
   // Response: Array of category objects { id: number, name: string, description: string }
   
+  /* Integration Code:
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/complaints/categories', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching complaint categories:', error);
+      // Use default categories if API fails
+      setCategories([
+        { id: 1, name: 'Technical', description: 'Technical issues' },
+        { id: 2, name: 'Access', description: 'Access related issues' },
+        { id: 3, name: 'Process', description: 'Process related issues' },
+        { id: 4, name: 'Other', description: 'Other issues' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchCategories();
+  }, []); */
+  
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
@@ -59,6 +95,81 @@ const ComplaintRegistration = ({ onSubmit }: Props) => {
     //   documents: File[]
     // }
     // Response: { id: number, ...complaintData, status: "pending", submittedAt: string }
+    
+    /* Integration Code:
+    const registerComplaint = async () => {
+      const formData = new FormData();
+      
+      // Add all complaint data fields to formData
+      formData.append('title', formData.title);
+      formData.append('description', formData.description);
+      formData.append('submittedBy', formData.submittedBy);
+      formData.append('agencyId', formData.agencyId.toString());
+      formData.append('priority', formData.priority);
+      formData.append('category', formData.category);
+      formData.append('emailNotifications', formData.emailNotifications.toString());
+      
+      // Add all documents to formData
+      formData.documents.forEach((file, index) => {
+        formData.append(`document-${index}`, file);
+      });
+      
+      try {
+        const response = await fetch('/api/complaints', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Registration failed');
+        }
+        
+        const newComplaint = await response.json();
+        
+        toast({
+          title: "Complaint Registered",
+          description: "Your complaint has been submitted successfully.",
+        });
+        
+        // Pass the new complaint to the parent component
+        onSubmit({
+          ...formData,
+          documents: formData.documents.map((file, index) => ({
+            id: index + 1,
+            fileName: file.name,
+            fileType: file.type,
+            uploadedAt: new Date().toISOString(),
+            fileSize: file.size
+          }))
+        });
+        
+        // Reset form
+        setFormData({
+          title: "",
+          description: "",
+          submittedBy: "",
+          agencyId: 1,
+          status: "pending",
+          priority: "medium",
+          category: "Technical",
+          emailNotifications: true,
+          documents: []
+        });
+        
+        return newComplaint;
+      } catch (error) {
+        console.error('Error registering complaint:', error);
+        
+        toast({
+          title: "Registration Failed",
+          description: error.message || "An error occurred during complaint registration.",
+          variant: "destructive",
+        });
+        
+        throw error;
+      }
+    }; */
     
     onSubmit({
       ...formData,

@@ -64,14 +64,59 @@ const CommentsSection = ({
               {/* BACKEND API: Add comment to item (tender, specification, etc.)
               // Endpoint: POST /api/comments
               // Request: { itemId: number, itemType: string, text: string }
-              // Response: { id: number, text: string, timestamp: string, author: string } */}
+              // Response: { id: number, text: string, timestamp: string, author: string }
+              
+              // Integration Code:
+              const addComment = async (itemId: number, itemType: string, text: string) => {
+                try {
+                  const response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      itemId,
+                      itemType,
+                      text
+                    }),
+                  });
+                  
+                  if (!response.ok) throw new Error('Failed to add comment');
+                  
+                  const commentData = await response.json();
+                  return commentData;
+                } catch (error) {
+                  console.error('Error adding comment:', error);
+                  throw error;
+                }
+              }; */}
               <Button onClick={onAddComment}>Add Comment</Button>
             </div>
             <div className="space-y-4 max-h-[400px] overflow-y-auto">
               {/* BACKEND API: Get comments for an item
               // Endpoint: GET /api/comments
               // Request: { itemId: number, itemType: string }
-              // Response: Array of Comment objects */}
+              // Response: Array of Comment objects
+              
+              // Integration Code:
+              const getComments = async (itemId: number, itemType: string) => {
+                try {
+                  const response = await fetch(`/api/comments?itemId=${itemId}&itemType=${itemType}`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  
+                  if (!response.ok) throw new Error('Failed to fetch comments');
+                  
+                  const comments = await response.json();
+                  return comments;
+                } catch (error) {
+                  console.error('Error fetching comments:', error);
+                  return [];
+                }
+              }; */}
               {comments.map((comment) => (
                 <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex justify-between items-start">

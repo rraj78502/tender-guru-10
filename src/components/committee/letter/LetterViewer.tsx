@@ -21,6 +21,35 @@ const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
   // Request: { letterId: number }
   // Response: { fileContent: string, contentType: string, metadata: object }
   
+  /* Integration Code:
+  const fetchLetterContent = async (letterId: number) => {
+    try {
+      const response = await fetch(`/api/committees/letters/${letterId}/content`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch letter content');
+      
+      const data = await response.json();
+      setLetterContent(data.fileContent);
+      setLetterMetadata(data.metadata);
+      return data;
+    } catch (error) {
+      console.error('Error fetching letter content:', error);
+      throw error;
+    }
+  };
+  
+  // Call this function when component mounts or when letter changes
+  useEffect(() => {
+    if (letter?.id) {
+      fetchLetterContent(letter.id);
+    }
+  }, [letter]); */
+  
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[80vh]">
@@ -58,7 +87,35 @@ const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
               {/* BACKEND API: Get letter distribution history
               // Endpoint: GET /api/committees/letters/:letterId/distributions
               // Request: { letterId: number }
-              // Response: Array of distribution records with recipient details and timestamps */}
+              // Response: Array of distribution records with recipient details and timestamps
+              
+              // Integration Code:
+              const fetchDistributions = async (letterId: number) => {
+                try {
+                  const response = await fetch(`/api/committees/letters/${letterId}/distributions`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  
+                  if (!response.ok) throw new Error('Failed to fetch distributions');
+                  
+                  const distributions = await response.json();
+                  setDistributions(distributions);
+                  return distributions;
+                } catch (error) {
+                  console.error('Error fetching distributions:', error);
+                  return [];
+                }
+              };
+              
+              // Call this function when component mounts or when letter changes
+              useEffect(() => {
+                if (letter?.id) {
+                  fetchDistributions(letter.id);
+                }
+              }, [letter]); */}
               {letter.distributions.length > 0 ? (
                 <ul className="list-disc pl-5">
                   {letter.distributions.map((dist, index) => (

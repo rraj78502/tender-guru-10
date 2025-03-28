@@ -19,6 +19,38 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
   // Request: { tenderId: number }
   // Response: Tender object with details needed for bid submission
   
+  /* Integration Code:
+  const [tenderDetails, setTenderDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const fetchTenderDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/tenders/${tenderId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch tender details');
+      
+      const data = await response.json();
+      setTenderDetails(data);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching tender details:', error);
+      setError('Failed to load tender details. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchTenderDetails();
+  }, [tenderId]); */
+  
   const { toast } = useToast();
   const [documents, setDocuments] = useState<File[]>([]);
   const [bidData, setBidData] = useState({
@@ -38,6 +70,52 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
     //   documents: File[]
     // }
     // Response: { id: number, tenderId: number, vendorId: number, status: "submitted", ...bidData }
+    
+    /* Integration Code:
+    const submitBid = async () => {
+      const formData = new FormData();
+      
+      // Add bid data
+      formData.append('bidAmount', bidData.bidAmount);
+      formData.append('technicalDetails', bidData.technicalDetails);
+      
+      // Add all documents
+      documents.forEach((file, index) => {
+        formData.append(`document-${index}`, file);
+      });
+      
+      try {
+        const response = await fetch(`/api/tenders/${tenderId}/bids`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Bid submission failed');
+        }
+        
+        const newBid = await response.json();
+        
+        toast({
+          title: "Bid Submitted Successfully",
+          description: "Your bid has been submitted and is now under review.",
+        });
+        
+        onClose();
+        return newBid;
+      } catch (error) {
+        console.error('Error submitting bid:', error);
+        
+        toast({
+          title: "Submission Failed",
+          description: error.message || "An error occurred during bid submission.",
+          variant: "destructive",
+        });
+        
+        throw error;
+      }
+    }; */
     
     const newBid: Partial<VendorBid> = {
       tenderId,
@@ -73,6 +151,47 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
       // Endpoint: POST /api/uploads/documents
       // Request: Multipart form with files
       // Response: { success: boolean, files: Array of document objects }
+      
+      /* Integration Code:
+      const uploadDocuments = async (files: FileList) => {
+        const formData = new FormData();
+        
+        // Add all files to formData
+        Array.from(files).forEach((file, index) => {
+          formData.append(`file-${index}`, file);
+        });
+        
+        try {
+          const response = await fetch('/api/uploads/documents', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!response.ok) throw new Error('Upload failed');
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            toast({
+              title: "Files Uploaded",
+              description: `${result.files.length} file(s) uploaded successfully.`,
+            });
+            
+            // Update state with uploaded files
+            return result.files;
+          }
+        } catch (error) {
+          console.error('Error uploading documents:', error);
+          
+          toast({
+            title: "Upload Failed",
+            description: "Failed to upload documents. Please try again.",
+            variant: "destructive",
+          });
+          
+          throw error;
+        }
+      }; */
       
       const newFiles = Array.from(e.target.files);
       setDocuments(prev => [...prev, ...newFiles]);

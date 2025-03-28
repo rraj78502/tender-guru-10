@@ -41,6 +41,58 @@ const VendorRegistrationForm = ({ onClose }: VendorRegistrationFormProps) => {
     // }
     // Response: { id: number, ...vendorData, status: "pending" }
     
+    /* Integration Code:
+    const registerVendor = async () => {
+      const formData = new FormData();
+      
+      // Add all vendor data fields to formData
+      formData.append('companyName', vendorData.companyName);
+      formData.append('registrationNumber', vendorData.registrationNumber);
+      formData.append('email', vendorData.email);
+      formData.append('phone', vendorData.phone);
+      formData.append('address', vendorData.address);
+      
+      // Add categories as JSON string
+      formData.append('category', JSON.stringify(vendorData.category));
+      
+      // Add all documents to formData
+      documents.forEach((file, index) => {
+        formData.append(`document-${index}`, file);
+      });
+      
+      try {
+        const response = await fetch('/api/vendors', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Registration failed');
+        }
+        
+        const newVendor = await response.json();
+        
+        toast({
+          title: "Registration Successful",
+          description: "Your vendor registration has been submitted for review.",
+        });
+        
+        onClose();
+        return newVendor;
+      } catch (error) {
+        console.error('Error registering vendor:', error);
+        
+        toast({
+          title: "Registration Failed",
+          description: error.message || "An error occurred during registration.",
+          variant: "destructive",
+        });
+        
+        throw error;
+      }
+    }; */
+    
     const newVendor: Partial<Vendor> = {
       ...vendorData,
       documents,
