@@ -15,7 +15,17 @@ const LetterManagement = () => {
   // Request: Optional filters like { committeeId?: number, status?: string }
   // Response: Array of CommitteeFormationLetter objects
   
-  /* Integration Code:
+  /* API Flow:
+  // 1. Component mounts on page load
+  // 2. Component makes API call to get all letters or filtered by criteria
+  // 3. API call made to GET /api/committees/letters with optional query params
+  // 4. Server queries database for matching letters
+  // 5. Response with array of letter objects returned to client
+  // 6. Component sets letters to state for rendering
+  // 7. UI renders letter list with actions
+  // 8. List refreshes when new letter is uploaded or status changes
+  
+  // Integration Code:
   const [letters, setLetters] = useState<CommitteeFormationLetter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -67,7 +77,19 @@ const LetterManagement = () => {
     // Request: { recipientIds: number[], distributionMethod: "email" | "system" | "both" }
     // Response: { success: boolean, distributions: Array of distribution objects }
 
-    /* Integration Code:
+    /* API Flow:
+    // 1. User clicks "Distribute" button for a specific letter
+    // 2. Component opens modal or uses predefined list of recipients
+    // 3. User selects recipients and distribution method
+    // 4. handleDistribute function called with selections
+    // 5. API call made to POST /api/committees/letters/:letterId/distribute
+    // 6. Server processes distribution, sends emails/notifications
+    // 7. Server creates distribution records in database
+    // 8. Response with success status and new distribution records
+    // 9. Component updates letter state with new distribution info
+    // 10. UI shows distribution confirmation and updated counts
+    
+    // Integration Code:
     const distributeLetterToMembers = async (letter: CommitteeFormationLetter, recipientIds: number[], distributionMethod: "email" | "system" | "both") => {
       try {
         const response = await fetch(`/api/committees/letters/${letter.id}/distribute`, {
@@ -149,7 +171,17 @@ const LetterManagement = () => {
                     // Request: { letterId: number }
                     // Response: CommitteeFormationLetter object with full details
                     
-                    /* Integration Code:
+                    /* API Flow:
+                    // 1. User clicks "View" button for a specific letter
+                    // 2. onClick handler triggers API call to get full letter details
+                    // 3. API call made to GET /api/committees/letters/:letterId
+                    // 4. Server retrieves complete letter information
+                    // 5. Response with full letter object returned to client
+                    // 6. Component sets selected letter and opens viewer dialog
+                    // 7. Viewer component renders with detailed letter information
+                    // 8. Additional API calls may be made for content and distributions
+                    
+                    // Integration Code:
                     const fetchLetterDetails = async (letterId: number) => {
                       try {
                         const response = await fetch(`/api/committees/letters/${letterId}`, {
@@ -197,6 +229,15 @@ const LetterManagement = () => {
                   // Endpoint: GET /api/committees/letters/:letterId/download
                   // Request: { letterId: number }
                   // Response: Binary file data with appropriate content-type
+                  
+                  // API Flow:
+                  // 1. User clicks "Download" button for a specific letter
+                  // 2. onClick handler triggers direct file download
+                  // 3. Browser opens new tab or initiates download using API URL
+                  // 4. Server retrieves letter file from storage system
+                  // 5. Server sends file with appropriate headers for download
+                  // 6. Browser handles file download based on content-type
+                  // 7. No additional client-side processing required
                   
                   // Integration Code:
                   const downloadLetter = async (letterId: number) => {

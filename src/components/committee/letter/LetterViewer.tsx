@@ -21,7 +21,17 @@ const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
   // Request: { letterId: number }
   // Response: { fileContent: string, contentType: string, metadata: object }
   
-  /* Integration Code:
+  /* API Flow:
+  // 1. Component mounts when user opens letter viewer
+  // 2. Component receives letter object with basic metadata as props
+  // 3. useEffect hook triggers API call to get full content
+  // 4. API call made to GET /api/committees/letters/:letterId/content
+  // 5. Server retrieves letter content from storage system
+  // 6. Response with full content and metadata returned to client
+  // 7. Component sets content to state variables for rendering
+  // 8. UI displays letter content in the iframe
+  
+  // Integration Code:
   const fetchLetterContent = async (letterId: number) => {
     try {
       const response = await fetch(`/api/committees/letters/${letterId}/content`, {
@@ -88,6 +98,16 @@ const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
               // Endpoint: GET /api/committees/letters/:letterId/distributions
               // Request: { letterId: number }
               // Response: Array of distribution records with recipient details and timestamps
+              
+              // API Flow:
+              // 1. Component mounts when user views letter details
+              // 2. Component makes separate API call for distribution history
+              // 3. API call made to GET /api/committees/letters/:letterId/distributions
+              // 4. Server queries database for all distribution records linked to letter
+              // 5. Response with array of distribution details returned
+              // 6. Component sets distributions to state for rendering
+              // 7. UI renders distribution history list with timestamps
+              // 8. List refreshes if distributions are updated
               
               // Integration Code:
               const fetchDistributions = async (letterId: number) => {

@@ -19,7 +19,17 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
   // Request: { tenderId: number }
   // Response: Tender object with details needed for bid submission
   
-  /* Integration Code:
+  /* API Flow:
+  // 1. Component mounts when user opens bid submission form
+  // 2. Component makes API call to get tender details based on tenderId
+  // 3. API call made to GET /api/tenders/:tenderId
+  // 4. Server retrieves tender data from database
+  // 5. Response with tender data returned to client
+  // 6. Component sets tender details to state for reference
+  // 7. Form initialized with tender-specific information
+  // 8. Form fields may be adjusted based on tender requirements
+  
+  // Integration Code:
   const [tenderDetails, setTenderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -71,7 +81,21 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
     // }
     // Response: { id: number, tenderId: number, vendorId: number, status: "submitted", ...bidData }
     
-    /* Integration Code:
+    /* API Flow:
+    // 1. User fills bid submission form and attaches documents
+    // 2. handleSubmit prevents default form submission
+    // 3. Client validates all required fields
+    // 4. Client creates FormData object with bid amount and files
+    // 5. API call made to POST /api/tenders/:tenderId/bids
+    // 6. Server validates bid data against tender requirements
+    // 7. Server saves bid documents to storage system
+    // 8. Server creates bid record in database with submitted status
+    // 9. Server links bid to tender and vendor
+    // 10. Server notifies procurement team of new bid
+    // 11. Response with created bid returned to client
+    // 12. Client shows success toast and closes the form
+    
+    // Integration Code:
     const submitBid = async () => {
       const formData = new FormData();
       
@@ -152,7 +176,19 @@ const BidSubmissionForm = ({ tenderId, onClose }: BidSubmissionFormProps) => {
       // Request: Multipart form with files
       // Response: { success: boolean, files: Array of document objects }
       
-      /* Integration Code:
+      /* API Flow:
+      // 1. User selects files in file input
+      // 2. handleFileChange captures selected files
+      // 3. Component can either store files for later submission with bid
+      // 4. Or component can immediately upload files to get URLs
+      // 5. If immediate upload: API call made to POST /api/uploads/documents
+      // 6. Server validates files (size, type, etc.)
+      // 7. Server saves files to storage system
+      // 8. Server returns file metadata including URLs
+      // 9. Component updates state with file information
+      // 10. UI shows uploaded files with success message
+      
+      // Integration Code:
       const uploadDocuments = async (files: FileList) => {
         const formData = new FormData();
         

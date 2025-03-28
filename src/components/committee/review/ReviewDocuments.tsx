@@ -33,6 +33,15 @@ const ReviewDocuments = ({
           // Request: FormData with file and { reviewId: number, documentType: string }
           // Response: { id: number, name: string, url: string, type: string, size: number }
           
+          // API Flow:
+          // 1. User selects a file using the file input
+          // 2. onFileChange handler is triggered from parent component
+          // 3. Parent component prepares FormData with file and metadata
+          // 4. API call made to POST /api/committees/reviews/documents
+          // 5. Server processes upload and stores document
+          // 6. Response with document details returned to client
+          // 7. UI updated to show uploaded document status
+          
           // Integration Code:
           const uploadDocument = async (file: File, reviewId: number) => {
             const formData = new FormData();
@@ -77,6 +86,16 @@ const ReviewDocuments = ({
         // Endpoint: POST /api/committees/reviews/:reviewId/minutes
         // Request: { minutes: string, committeeId: number }
         // Response: { success: boolean, review: { id: number, minutes: string, updatedAt: string } }
+        
+        // API Flow:
+        // 1. User enters review minutes in textarea
+        // 2. onMinutesChange updates state in parent component
+        // 3. User submits form triggering onMinutesSubmit handler
+        // 4. Parent component extracts minutes and committee info
+        // 5. API call made to POST /api/committees/reviews/:reviewId/minutes
+        // 6. Server validates and stores the minutes
+        // 7. Response indicates success/failure and returns updated review
+        // 8. UI updates to show confirmation or error message
         
         // Integration Code:
         const submitMinutes = async (minutes: string, reviewId: number, committeeId: number) => {

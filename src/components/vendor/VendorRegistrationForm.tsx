@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 import { Vendor } from "@/types/vendor";
 import CompanyInfoFields from "./form/CompanyInfoFields";
@@ -41,7 +41,20 @@ const VendorRegistrationForm = ({ onClose }: VendorRegistrationFormProps) => {
     // }
     // Response: { id: number, ...vendorData, status: "pending" }
     
-    /* Integration Code:
+    /* API Flow:
+    // 1. User fills vendor registration form and attaches documents
+    // 2. handleSubmit prevents default form submission
+    // 3. Client validates all required fields
+    // 4. Client creates FormData object with all vendor information and files
+    // 5. API call made to POST /api/vendors with multipart/form-data
+    // 6. Server validates vendor information and documents
+    // 7. Server saves documents to storage system
+    // 8. Server creates vendor record in database with pending status
+    // 9. Server generates notification for admin review
+    // 10. Response with created vendor returned to client
+    // 11. Client shows success toast and closes the form
+    
+    // Integration Code:
     const registerVendor = async () => {
       const formData = new FormData();
       
