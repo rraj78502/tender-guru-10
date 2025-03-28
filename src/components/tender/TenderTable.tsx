@@ -30,6 +30,11 @@ const TenderTable = ({
   showComments,
   setShowComments,
 }: TenderTableProps) => {
+  // BACKEND API: Get user permissions for tender actions
+  // Endpoint: GET /api/users/permissions
+  // Request: { userId: number, module: "tender" }
+  // Response: { canEdit: boolean, canApprove: boolean, canDelete: boolean }
+  
   // Mock user permissions - for now we'll allow all actions
   const canEdit = true;
 
@@ -89,6 +94,10 @@ const TenderTable = ({
                   )}
                   {tender.status === "draft" && onApprovalStatusUpdate && (
                     <>
+                      {/* BACKEND API: Update tender approval status
+                      // Endpoint: PATCH /api/tenders/:tenderId/approval
+                      // Request: { status: "approved" | "rejected", comments?: string }
+                      // Response: { success: boolean, tender: Tender } */}
                       <Button
                         variant="outline"
                         size="sm"
@@ -107,6 +116,10 @@ const TenderTable = ({
                     </>
                   )}
                   {canTransitionStatus(tender.status, "published", tender.approvalStatus) && canEdit && (
+                    // BACKEND API: Update tender status to published
+                    // Endpoint: PATCH /api/tenders/:tenderId/status
+                    // Request: { status: "published" }
+                    // Response: { success: boolean, tender: Tender }
                     <Button
                       variant="outline"
                       size="sm"
@@ -116,6 +129,10 @@ const TenderTable = ({
                     </Button>
                   )}
                   {tender.status === "published" && canEdit && (
+                    // BACKEND API: Close tender bidding
+                    // Endpoint: PATCH /api/tenders/:tenderId/status
+                    // Request: { status: "closed" }
+                    // Response: { success: boolean, tender: Tender }
                     <Button
                       variant="outline"
                       size="sm"

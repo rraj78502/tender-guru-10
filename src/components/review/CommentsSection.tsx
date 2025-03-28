@@ -61,9 +61,17 @@ const CommentsSection = ({
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[100px]"
               />
+              {/* BACKEND API: Add comment to item (tender, specification, etc.)
+              // Endpoint: POST /api/comments
+              // Request: { itemId: number, itemType: string, text: string }
+              // Response: { id: number, text: string, timestamp: string, author: string } */}
               <Button onClick={onAddComment}>Add Comment</Button>
             </div>
             <div className="space-y-4 max-h-[400px] overflow-y-auto">
+              {/* BACKEND API: Get comments for an item
+              // Endpoint: GET /api/comments
+              // Request: { itemId: number, itemType: string }
+              // Response: Array of Comment objects */}
               {comments.map((comment) => (
                 <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex justify-between items-start">

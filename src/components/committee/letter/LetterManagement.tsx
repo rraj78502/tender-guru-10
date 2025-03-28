@@ -10,12 +10,20 @@ import LetterUpload from "./LetterUpload";
 import LetterViewer from "./LetterViewer";
 
 const LetterManagement = () => {
+  // BACKEND API: Get committee formation letters
+  // Endpoint: GET /api/committees/letters
+  // Request: Optional filters like { committeeId?: number, status?: string }
+  // Response: Array of CommitteeFormationLetter objects
   const [letters, setLetters] = useState<CommitteeFormationLetter[]>(mockLetters);
   const [selectedLetter, setSelectedLetter] = useState<CommitteeFormationLetter | null>(null);
   const [showViewer, setShowViewer] = useState(false);
   const { toast } = useToast();
 
   const handleDistribute = (letter: CommitteeFormationLetter) => {
+    // BACKEND API: Distribute letter to committee members
+    // Endpoint: POST /api/committees/letters/:letterId/distribute
+    // Request: { recipientIds: number[], distributionMethod: "email" | "system" | "both" }
+    // Response: { success: boolean, distributions: Array of distribution objects }
     toast({
       title: "Letter Distribution",
       description: `Distribution initiated for letter ${letter.referenceNumber}`,
@@ -45,6 +53,10 @@ const LetterManagement = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => {
+                    // BACKEND API: Get letter details
+                    // Endpoint: GET /api/committees/letters/:letterId
+                    // Request: { letterId: number }
+                    // Response: CommitteeFormationLetter object with full details
                     setSelectedLetter(letter);
                     setShowViewer(true);
                   }}
@@ -61,6 +73,10 @@ const LetterManagement = () => {
                   Distribute
                 </Button>
                 <Button variant="outline" size="sm">
+                  {/* BACKEND API: Download letter file
+                  // Endpoint: GET /api/committees/letters/:letterId/download
+                  // Request: { letterId: number }
+                  // Response: Binary file data with appropriate content-type */}
                   <Download className="h-4 w-4 mr-1" />
                   Download
                 </Button>

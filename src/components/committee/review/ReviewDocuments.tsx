@@ -28,6 +28,10 @@ const ReviewDocuments = ({
             onChange={onFileChange}
             accept=".pdf,.doc,.docx"
           />
+          {/* BACKEND API: Upload review document
+          // Endpoint: POST /api/committees/reviews/documents
+          // Request: FormData with file and { reviewId: number, documentType: string }
+          // Response: { id: number, name: string, url: string, type: string, size: number } */}
           <Button variant="outline">
             <Upload className="mr-2 h-4 w-4" />
             Upload
@@ -46,6 +50,10 @@ const ReviewDocuments = ({
             placeholder="Enter review minutes..."
           />
         </div>
+        {/* BACKEND API: Submit review minutes
+        // Endpoint: POST /api/committees/reviews/:reviewId/minutes
+        // Request: { minutes: string, committeeId: number }
+        // Response: { success: boolean, review: { id: number, minutes: string, updatedAt: string } } */}
         <Button type="submit">Add Minutes</Button>
       </form>
     </div>

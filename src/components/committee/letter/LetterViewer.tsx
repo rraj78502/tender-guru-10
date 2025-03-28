@@ -16,6 +16,11 @@ interface LetterViewerProps {
 }
 
 const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
+  // BACKEND API: Get letter content and metadata
+  // Endpoint: GET /api/committees/letters/:letterId/content
+  // Request: { letterId: number }
+  // Response: { fileContent: string, contentType: string, metadata: object }
+  
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[80vh]">
@@ -50,6 +55,10 @@ const LetterViewer = ({ letter, onClose }: LetterViewerProps) => {
 
             <div>
               <p className="font-semibold">Distributions</p>
+              {/* BACKEND API: Get letter distribution history
+              // Endpoint: GET /api/committees/letters/:letterId/distributions
+              // Request: { letterId: number }
+              // Response: Array of distribution records with recipient details and timestamps */}
               {letter.distributions.length > 0 ? (
                 <ul className="list-disc pl-5">
                   {letter.distributions.map((dist, index) => (
