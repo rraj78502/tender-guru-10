@@ -11,53 +11,6 @@ import ClarificationsTab from "./tabs/ClarificationsTab";
 import { useMockDb } from "@/hooks/useMockDb";
 
 const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
-  // BACKEND API: Get procurement management data
-  // Endpoint: GET /api/tenders/:tenderId/procurement
-  // Request: { tenderId: number }
-  // Response: { 
-  //   bidSecurities: BidSecurity[],
-  //   documentFees: DocumentFee[],
-  //   preBidMeetings: PreBidMeeting[],
-  //   clarifications: Clarification[]
-  // }
-  
-  /* Integration Code:
-  const [procurementData, setProcurementData] = useState({
-    bidSecurities: [] as BidSecurity[],
-    documentFees: [] as DocumentFee[],
-    preBidMeetings: [] as PreBidMeeting[],
-    clarifications: [] as Clarification[],
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
-  const fetchProcurementData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/tenders/${tenderId}/procurement`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch procurement data');
-      
-      const data = await response.json();
-      setProcurementData(data);
-      setError('');
-    } catch (error) {
-      console.error('Error fetching procurement data:', error);
-      setError('Failed to load procurement data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  useEffect(() => {
-    fetchProcurementData();
-  }, [tenderId]); */
-  
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("bid-security");
   
@@ -71,72 +24,6 @@ const ProcurementManagement = ({ tenderId }: { tenderId: number }) => {
   }, [tenderId]);
 
   const handleUpdate = (type: string, data: any) => {
-    // BACKEND API: Update procurement item
-    // Endpoint: PUT /api/tenders/:tenderId/procurement/:type/:itemId
-    // Example: PUT /api/tenders/123/procurement/bid-security/456
-    // Request Body: Updated item data
-    // Response: { success: boolean, data: updated item }
-    
-    /* Integration Code:
-    const updateProcurementItem = async (type: string, itemId: number, itemData: any) => {
-      try {
-        const response = await fetch(`/api/tenders/${tenderId}/procurement/${type}/${itemId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(itemData),
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Update failed');
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          // Update local state based on item type
-          switch (type) {
-            case 'bid-security':
-              updateBidSecurity(itemId, result.data);
-              break;
-            case 'document-fees':
-              updateDocumentFee(itemId, result.data);
-              break;
-            case 'pre-bid':
-              updatePreBidMeeting(itemId, result.data);
-              break;
-            case 'clarifications':
-              updateClarification(itemId, result.data);
-              break;
-          }
-          
-          toast({
-            title: "Updated Successfully",
-            description: `${type.replace('-', ' ')} has been updated.`,
-          });
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('Error updating procurement item:', error);
-        
-        toast({
-          title: "Update Failed",
-          description: error.message || "An error occurred while updating.",
-          variant: "destructive",
-        });
-        
-        throw error;
-      }
-    };
-    
-    // Call the update function with the correct data
-    if (data.id) {
-      updateProcurementItem(type, data.id, data);
-    } */
-    
     switch (type) {
       case 'bid-security':
         updateBidSecurity(data.id, data);

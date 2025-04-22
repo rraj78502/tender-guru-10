@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { X } from "lucide-react";
 import { Vendor } from "@/types/vendor";
 import CompanyInfoFields from "./form/CompanyInfoFields";
@@ -26,86 +26,6 @@ const VendorRegistrationForm = ({ onClose }: VendorRegistrationFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // BACKEND API: Register new vendor
-    // Endpoint: POST /api/vendors
-    // Request Body: Multipart form with vendor data and documents
-    // {
-    //   companyName: string,
-    //   registrationNumber: string,
-    //   email: string,
-    //   phone: string,
-    //   address: string,
-    //   category: string[],
-    //   documents: File[]
-    // }
-    // Response: { id: number, ...vendorData, status: "pending" }
-    
-    /* API Flow:
-    // 1. User fills vendor registration form and attaches documents
-    // 2. handleSubmit prevents default form submission
-    // 3. Client validates all required fields
-    // 4. Client creates FormData object with all vendor information and files
-    // 5. API call made to POST /api/vendors with multipart/form-data
-    // 6. Server validates vendor information and documents
-    // 7. Server saves documents to storage system
-    // 8. Server creates vendor record in database with pending status
-    // 9. Server generates notification for admin review
-    // 10. Response with created vendor returned to client
-    // 11. Client shows success toast and closes the form
-    
-    // Integration Code:
-    const registerVendor = async () => {
-      const formData = new FormData();
-      
-      // Add all vendor data fields to formData
-      formData.append('companyName', vendorData.companyName);
-      formData.append('registrationNumber', vendorData.registrationNumber);
-      formData.append('email', vendorData.email);
-      formData.append('phone', vendorData.phone);
-      formData.append('address', vendorData.address);
-      
-      // Add categories as JSON string
-      formData.append('category', JSON.stringify(vendorData.category));
-      
-      // Add all documents to formData
-      documents.forEach((file, index) => {
-        formData.append(`document-${index}`, file);
-      });
-      
-      try {
-        const response = await fetch('/api/vendors', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Registration failed');
-        }
-        
-        const newVendor = await response.json();
-        
-        toast({
-          title: "Registration Successful",
-          description: "Your vendor registration has been submitted for review.",
-        });
-        
-        onClose();
-        return newVendor;
-      } catch (error) {
-        console.error('Error registering vendor:', error);
-        
-        toast({
-          title: "Registration Failed",
-          description: error.message || "An error occurred during registration.",
-          variant: "destructive",
-        });
-        
-        throw error;
-      }
-    }; */
-    
     const newVendor: Partial<Vendor> = {
       ...vendorData,
       documents,

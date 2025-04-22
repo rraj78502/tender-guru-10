@@ -13,11 +13,6 @@ interface LetterUploadProps {
 }
 
 const LetterUpload = ({ onUpload }: LetterUploadProps) => {
-  // BACKEND API: Get letter template info
-  // Endpoint: GET /api/templates/letters
-  // Request: None
-  // Response: Array of letter templates with their reference number patterns
-  
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [referenceNumber, setReferenceNumber] = useState('');
@@ -50,18 +45,6 @@ const LetterUpload = ({ onUpload }: LetterUploadProps) => {
       return;
     }
 
-    // BACKEND API: Upload committee letter
-    // Endpoint: POST /api/committees/letters
-    // Request Body: Multipart form with letter data and file
-    // {
-    //   referenceNumber: string,
-    //   purpose: string,
-    //   file: File,
-    //   department: string,
-    //   committeeId?: number
-    // }
-    // Response: { id: number, ...letterData, fileUrl: string }
-    
     const newLetter: CommitteeFormationLetter = {
       id: Date.now(),
       referenceNumber,

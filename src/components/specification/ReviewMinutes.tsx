@@ -15,11 +15,6 @@ interface ReviewMinutesProps {
 const ReviewMinutes = ({ review, onReviewUpdate }: ReviewMinutesProps) => {
   const { toast } = useToast();
 
-  // BACKEND API: Get review session details
-  // Endpoint: GET /api/specifications/reviews/:reviewId
-  // Request: { reviewId: number }
-  // Response: ReviewSession object with minutes, documents, etc.
-
   const handleMinutesUpdate = (minutes: string) => {
     if (!review) {
       toast({
@@ -29,11 +24,6 @@ const ReviewMinutes = ({ review, onReviewUpdate }: ReviewMinutesProps) => {
       });
       return;
     }
-
-    // BACKEND API: Update review minutes
-    // Endpoint: PATCH /api/specifications/reviews/:reviewId
-    // Request Body: { minutes: string, status: string }
-    // Response: Updated ReviewSession object
 
     const updatedReview: ReviewSession = {
       ...review,

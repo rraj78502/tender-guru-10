@@ -17,11 +17,6 @@ interface TaskManagerProps {
 }
 
 const TaskManager = ({ specification, onTaskAssignment }: TaskManagerProps) => {
-  // BACKEND API: Get tasks for specification
-  // Endpoint: GET /api/specifications/:specificationId/tasks
-  // Request: { specificationId: number }
-  // Response: Array of TaskAssignment objects
-  
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
@@ -31,17 +26,6 @@ const TaskManager = ({ specification, onTaskAssignment }: TaskManagerProps) => {
     e.preventDefault();
     if (!dueDate || !assignedTo) return;
 
-    // BACKEND API: Create task for specification
-    // Endpoint: POST /api/specifications/:specificationId/tasks
-    // Request Body: {
-    //   title: string,
-    //   description: string,
-    //   assignedTo: number,
-    //   dueDate: string (ISO date),
-    //   notificationType: "email" | "sms" | "both"
-    // }
-    // Response: { id: number, ...taskData, status: "pending" }
-    
     const newTask: TaskAssignment = {
       id: Date.now(),
       title,
