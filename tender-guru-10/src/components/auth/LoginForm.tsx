@@ -7,12 +7,15 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [userId, setUserId] = useState("");
+  const [otpMethod, setOtpMethod] = useState("email");
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -91,7 +94,7 @@ const LoginForm = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, otpMethod }),
       });
 
       const data = await response.json();
@@ -105,7 +108,7 @@ const LoginForm = () => {
         setShowOtpForm(true);
         toast({
           title: "OTP Sent",
-          description: "Please check your email for the OTP.",
+          description: `Please check your ${data.otpMethod === 'email' ? 'email' : 'phone'} for the OTP.`,
         });
       } else {
         await login(data.token, data.data.user);
@@ -197,10 +200,6 @@ const LoginForm = () => {
     }
   };
 
-  const handleRegistration = () => {
-    navigate("/register");
-  };
-
   return (
     <Card className="p-6 w-full max-w-md mx-auto mt-20">
       {!showResetForm && !showOtpForm ? (
@@ -258,12 +257,30 @@ const LoginForm = () => {
             )}
           </div>
 
+          <div className="space-y-2">
+            <label className="text-sm font-medium">OTP Delivery Method</label>
+            <RadioGroup
+              value={otpMethod}
+              onValueChange={setOtpMethod}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="email" id="emailOtp" />
+                <Label htmlFor="emailOtp">Email</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="sms" id="smsOtp" />
+                <Label htmlFor="smsOtp">SMS</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="remember"
                 checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
               />
               <label
                 htmlFor="remember"
@@ -287,23 +304,13 @@ const LoginForm = () => {
             ) : null}
             {isLoading ? "Logging in..." : "Login"}
           </Button>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={handleRegistration}
-              className="text-sm text-primary hover:underline"
-            >
-              Don't have an account? Register here
-            </button>
-          </div>
         </form>
       ) : showOtpForm ? (
         <form onSubmit={handleOtpSubmit} className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-center">Verify OTP</h2>
             <p className="text-sm text-gray-500 text-center">
-              Enter the 6-digit OTP sent to your email
+              Enter the 6-digit OTP sent to your {otpMethod === 'email' ? 'email' : 'phone'}
             </p>
           </div>
 

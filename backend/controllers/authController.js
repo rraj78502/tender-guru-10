@@ -5,6 +5,10 @@ const catchAsync = require('../utils/catchAsync.js');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const winston = require('winston');
+const twilio = require('twilio');
+
+// Initialize Twilio client
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Set up Winston logger
 const logger = winston.createLogger({
@@ -15,6 +19,7 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.File({ filename: 'logs/email.log' }),
+    new winston.transports.File({ filename: 'logs/sms.log' }),
     new winston.transports.Console()
   ]
 });
@@ -45,6 +50,27 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.register = catchAsync(async (req, res, next) => {
+  const { otpMethod, ...otherFields } = req.body;
+
+  // Normalize otpMethod
+  let normalizedOtpMethod;
+  if (otpMethod) {
+    if (Array.isArray(otpMethod)) {
+      normalizedOtpMethod = otpMethod.filter((method) => ['email', 'sms'].includes(method));
+      if (normalizedOtpMethod.length === 0) {
+        return next(new AppError('Invalid otpMethod values in array', 400));
+      }
+    } else if (typeof otpMethod === 'string') {
+      if (!['email', 'sms'].includes(otpMethod)) {
+        return next(new AppError('Invalid otpMethod value', 400));
+      }
+      normalizedOtpMethod = otpMethod;
+    } else {
+      return next(new AppError('otpMethod must be a string or an array', 400));
+    }
+  } else {
+    normalizedOtpMethod = 'sms'; // Use schema default if not provided
+  }
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -54,8 +80,9 @@ exports.register = catchAsync(async (req, res, next) => {
     department: req.body.department,
     phoneNumber: req.body.phoneNumber,
     designation: req.body.designation,
+    otpMethod: normalizedOtpMethod,
     isActive: req.body.isActive ?? true,
-    otpEnabled: req.body.otpEnabled ?? true,
+    otpEnabled: req.body.otpEnabled ?? true,// Allow setting OTP method during registration
   });
   console.log('New user registered:', {
     timestamp: new Date().toISOString(),
@@ -65,16 +92,21 @@ exports.register = catchAsync(async (req, res, next) => {
     employeeId: newUser.employeeId,
     department: newUser.department,
     permissions: newUser.permissions,
+    otpMethod: newUser.otpMethod,
   });
   
   createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, otpMethod } = req.body;
   
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
+  }
+
+  if (otpMethod && !['email', 'sms'].includes(otpMethod)) {
+    return next(new AppError('Invalid OTP method. Choose "email" or "sms".', 400));
   }
   
   const user = await User.findOne({ email }).select('+password +otpCode +otpExpires');
@@ -89,52 +121,80 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (user.otpEnabled) {
     const otp = user.createOTP();
+    const selectedOtpMethod = otpMethod || user.otpMethod; // Use provided method or user's default
     await user.save({ validateBeforeSave: false });
     
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    if (selectedOtpMethod === 'email') {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
 
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_FROM,
-        to: user.email,
-        subject: 'Your OTP for Login',
-        html: `
-          <h1>One-Time Password (OTP)</h1>
-          <p>Hello ${user.name},</p>
-          <p>Your OTP for login is <strong>${otp}</strong>.</p>
-          <p>This OTP is valid for 10 minutes.</p>
-          <p>If you did not request this, please ignore this email.</p>
-        `,
-      });
-      logger.info('OTP email sent:', {
-        userId: user._id,
-        email: user.email,
-        timestamp: new Date().toISOString(),
-      });
-      
-      res.status(200).json({
-        status: 'otp_required',
-        message: 'OTP sent to your registered email',
-        userId: user._id,
-      });
-    } catch (error) {
-      user.otpCode = undefined;
-      user.otpExpires = undefined;
-      await user.save({ validateBeforeSave: false });
-      logger.error('Error sending OTP email:', {
-        userId: user._id,
-        email: user.email,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      });
-      return next(new AppError('Failed to send OTP. Please try again.', 500));
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_FROM,
+          to: user.email,
+          subject: 'Your OTP for Login',
+          html: `
+            <h1>One-Time Password (OTP)</h1>
+            <p>Hello ${user.name},</p>
+            <p>Your OTP for login is <strong>${otp}</strong>.</p>
+            <p>This OTP is valid for 10 minutes.</p>
+            <p>If you did not request this, please ignore this email.</p>
+          `,
+        });
+        logger.info('OTP email sent:', {
+          userId: user._id,
+          email: user.email,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        user.otpCode = undefined;
+        user.otpExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+        logger.error('Error sending OTP email:', {
+          userId: user._id,
+          email: user.email,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+        return next(new AppError('Failed to send OTP email. Please try again.', 500));
+      }
+    } else if (selectedOtpMethod === 'sms') {
+      try {
+        await twilioClient.messages.create({
+          body: `Your OTP for login is ${otp}. It is valid for 10 minutes.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: user.phoneNumber,
+        });
+        logger.info('OTP SMS sent:', {
+          userId: user._id,
+          phoneNumber: user.phoneNumber,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        user.otpCode = undefined;
+        user.otpExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+        logger.error('Error sending OTP SMS:', {
+          userId: user._id,
+          phoneNumber: user.phoneNumber,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+        return next(new AppError('Failed to send OTP SMS. Please try again.', 500));
+      }
     }
+    
+    res.status(200).json({
+      status: 'otp_required',
+      message: `OTP sent to your registered ${selectedOtpMethod === 'email' ? 'email' : 'phone number'}`,
+      userId: user._id,
+      otpMethod: selectedOtpMethod,
+    });
   } else {
     console.log('User logged in successfully:', {
       timestamp: new Date().toISOString(),
@@ -330,7 +390,26 @@ exports.getUserByEmployeeId = catchAsync(async (req, res, next) => {
 
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
-  
+  const { otpMethod, ...otherUpdates } = req.body;
+
+  // Normalize otpMethod
+  let normalizedOtpMethod;
+  if (otpMethod !== undefined) {
+    if (Array.isArray(otpMethod)) {
+      normalizedOtpMethod = otpMethod.filter((method) => ['email', 'sms'].includes(method));
+      if (normalizedOtpMethod.length === 0) {
+        return next(new AppError('Invalid otpMethod values in array', 400));
+      }
+    } else if (typeof otpMethod === 'string') {
+      if (!['email', 'sms'].includes(otpMethod)) {
+        return next(new AppError('Invalid otpMethod value', 400));
+      }
+      normalizedOtpMethod = otpMethod;
+    } else {
+      return next(new AppError('otpMethod must be a string or an array', 400));
+    }
+  }
+
   const allowedUpdates = {
     name: req.body.name,
     email: req.body.email,
@@ -340,6 +419,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     designation: req.body.designation,
     isActive: req.body.isActive,
     otpEnabled: req.body.otpEnabled,
+    otpMethod: normalizedOtpMethod,
     permissions: req.body.permissions,
   };
 
@@ -377,13 +457,14 @@ exports.updateUser = catchAsync(async (req, res, next) => {
           designation: user.designation,
           isActive: user.isActive,
           otpEnabled: user.otpEnabled,
+          otpMethod: user.otpMethod,
           permissions: user.permissions,
         },
       },
     });
   } catch (err) {
     console.error('Error updating user:', err);
-    return next(new AppError('Error updating user', 400));
+    return next(new AppError(`Error updating user: ${err.message}`, 400));
   }
 });
 
@@ -432,7 +513,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     department: req.body.department,
     phoneNumber: req.body.phoneNumber,
     designation: req.body.designation,
-    otpEnabled: req.body.otpEnabled,
+    // Allow updating OTP method
   };
 
   Object.keys(allowedUpdates).forEach(
@@ -468,6 +549,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
           designation: user.designation,
           isActive: user.isActive,
           otpEnabled: user.otpEnabled,
+          otpMethod: user.otpMethod,
           permissions: user.permissions,
         },
       },

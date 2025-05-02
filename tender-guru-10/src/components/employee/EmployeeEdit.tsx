@@ -13,10 +13,13 @@ import { useToast } from "@/hooks/use-toast";
 const EmployeeEdit = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { employees, updateUser, hasPermission } = useAuth();
+  const { employees, user, updateUser, updateMe, hasPermission } = useAuth();
   const { toast } = useToast();
 
   const employee = employees.find(emp => emp._id === userId);
+
+  const isOwnProfile = userId === user?._id;
+  const isAdmin = hasPermission('manage_users');
 
   const [formData, setFormData] = useState({
     name: employee?.name || "",
@@ -27,14 +30,15 @@ const EmployeeEdit = () => {
     designation: employee?.designation || "",
     isActive: employee?.isActive ?? true,
     otpEnabled: employee?.otpEnabled ?? false,
+    otpMethod: employee?.otpMethod || "sms",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!hasPermission('manage_users')) {
+    if (!isAdmin && !isOwnProfile) {
       toast({
         title: "Access Denied",
-        description: "You do not have permission to edit employees.",
+        description: "You can only edit your own profile.",
         variant: "destructive",
       });
       navigate("/");
@@ -48,7 +52,7 @@ const EmployeeEdit = () => {
       });
       navigate("/");
     }
-  }, [employee, userId, hasPermission, navigate, toast]);
+  }, [employee, userId, isAdmin, isOwnProfile, navigate, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,8 +63,8 @@ const EmployeeEdit = () => {
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
-  const handleRoleChange = (value: string) => {
-    setFormData(prev => ({ ...prev, role: value }));
+  const handleSelectChange = (name: string) => (value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,11 +72,30 @@ const EmployeeEdit = () => {
     if (!userId) return;
 
     setLoading(true);
-    const success = await updateUser(userId, formData);
+    let success;
+    if (isOwnProfile && !isAdmin) {
+      // Non-admin updating their own profile
+      const { name, email, department, phoneNumber, designation } = formData;
+      const updateData = { name, email, department, phoneNumber, designation };
+      success = await updateMe(updateData);
+    } else {
+      // Admin updating any profile
+      success = await updateUser(userId, formData);
+    }
     setLoading(false);
 
     if (success) {
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+      });
       navigate("/");
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to update profile.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -113,23 +136,25 @@ const EmployeeEdit = () => {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select value={formData.role} onValueChange={handleRoleChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="procurement_officer">Procurement Officer</SelectItem>
-                <SelectItem value="committee_member">Committee Member</SelectItem>
-                <SelectItem value="evaluator">Evaluator</SelectItem>
-                <SelectItem value="bidder">Bidder</SelectItem>
-                <SelectItem value="complaint_manager">Complaint Manager</SelectItem>
-                <SelectItem value="project_manager">Project Manager</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {isAdmin && (
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={formData.role} onValueChange={handleSelectChange('role')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="procurement_officer">Procurement Officer</SelectItem>
+                  <SelectItem value="committee_member">Committee Member</SelectItem>
+                  <SelectItem value="evaluator">Evaluator</SelectItem>
+                  <SelectItem value="bidder">Bidder</SelectItem>
+                  <SelectItem value="complaint_manager">Complaint Manager</SelectItem>
+                  <SelectItem value="project_manager">Project Manager</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="department">Department</Label>
             <Input
@@ -160,22 +185,40 @@ const EmployeeEdit = () => {
               required
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={handleSwitchChange('isActive')}
-            />
-            <Label htmlFor="isActive">Active Status</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="otpEnabled"
-              checked={formData.otpEnabled}
-              onCheckedChange={handleSwitchChange('otpEnabled')}
-            />
-            <Label htmlFor="otpEnabled">OTP Enabled</Label>
-          </div>
+          {isAdmin && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="otpMethod">OTP Method</Label>
+                <Select value={formData.otpMethod} onValueChange={handleSelectChange('otpMethod')}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select OTP method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="sms">SMS</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="otpEnabled"
+                  checked={formData.otpEnabled}
+                  onCheckedChange={handleSwitchChange('otpEnabled')}
+                />
+                <Label htmlFor="otpEnabled">OTP Enabled</Label>
+              </div>
+            </>
+          )}
+          {isAdmin && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={handleSwitchChange('isActive')}
+              />
+              <Label htmlFor="isActive">Active Status</Label>
+            </div>
+          )}
           <div className="flex justify-end space-x-4">
             <Button
               type="button"

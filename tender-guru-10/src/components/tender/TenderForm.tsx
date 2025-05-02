@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,35 +29,81 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     status: "draft" as const,
     approvalStatus: "pending" as const,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsSubmitting(true);
+
     const publish = new Date(tenderData.publishDate);
     const opening = new Date(tenderData.openingDate);
-    
+
     if (opening <= publish) {
       toast({
         title: "Invalid Dates",
         description: "Opening date must be after publish date",
         variant: "destructive",
       });
+      setIsSubmitting(false);
       return;
     }
 
-    const tender = {
-      ...tenderData,
-      bidValidity: String(tenderData.bidValidity),
-    };
-
-    onSubmit?.(tender);
-    
-    toast({
-      title: "Tender Created",
-      description: "Tender has been created successfully.",
+    const formData = new FormData();
+    formData.append('ifbNumber', tenderData.ifbNumber);
+    formData.append('title', tenderData.title);
+    formData.append('description', tenderData.description);
+    formData.append('publishDate', tenderData.publishDate);
+    formData.append('openingDate', tenderData.openingDate);
+    formData.append('bidValidity', String(tenderData.bidValidity));
+    formData.append('status', tenderData.status);
+    formData.append('approvalStatus', tenderData.approvalStatus);
+    formData.append('uploadType', 'tender');
+    // Append files to the 'documents' field as an array
+    documents.forEach((doc) => {
+      formData.append('documents', doc);
     });
-    
-    onClose();
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/tenders/createtender`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 413) {
+          throw new Error('Payload too large. Please upload smaller files or reduce the number of files (max 10 files, 5MB each).');
+        }
+        if (response.status === 403) {
+          throw new Error('You do not have permission to create a tender. Only admins and procurement officers can manage tenders.');
+        }
+        if (response.status === 401) {
+          throw new Error('You are not logged in. Please log in to create a tender.');
+        }
+        throw new Error(errorData.message || 'Failed to create tender');
+      }
+
+      const result = await response.json();
+      onSubmit?.(result.data.tender);
+
+      toast({
+        title: "Tender Created",
+        description: "Tender has been created successfully.",
+      });
+
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create tender",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (
@@ -71,16 +116,68 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     }));
   };
 
-  const handleIFBChange = (name: string, value: string) => {
-    setTenderData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleIFBChange = async (name: string, value: string) => {
+    if (value === "generate") {
+      try {
+        const response = await fetch(`http://localhost:5000/api/v1/tenders/generate-ifb`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (response.status === 403) {
+            throw new Error('You do not have permission to generate an IFB number. Only admins and procurement officers can manage tenders.');
+          }
+          if (response.status === 401) {
+            throw new Error('You are not logged in. Please log in to generate an IFB number.');
+          }
+          throw new Error(errorData.message || 'Failed to generate IFB number');
+        }
+
+        const result = await response.json();
+        setTenderData(prev => ({
+          ...prev,
+          ifbNumber: result.data.ifbNumber,
+        }));
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to generate IFB number",
+          variant: "destructive",
+        });
+      }
+    } else {
+      setTenderData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
+      // Client-side validation for file size and count
+      const oversizedFiles = newFiles.filter(file => file.size > 5 * 1024 * 1024);
+      if (oversizedFiles.length > 0) {
+        toast({
+          title: "Error",
+          description: "One or more files exceed the 5MB limit. Please upload smaller files.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (newFiles.length + documents.length > 10) {
+        toast({
+          title: "Error",
+          description: "You can only upload up to 10 files.",
+          variant: "destructive",
+        });
+        return;
+      }
       setDocuments(prev => [...prev, ...newFiles]);
       
       toast({
@@ -142,8 +239,8 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              Create Tender
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Tender"}
             </Button>
           </div>
         </form>

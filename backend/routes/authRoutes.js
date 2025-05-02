@@ -5,8 +5,11 @@ const { check } = require('express-validator');
 
 const router = express.Router();
 
+// Protect register route with authentication and admin restriction
 router.post(
   '/register',
+  authController.protect, // Ensure user is authenticated
+  authController.restrictTo('admin'), // Restrict to admin role
   [
     check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
@@ -14,11 +17,27 @@ router.post(
       'password',
       'Please enter a password with 6 or more characters'
     ).isLength({ min: 6 }),
-    check('role', 'Role is required').not().isEmpty(),
+    check('role', 'Role is required')
+      .not()
+      .isEmpty()
+      .isIn([
+        'admin',
+        'procurement_officer',
+        'committee_member',
+        'evaluator',
+        'bidder',
+        'complaint_manager',
+        'project_manager',
+      ])
+      .withMessage('Invalid role'),
     check('employeeId', 'Employee ID is required').not().isEmpty(),
     check('department', 'Department is required').not().isEmpty(),
     check('phoneNumber', 'Phone number is required').isMobilePhone('any'),
     check('designation', 'Designation is required').not().isEmpty(),
+    check('otpMethod', 'Invalid OTP method')
+      .optional()
+      .isIn(['email', 'sms'])
+      .withMessage('OTP method must be "email" or "sms"'),
   ],
   authController.register
 );
@@ -28,6 +47,10 @@ router.post(
   [
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password is required').exists(),
+    check('otpMethod', 'Invalid OTP method')
+      .optional()
+      .isIn(['email', 'sms'])
+      .withMessage('OTP method must be "email" or "sms"'),
   ],
   authController.login
 );
@@ -52,6 +75,10 @@ router.patch(
   '/me/update',
   [
     check('email').optional().isEmail().withMessage('Please include a valid email'),
+    check('otpMethod', 'Invalid OTP method')
+      .optional()
+      .isIn(['email', 'sms'])
+      .withMessage('OTP method must be "email" or "sms"'),
   ],
   authController.updateMe
 );
@@ -74,6 +101,10 @@ router
           'project_manager',
         ])
         .withMessage('Invalid role'),
+      check('otpMethod', 'Invalid OTP method')
+        .optional()
+        .isIn(['email', 'sms'])
+        .withMessage('OTP method must be "email" or "sms"'),
     ],
     authController.updateUser
   )

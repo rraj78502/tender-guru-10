@@ -12,6 +12,7 @@ interface User {
   designation: string;
   isActive: boolean;
   otpEnabled: boolean;
+  otpMethod?: 'email' | 'sms'; // Added otpMethod
   permissions: string[];
 }
 
@@ -44,6 +45,7 @@ interface UpdateUserData {
   designation?: string;
   isActive?: boolean;
   otpEnabled?: boolean;
+  otpMethod?: 'email' | 'sms'; // Added otpMethod
 }
 
 interface AuthMethods {
@@ -56,6 +58,7 @@ interface AuthMethods {
   refetchEmployees: () => Promise<void>;
   updateUser: (userId: string, userData: UpdateUserData) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
+  updateMe: (userData: UpdateUserData) => Promise<boolean>; // Added updateMe
 }
 
 type AuthContextType = AuthState & AuthMethods;
@@ -162,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.token}`,
         },
         body: JSON.stringify(userData),
       });
@@ -300,6 +304,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateMe = async (userData: UpdateUserData): Promise<boolean> => {
+    try {
+      const response = await fetch('http://localhost:5000/api/v1/auth/me/update', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${state.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      // Update the user in context
+      setState(prev => ({
+        ...prev,
+        user: data.data.user,
+      }));
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+
+      await refetchEmployees(); // Refresh employees to reflect changes
+      return true;
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: error instanceof Error ? error.message : "Failed to update profile",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   const logout = () => {
     setState({
       user: null,
@@ -333,6 +377,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refetchEmployees,
       updateUser,
       deleteUser,
+      updateMe, // Added updateMe
     }}>
       {children}
     </AuthContext.Provider>

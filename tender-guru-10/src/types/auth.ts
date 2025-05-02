@@ -41,6 +41,7 @@ export interface User {
   lastLogin?: string;
   isActive: boolean;
   otpEnabled?: boolean;
+  otpMethod?: 'email' | 'sms'; // Add otpMethod as optional to handle existing users
 }
 
 export interface AuthState {

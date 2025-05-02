@@ -17,6 +17,7 @@ const EmployeeList = () => {
     employeesError, 
     refetchEmployees,
     token,
+    user, // Added to access current user's details
     hasPermission,
     deleteUser,
   } = useAuth();
@@ -157,7 +158,7 @@ const EmployeeList = () => {
               </TableHead>
               <TableHead>Contact Information</TableHead>
               <TableHead>Status</TableHead>
-              {hasPermission('manage_users') && <TableHead>Actions</TableHead>}
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -187,9 +188,9 @@ const EmployeeList = () => {
                       {employee.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </TableCell>
-                  {hasPermission('manage_users') && (
-                    <TableCell>
-                      <div className="flex space-x-2">
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      {(hasPermission('manage_users') || employee._id === user._id) && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -198,6 +199,8 @@ const EmployeeList = () => {
                           <Edit className="h-4 w-4 mr-1" />
                           Update
                         </Button>
+                      )}
+                      {hasPermission('manage_users') && (
                         <Button
                           variant="destructive"
                           size="sm"
@@ -206,14 +209,14 @@ const EmployeeList = () => {
                           <Trash2 className="h-4 w-4 mr-1" />
                           Delete
                         </Button>
-                      </div>
-                    </TableCell>
-                  )}
+                      )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={hasPermission('manage_users') ? 7 : 6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   No employees found
                 </TableCell>
               </TableRow>
@@ -222,7 +225,7 @@ const EmployeeList = () => {
         </Table>
       </div>
     </Card>
-  );
+  );  
 };
 
 export default EmployeeList;

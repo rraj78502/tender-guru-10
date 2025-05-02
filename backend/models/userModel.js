@@ -43,10 +43,16 @@ const userSchema = new mongoose.Schema({
   department: {
     type: String,
     required: [true, 'Please provide department'],
-  },
+  },  
   phoneNumber: {
     type: String,
     required: [true, 'Please provide phone number'],
+    validate: {
+      validator: function (value) {
+        return validator.isMobilePhone(value, 'any', { strictMode: true });
+      },
+      message: 'Please provide a valid phone number',
+    },
   },
   designation: {
     type: String,
@@ -68,12 +74,32 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
+  otpMethod: {
+    type: mongoose.Schema.Types.Mixed, // Allows both String and Array
+    default: 'sms', // Default to a single string
+    validate: {
+      validator: function (value) {
+        // Allow null/undefined if optional
+        if (value === null || value === undefined) return true;
+        // Validate single string
+        if (typeof value === 'string') {
+          return ['email', 'sms'].includes(value);
+        }
+        // Validate array of strings
+        if (Array.isArray(value)) {
+          return value.length > 0 && value.every((item) => ['email', 'sms'].includes(item));
+        }
+        return false;
+      },
+      message: 'otpMethod must be "email", "sms", or an array of ["email", "sms"]',
+    },
+  },
   permissions: {
     type: [String],
     default: function () {
       const rolePermissions = {
-        admin: ['manage_users', 'manage_committees'],
-        procurement_officer: [],
+        admin: ['manage_users', 'manage_committees', 'manage-tenders'],
+        procurement_officer: ['manage-tenders'],
         committee_member: [],
         evaluator: [],
         bidder: [],

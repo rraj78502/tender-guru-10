@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import QuickActions from "@/components/home/QuickActions";
 import Modals from "@/components/home/Modals";
@@ -11,6 +10,8 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { exportToCSV } from "@/utils/exportUtils";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import type { User, UserRole } from "@/types/auth";
 
 const Index = () => {
@@ -20,8 +21,10 @@ const Index = () => {
   const [showComplaints, setShowComplaints] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Mock user for dashboard display with correct User type properties
+
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const mockUser: User = {
     id: 1,
     name: "Admin User",
@@ -32,7 +35,7 @@ const Index = () => {
   };
 
   const handleMarkAsRead = (id: number) => {
-    setNotifications(notifications.map(notification => 
+    setNotifications(notifications.map(notification =>
       notification.id === id ? { ...notification, read: true } : notification
     ));
   };
@@ -45,6 +48,10 @@ const Index = () => {
 
   const handleExport = () => {
     exportToCSV(notifications, 'notifications');
+  };
+
+  const handleRegisterNewUser = () => {
+    navigate("/register");
   };
 
   return (
@@ -63,17 +70,28 @@ const Index = () => {
               />
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             </div>
-            <Button
-              onClick={handleExport}
-              variant="outline"
-              className="w-full md:w-auto glass-card hover:bg-gray-100 transition-colors"
-            >
-              Export Data
-            </Button>
+            <div className="flex space-x-2">
+              {isAuthenticated && user?.role === "admin" && (
+                <Button
+                  onClick={handleRegisterNewUser}
+                  variant="outline"
+                  className="w-full md:w-auto glass-card hover:bg-gray-100 transition-colors"
+                >
+                  Register New User
+                </Button>
+              )}
+              <Button
+                onClick={handleExport}
+                variant="outline"
+                className="w-full md:w-auto glass-card hover:bg-gray-100 transition-colors"
+              >
+                Export Data
+              </Button>
+            </div>
           </div>
 
           {/* Notifications Section */}
-          <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn">
+           <div className="glass-card rounded-xl p-4 md:p-6 shadow-lg animate-slideIn">
             <NotificationHandler
               notifications={notifications}
               onMarkAsRead={handleMarkAsRead}

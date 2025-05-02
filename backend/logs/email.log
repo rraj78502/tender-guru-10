@@ -7,3 +7,15 @@
 {"level":"info","message":"Notifications sent for committee 680778f54abf336326c2b809","timestamp":"2025-04-22T11:09:44.637Z"}
 {"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP email sent:","timestamp":"2025-04-24T07:24:34.104Z","userId":"67ee284ca72608568c15157d"}
 {"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP verified successfully:","timestamp":"2025-04-24T07:25:20.720Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP email sent:","timestamp":"2025-04-24T09:49:44.816Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP email sent:","timestamp":"2025-04-27T07:08:34.385Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP verified successfully:","timestamp":"2025-04-27T07:09:00.263Z","userId":"67ee284ca72608568c15157d"}
+{"error":"'To' and 'From' number cannot be the same: 986159XXXX","level":"error","message":"Error sending OTP SMS:","phoneNumber":"9861599595","timestamp":"2025-04-27T07:44:15.642Z","userId":"67ee284ca72608568c15157d"}
+{"error":"'From' +9779861599595 is not a Twilio phone number or Short Code country mismatch","level":"error","message":"Error sending OTP SMS:","phoneNumber":"+9779808922265","timestamp":"2025-04-27T08:03:02.358Z","userId":"680de4a08d9937e9cd55d4d5"}
+{"error":"'From' +9779861599595 is not a Twilio phone number or Short Code country mismatch","level":"error","message":"Error sending OTP SMS:","phoneNumber":"+9779808922265","timestamp":"2025-04-27T08:11:01.338Z","userId":"680de6856131710f8ac073ae"}
+{"level":"info","message":"OTP SMS sent:","phoneNumber":"+9779861599595","timestamp":"2025-04-27T10:34:09.269Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP verified successfully:","timestamp":"2025-04-27T10:34:44.069Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP email sent:","timestamp":"2025-04-27T10:35:13.475Z","userId":"67ee284ca72608568c15157d"}
+{"email":"admin2@ntc.net.np","level":"info","message":"OTP email sent:","timestamp":"2025-04-28T11:47:37.931Z","userId":"680f6ab8944a7b172338b585"}
+{"committeeId":"67ecf761a55ab7ddffb73714","deletedBy":"680f6c077602e9bfd24ea363","level":"info","message":"Committee deleted:","name":"Ethics Committee update ","timestamp":"2025-04-29T07:14:22.135Z"}
+{"committeeId":"680778f54abf336326c2b809","deletedBy":"680f6c077602e9bfd24ea363","level":"info","message":"Committee deleted:","name":"Email test committe","timestamp":"2025-04-29T07:14:27.876Z"}

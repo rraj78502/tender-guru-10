@@ -1,0 +1,7 @@
+{"error":"'To' and 'From' number cannot be the same: 986159XXXX","level":"error","message":"Error sending OTP SMS:","phoneNumber":"9861599595","timestamp":"2025-04-27T07:44:15.642Z","userId":"67ee284ca72608568c15157d"}
+{"error":"'From' +9779861599595 is not a Twilio phone number or Short Code country mismatch","level":"error","message":"Error sending OTP SMS:","phoneNumber":"+9779808922265","timestamp":"2025-04-27T08:03:02.358Z","userId":"680de4a08d9937e9cd55d4d5"}
+{"error":"'From' +9779861599595 is not a Twilio phone number or Short Code country mismatch","level":"error","message":"Error sending OTP SMS:","phoneNumber":"+9779808922265","timestamp":"2025-04-27T08:11:01.338Z","userId":"680de6856131710f8ac073ae"}
+{"level":"info","message":"OTP SMS sent:","phoneNumber":"+9779861599595","timestamp":"2025-04-27T10:34:09.269Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP verified successfully:","timestamp":"2025-04-27T10:34:44.069Z","userId":"67ee284ca72608568c15157d"}
+{"email":"zevilsshrestha07@gmail.com","level":"info","message":"OTP email sent:","timestamp":"2025-04-27T10:35:13.475Z","userId":"67ee284ca72608568c15157d"}
+{"email":"admin2@ntc.net.np","level":"info","message":"OTP email sent:","timestamp":"2025-04-28T11:47:37.931Z","userId":"680f6ab8944a7b172338b585"}

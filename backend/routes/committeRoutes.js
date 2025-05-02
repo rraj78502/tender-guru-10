@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require('../config/multer.js');
 const authController = require('../controllers/authController.js');
 const permissionMiddleware = require('../middleware/permisssionMiddleware.js');
+const { uploadCommitteeLetter } = require('../config/multer.js'); // Import the multer configuration for committee letters
 const {
   createCommittee,
   getCommittees,
@@ -16,7 +17,12 @@ const {
 router.use(authController.protect);
 
 // POST /api/committees - Create new committee
-router.post('/createcommittees', upload.single('formationLetter'), createCommittee);
+router.post(
+  '/createcommittees',
+  permissionMiddleware.checkPermission('manage_committees'),
+  uploadCommitteeLetter, // Use the pre-configured middleware
+  createCommittee
+);
 
 
 // router.post(
@@ -37,7 +43,7 @@ router.get('/getcommitteebyid/:id', getCommittee);
 router.patch(
   '/updatecommittees/:id',
   permissionMiddleware.checkPermission('manage_committees'),
-  upload.single('formationLetter'),
+  uploadCommitteeLetter, // Use the pre-configured middleware
   updateCommittee
 );
 
