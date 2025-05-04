@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, X } from "lucide-react";
 import TenderPreview from "./TenderPreview";
-import { Tender } from "@/types/tender";
+import { Tender, TenderDocument } from "@/types/tender";
 import IFBNumberField from "./form/IFBNumberField";
 import BasicTenderInfo from "./form/BasicTenderInfo";
 import TenderDates from "./form/TenderDates";
@@ -12,7 +12,7 @@ import DocumentUpload from "./form/DocumentUpload";
 
 interface TenderFormProps {
   onClose: () => void;
-  onSubmit?: (tender: Omit<Tender, "id" | "comments" | "documents">) => void;
+  onSubmit?: () => void; // Adjusted since we don't return the tender anymore
 }
 
 const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
@@ -58,7 +58,6 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     formData.append('status', tenderData.status);
     formData.append('approvalStatus', tenderData.approvalStatus);
     formData.append('uploadType', 'tender');
-    // Append files to the 'documents' field as an array
     documents.forEach((doc) => {
       formData.append('documents', doc);
     });
@@ -67,7 +66,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
       const response = await fetch(`http://localhost:5000/api/v1/tenders/createtender`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: formData,
       });
@@ -86,8 +85,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
         throw new Error(errorData.message || 'Failed to create tender');
       }
 
-      const result = await response.json();
-      onSubmit?.(result.data.tender);
+      onSubmit?.();
 
       toast({
         title: "Tender Created",
@@ -112,7 +110,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     const { name, value } = e.target;
     setTenderData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -122,7 +120,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
         const response = await fetch(`http://localhost:5000/api/v1/tenders/generate-ifb`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
         });
 
@@ -152,7 +150,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
     } else {
       setTenderData(prev => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -160,7 +158,6 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      // Client-side validation for file size and count
       const oversizedFiles = newFiles.filter(file => file.size > 5 * 1024 * 1024);
       if (oversizedFiles.length > 0) {
         toast({
@@ -189,6 +186,29 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
 
   const removeDocument = (index: number) => {
     setDocuments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Convert File[] to TenderDocument[] for preview
+  const previewDocuments: TenderDocument[] = documents.map(file => ({
+    filename: file.name,
+    path: '', // Placeholder, backend will set this
+    originalname: file.name,
+    mimetype: file.type,
+    size: file.size,
+  }));
+
+  const previewTender: Tender = {
+    id: 'preview', // Temporary ID for preview
+    ifbNumber: tenderData.ifbNumber,
+    title: tenderData.title,
+    description: tenderData.description,
+    publishDate: tenderData.publishDate,
+    openingDate: tenderData.openingDate,
+    bidValidity: parseInt(tenderData.bidValidity),
+    status: tenderData.status,
+    approvalStatus: tenderData.approvalStatus,
+    comments: [],
+    documents: previewDocuments,
   };
 
   return (
@@ -250,7 +270,7 @@ const TenderForm = ({ onClose, onSubmit }: TenderFormProps) => {
         <TenderPreview
           open={showPreview}
           onOpenChange={setShowPreview}
-          tender={{ ...tenderData, documents }}
+          tender={previewTender}
         />
       )}
     </div>

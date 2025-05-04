@@ -303,11 +303,14 @@ const addTenderComment = async (req, res, next) => {
       return next(new AppError('No tender found with that ID', 404));
     }
 
+    // Use authenticated user's name or fallback to 'Unknown User'
+    const author = req.user?.name || 'Unknown User';
+
     const newComment = {
       text: text.trim(),
-      author: req.user.name || 'Unknown User',
+      author,
       createdAt: new Date(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     tender.comments.push(newComment);
@@ -316,14 +319,20 @@ const addTenderComment = async (req, res, next) => {
     const populatedTender = await Tender.findById(tender._id)
       .populate('createdBy', 'name email role employeeId');
 
+    logger.info(`Comment added to tender ${id} by ${author}`, {
+      tenderId: tender._id,
+      comment: newComment,
+    });
+
     res.status(201).json({
       status: 'success',
-      data: { tender: populatedTender }
+      data: { tender: populatedTender },
     });
   } catch (error) {
+    logger.error('Failed to add comment:', error);
     next(new AppError('Failed to add comment', 500));
   }
-};
+};;
 
 // Helper function for sending notifications
 const sendTenderNotifications = async (tender) => {

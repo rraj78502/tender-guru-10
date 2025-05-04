@@ -1,24 +1,49 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, FileText, Download } from "lucide-react";
+import { Tender, TenderDocument } from "@/types/tender";
+import { useToast } from "@/hooks/use-toast";
 
 interface TenderPreviewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tender: {
-    ifbNumber: string;
-    title: string;
-    description: string;
-    publishDate: string;
-    openingDate: string;
-    bidValidity: string;
-    documents?: File[];
-  };
+  tender: Tender; // Changed to full Tender type
 }
 
 const TenderPreview = ({ open, onOpenChange, tender }: TenderPreviewProps) => {
+  const { toast } = useToast();
+
+  const handleDownload = async (document: TenderDocument) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/tenders/${tender.id}/download/${document.filename}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = window.document.createElement('a');
+      a.href = url;
+      a.download = document.originalname;
+      window.document.body.appendChild(a);
+      a.click();
+      window.document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Document Downloaded",
+        description: `${document.originalname} has been downloaded successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[80vh]">
@@ -70,9 +95,9 @@ const TenderPreview = ({ open, onOpenChange, tender }: TenderPreviewProps) => {
                       <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm">{doc.name}</span>
+                          <span className="text-sm">{doc.originalname}</span>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)}>
                           <Download className="h-4 w-4" />
                         </Button>
                       </div>

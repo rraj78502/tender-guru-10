@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,26 +7,47 @@ import { useToast } from "@/hooks/use-toast";
 interface DocumentViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  document: File;
+  document: {
+    filename: string;
+    path: string;
+    originalname: string;
+    mimetype: string;
+    size: number;
+  }; // Changed to TenderDocument
+  tenderId: string; // Added to fetch the file
 }
 
-const DocumentViewer = ({ open, onOpenChange, document }: DocumentViewerProps) => {
+const DocumentViewer = ({ open, onOpenChange, document, tenderId }: DocumentViewerProps) => {
   const { toast } = useToast();
 
-  const handleDownload = () => {
-    const url = URL.createObjectURL(document);
-    const a = window.document.createElement('a');
-    a.href = url;
-    a.download = document.name;
-    window.document.body.appendChild(a);
-    a.click();
-    window.document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Document Downloaded",
-      description: `${document.name} has been downloaded successfully.`,
-    });
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/tenders/${tenderId}/download/${document.filename}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = window.document.createElement('a');
+      a.href = url;
+      a.download = document.originalname;
+      window.document.body.appendChild(a);
+      a.click();
+      window.document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Document Downloaded",
+        description: `${document.originalname} has been downloaded successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -36,7 +56,7 @@ const DocumentViewer = ({ open, onOpenChange, document }: DocumentViewerProps) =
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            Document Preview: {document.name}
+            Document Preview: {document.originalname}
           </DialogTitle>
         </DialogHeader>
         <div className="flex justify-end mb-4">
@@ -55,22 +75,14 @@ const DocumentViewer = ({ open, onOpenChange, document }: DocumentViewerProps) =
             <div className="flex items-center gap-2 mb-4">
               <FileText className="h-5 w-5 text-gray-500" />
               <span className="text-sm text-gray-500">
-                {document.type} - {(document.size / 1024).toFixed(2)} KB
+                {document.mimetype} - {(document.size / 1024).toFixed(2)} KB
               </span>
             </div>
-            {document.type.includes('image') ? (
-              <img
-                src={URL.createObjectURL(document)}
-                alt={document.name}
-                className="max-w-full h-auto"
-              />
-            ) : (
-              <div className="bg-gray-50 p-4 rounded">
-                <p className="text-gray-500">
-                  Preview not available for this file type. Please download to view.
-                </p>
-              </div>
-            )}
+            <div className="bg-gray-50 p-4 rounded">
+              <p className="text-gray-500">
+                Preview not available for this file type. Please download to view.
+              </p>
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>

@@ -1,13 +1,14 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, File } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { TenderDocument } from "@/types/tender";
 
 interface TenderDocumentsProps {
-  tenderId: number;
-  documents: File[];
-  onUpload: (tenderId: number, files: FileList) => void;
-  onPreview: (document: File) => void;
+  tenderId: string; // Changed to string
+  documents: TenderDocument[]; // Changed to TenderDocument[]
+  onUpload: (tenderId: string, files: FileList) => void;
+  onPreview: (document: TenderDocument, tenderId: string) => Promise<void>; // Updated to match TenderTable
 }
 
 const TenderDocuments = ({
@@ -16,6 +17,44 @@ const TenderDocuments = ({
   onUpload,
   onPreview,
 }: TenderDocumentsProps) => {
+  const { toast } = useToast();
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const formData = new FormData();
+      Array.from(e.target.files).forEach((file) => {
+        formData.append('documents', file);
+      });
+      formData.append('uploadType', 'tender');
+
+      fetch(`http://localhost:5000/api/v1/tenders/updatetender/${tenderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error('Upload failed');
+          return response.json();
+        })
+        .then(() => {
+          onUpload(tenderId, e.target.files);
+          toast({
+            title: "Documents Uploaded",
+            description: `${e.target.files.length} document(s) uploaded successfully.`,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error",
+            description: error.message || "Failed to upload documents",
+            variant: "destructive",
+          });
+        });
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-gray-500">{documents.length} file(s)</span>
@@ -25,11 +64,7 @@ const TenderDocuments = ({
           className="hidden"
           id={`upload-${tenderId}`}
           multiple
-          onChange={(e) => {
-            if (e.target.files) {
-              onUpload(tenderId, e.target.files);
-            }
-          }}
+          onChange={handleFileUpload}
         />
         <Button
           variant="outline"
@@ -43,7 +78,7 @@ const TenderDocuments = ({
             key={index}
             variant="outline"
             size="sm"
-            onClick={() => onPreview(doc)}
+            onClick={() => onPreview(doc, tenderId)}
           >
             <File className="h-4 w-4" />
           </Button>

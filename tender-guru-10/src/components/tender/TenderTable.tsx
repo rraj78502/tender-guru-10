@@ -1,20 +1,19 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
-import { Tender } from "@/types/tender";
+import { Tender, TenderStatus, TenderApprovalStatus, TenderDocument } from "@/types/tender";
 import { getStatusBadge, getApprovalStatusBadge, canTransitionStatus } from "@/utils/tenderUtils";
 import TenderDocuments from "./TenderDocuments";
-import CommentsSection from "../review/CommentsSection";
+import CommentsSection from "../tender/CommentSection";
 
 interface TenderTableProps {
   tenders: Tender[];
   onPreview: (tender: Tender) => void;
-  onApprovalStatusUpdate?: (tenderId: number, status: "approved" | "rejected") => void;
-  onStatusTransition: (tenderId: number) => void;
-  onAddComment: (tenderId: number, text: string) => void;
-  onDocumentUpload: (tenderId: number, files: FileList) => void;
-  onDocumentPreview: (document: File) => void;
+  onApprovalStatusUpdate?: (tenderId: string, status: TenderApprovalStatus) => Promise<void>;
+  onStatusTransition: (tenderId: string, currentStatus: TenderStatus) => Promise<void>;
+  onAddComment: (tenderId: string, text: string) => Promise<void>;
+  onDocumentUpload: (tenderId: string, files: FileList) => void;
+  onDocumentPreview: (document: TenderDocument, tenderId: string) => Promise<void>;
   showComments: boolean;
   setShowComments: (show: boolean) => void;
 }
@@ -30,7 +29,6 @@ const TenderTable = ({
   showComments,
   setShowComments,
 }: TenderTableProps) => {
-  // Mock user permissions - for now we'll allow all actions
   const canEdit = true;
 
   return (
@@ -38,7 +36,6 @@ const TenderTable = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>IFB Number</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Publish Date</TableHead>
             <TableHead>Opening Date</TableHead>
@@ -51,10 +48,9 @@ const TenderTable = ({
         <TableBody>
           {tenders.map((tender) => (
             <TableRow key={tender.id}>
-              <TableCell className="font-medium">{tender.ifbNumber}</TableCell>
               <TableCell>{tender.title}</TableCell>
-              <TableCell>{tender.publishDate}</TableCell>
-              <TableCell>{tender.openingDate}</TableCell>
+              <TableCell>{new Date(tender.publishDate).toLocaleDateString()}</TableCell>
+              <TableCell>{new Date(tender.openingDate).toLocaleDateString()}</TableCell>
               <TableCell>{getStatusBadge(tender.status)}</TableCell>
               <TableCell>{getApprovalStatusBadge(tender.approvalStatus)}</TableCell>
               <TableCell>
@@ -62,7 +58,7 @@ const TenderTable = ({
                   tenderId={tender.id}
                   documents={tender.documents}
                   onUpload={onDocumentUpload}
-                  onPreview={onDocumentPreview}
+                  onPreview={(document: TenderDocument) => onDocumentPreview(document, tender.id)}
                 />
               </TableCell>
               <TableCell className="text-right">
@@ -73,7 +69,8 @@ const TenderTable = ({
                     setShowComments={setShowComments}
                     newComment=""
                     setNewComment={() => {}}
-                    onAddComment={() => onAddComment(tender.id, "")}
+                    onAddComment={onAddComment}
+                    tenderId={tender.id}
                   />
                   <Button
                     variant="outline"
@@ -87,12 +84,12 @@ const TenderTable = ({
                       <Edit className="h-4 w-4" />
                     </Button>
                   )}
-                  {tender.status === "draft" && onApprovalStatusUpdate && (
+                  {tender.status === "draft" && tender.approvalStatus === "pending" && onApprovalStatusUpdate && (
                     <>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onApprovalStatusUpdate(tender.id, "approved")}
+                        onClick={async () => await onApprovalStatusUpdate(tender.id, "approved")}
                       >
                         Approve
                       </Button>
@@ -100,17 +97,17 @@ const TenderTable = ({
                         variant="outline"
                         size="sm"
                         className="text-red-600"
-                        onClick={() => onApprovalStatusUpdate(tender.id, "rejected")}
+                        onClick={async () => await onApprovalStatusUpdate(tender.id, "rejected")}
                       >
                         Reject
                       </Button>
                     </>
                   )}
-                  {canTransitionStatus(tender.status, "published", tender.approvalStatus) && canEdit && (
+                  {tender.status === "draft" && tender.approvalStatus === "approved" && canEdit && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onStatusTransition(tender.id)}
+                      onClick={async () => await onStatusTransition(tender.id, tender.status)}
                     >
                       Publish
                     </Button>
@@ -119,9 +116,18 @@ const TenderTable = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onStatusTransition(tender.id)}
+                      onClick={async () => await onStatusTransition(tender.id, tender.status)}
                     >
                       Close
+                    </Button>
+                  )}
+                  {tender.status === "closed" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled
+                    >
+                      Already Closed
                     </Button>
                   )}
                 </div>
