@@ -213,6 +213,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   const { userId, otp } = req.body;
 
   if (!userId || !otp) {
+    
     return next(new AppError('Please provide user ID and OTP', 400));
   }
 

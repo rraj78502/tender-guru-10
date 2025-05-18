@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,7 @@ import {
 interface ProcurementPlanFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (plan: Omit<ProcurementPlan, 'id'>) => void;
+  onSubmit: (plan: Omit<ProcurementPlan, '_id' | 'createdAt' | 'createdBy'>) => void;
 }
 
 type FormQuarterlyTarget = {
@@ -27,6 +27,18 @@ type FormQuarterlyTarget = {
   created_at: string;
 };
 
+interface FormData {
+  policy_number: string;
+  department: 'Wireline' | 'Wireless';
+  project_name: string;
+  project_description: string;
+  estimated_cost: number;
+  proposed_budget: number;
+  status: 'draft' | 'submitted' | 'approved' | 'rejected';
+  quarterly_targets: FormQuarterlyTarget[];
+  shouldNotify: boolean;
+}
+
 const INITIAL_QUARTERLY_TARGETS: FormQuarterlyTarget[] = [
   { quarter: 'Q1', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
   { quarter: 'Q2', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
@@ -34,19 +46,68 @@ const INITIAL_QUARTERLY_TARGETS: FormQuarterlyTarget[] = [
   { quarter: 'Q4', target_details: '', status: 'Planned', created_at: new Date().toISOString() },
 ];
 
+const DEPARTMENT_MAP: { [key: number]: 'Wireline' | 'Wireless' } = {
+  1: 'Wireline',
+  2: 'Wireless',
+};
+
 const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose, onSubmit }) => {
   const { toast } = useToast();
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormData>({
     policy_number: '',
     department: 'Wireline',
     project_name: '',
     project_description: '',
     estimated_cost: 0,
     proposed_budget: 0,
-    quarterly_targets: INITIAL_QUARTERLY_TARGETS
+    status: 'draft',
+    quarterly_targets: INITIAL_QUARTERLY_TARGETS,
+    shouldNotify: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const [departmentIndex, setDepartmentIndex] = React.useState<1 | 2>(1);
+
+  useEffect(() => {
+    const fetchPolicyNumber = async () => {
+      const token = localStorage.getItem('token');
+      console.log('Token being sent:', token);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/v1/procurement-plans/generate-policy-number?department=${departmentIndex}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.status === 'success') {
+          setFormData(prev => ({ ...prev, policy_number: data.data.policyNumber }));
+        } else {
+          throw new Error('Unexpected response from server');
+        }
+      } catch (error) {
+        console.error('Error fetching policy number:', error);
+        toast({
+          title: "Error",
+          description: `Failed to generate policy number: ${error.message}`,
+          variant: "destructive"
+        });
+        setFormData(prev => ({ ...prev, policy_number: 'PP-2025-0001-1-N-1' }));
+      }
+    };
+
+    if (open) {
+      fetchPolicyNumber();
+    }
+  }, [open, toast, departmentIndex]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -54,9 +115,30 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+
+  const handleQuarterlyTargetChange = (
+    quarter: string,
+    field: 'target_details' | 'status',
+    value: string
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      quarterly_targets: prev.quarterly_targets.map(target =>
+        target.quarter === quarter ? { ...target, [field]: value } : target
+      )
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.policy_number || !formData.project_name || !formData.project_description) {
       toast({
         title: "Validation Error",
@@ -66,48 +148,69 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
       return;
     }
 
+    if (formData.estimated_cost <= 0 || formData.proposed_budget <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Estimated cost and proposed budget must be greater than 0",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const proposedBudgetPercentage = (formData.proposed_budget / formData.estimated_cost) * 100;
 
-    // Generate temporary IDs for the quarterly targets
-    const tempId = Date.now();
-    const quarterlyTargets: QuarterlyTarget[] = formData.quarterly_targets.map((target, index) => ({
-      ...target,
-      id: tempId + index,
-      procurement_plan_id: tempId
-    }));
-
-    const newPlan: Omit<ProcurementPlan, 'id'> = {
+    const newPlan: Omit<ProcurementPlan, '_id' | 'createdAt' | 'createdBy'> = {
       policy_number: formData.policy_number,
-      department: formData.department,
+      department: DEPARTMENT_MAP[departmentIndex],
       project_name: formData.project_name,
       project_description: formData.project_description,
       estimated_cost: formData.estimated_cost,
       proposed_budget: formData.proposed_budget,
       proposed_budget_percentage: Math.round(proposedBudgetPercentage),
-      created_at: new Date().toISOString(),
-      quarterly_targets: quarterlyTargets
+      status: formData.status,
+      quarterly_targets: formData.quarterly_targets,
+      shouldNotify: formData.shouldNotify,
     };
 
-    onSubmit(newPlan);
-    onClose();
-    setFormData({
-      policy_number: '',
-      department: 'Wireline',
-      project_name: '',
-      project_description: '',
-      estimated_cost: 0,
-      proposed_budget: 0,
-      quarterly_targets: INITIAL_QUARTERLY_TARGETS
-    });
-  };
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token being sent for submission:', token);
+      const response = await fetch('http://localhost:5000/api/v1/procurement-plans/createprocurementplan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newPlan),
+      });
 
-  const handleQuarterlyTargetChange = (quarter: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      quarterly_targets: prev.quarterly_targets.map(target => 
-        target.quarter === quarter ? { ...target, target_details: value } : target
-      )
-    }));
+      const result = await response.json();
+      if (response.ok) {
+        toast({ title: "Success", description: "Plan created successfully" });
+        onSubmit(result.data.procurementPlan);
+        onClose();
+        setFormData({
+          policy_number: '',
+          department: 'Wireline',
+          project_name: '',
+          project_description: '',
+          estimated_cost: 0,
+          proposed_budget: 0,
+          status: 'draft',
+          quarterly_targets: INITIAL_QUARTERLY_TARGETS,
+          shouldNotify: false,
+        });
+        setDepartmentIndex(1);
+      } else {
+        toast({ title: "Error", description: result.message || "Failed to create plan", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -125,9 +228,10 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   id="policy_number"
                   name="policy_number"
                   value={formData.policy_number}
-                  onChange={handleChange}
-                  placeholder="PP-2080-WL-N-XX"
+                  onChange={handleInputChange}
+                  placeholder="PP-2080-1-N-1"
                   required
+                  readOnly
                   className="mt-1.5"
                 />
               </div>
@@ -137,7 +241,7 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   id="project_name"
                   name="project_name"
                   value={formData.project_name}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   placeholder="Enter project name"
                   required
                   className="mt-1.5"
@@ -146,8 +250,8 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
               <div>
                 <Label htmlFor="department">Department*</Label>
                 <Select
-                  value={formData.department}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, department: value }))}
+                  value={departmentIndex === 1 ? 'Wireline' : 'Wireless'}
+                  onValueChange={(value: 'Wireline' | 'Wireless') => setDepartmentIndex(value === 'Wireline' ? 1 : 2)}
                 >
                   <SelectTrigger className="mt-1.5">
                     <SelectValue placeholder="Select department" />
@@ -155,6 +259,23 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   <SelectContent>
                     <SelectItem value="Wireline">Wireline</SelectItem>
                     <SelectItem value="Wireless">Wireless</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: 'draft' | 'submitted' | 'approved' | 'rejected') => setFormData(prev => ({ ...prev, status: value }))}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -168,7 +289,7 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   name="estimated_cost"
                   type="number"
                   value={formData.estimated_cost}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   min="0"
                   required
                   className="mt-1.5"
@@ -181,7 +302,7 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   name="proposed_budget"
                   type="number"
                   value={formData.proposed_budget}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   min="0"
                   required
                   className="mt-1.5"
@@ -193,9 +314,20 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   id="project_description"
                   name="project_description"
                   value={formData.project_description}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   placeholder="Enter project description"
                   required
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="shouldNotify">Notify Admins</Label>
+                <input
+                  id="shouldNotify"
+                  name="shouldNotify"
+                  type="checkbox"
+                  checked={formData.shouldNotify}
+                  onChange={handleCheckboxChange}
                   className="mt-1.5"
                 />
               </div>
@@ -211,9 +343,24 @@ const ProcurementPlanForm: React.FC<ProcurementPlanFormProps> = ({ open, onClose
                   <Input
                     id={`target_${target.quarter}`}
                     value={target.target_details}
-                    onChange={(e) => handleQuarterlyTargetChange(target.quarter, e.target.value)}
+                    onChange={(e) => handleQuarterlyTargetChange(target.quarter, 'target_details', e.target.value)}
                     placeholder={`Enter ${target.quarter} target details`}
                   />
+                  <Select
+                    value={target.status}
+                    onValueChange={(value: 'Planned' | 'In Progress' | 'Completed') =>
+                      handleQuarterlyTargetChange(target.quarter, 'status', value)
+                    }
+                  >
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Planned">Planned</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               ))}
             </div>

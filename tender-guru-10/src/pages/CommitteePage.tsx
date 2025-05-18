@@ -7,9 +7,11 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Committee } from '@/types/committee';
 
 const CommitteePage = () => {
+  const {user}= useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,13 +68,19 @@ const CommitteePage = () => {
                   <h1 className="text-2xl font-bold text-gray-900">Committee Management</h1>
                   <p className="mt-1 text-sm text-gray-500">Create and manage your committees</p>
                 </div>
-                <Button 
+                {/* <Button 
                   onClick={() => navigate('/committee/create')}
                   className="flex items-center gap-2 w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <UserPlus className="h-4 w-4" />
                   Create Committee
-                </Button>
+                </Button> */}
+                {user?.role === 'admin' && (
+                  <Button onClick={() => navigate('/committee/create')} className="flex items-center gap-2 w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200">
+                    <UserPlus className="h-4 w-4" />
+                    Create Committee
+                  </Button>
+                )}
               </div>
               
               <div className="space-y-8">

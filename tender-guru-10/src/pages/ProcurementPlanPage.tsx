@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, Download, Plus, Eye, Edit, Calendar } from "lucide-react";
-import { mockProcurementPlans } from "@/mock/procurementPlanData";
 import type { ProcurementPlan } from "@/types/procurement-plan";
 import {
   Tooltip,
@@ -29,23 +28,25 @@ import {
 } from "@/components/ui/tooltip";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
 import ProcurementPlanForm from '@/components/procurement/ProcurementPlanForm';
 import ProcurementPlanView from '@/components/procurement/ProcurementPlanView';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ProcurementPlanPage = () => {
+  const {user}=useAuth();  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedProgress, setSelectedProgress] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [plans, setPlans] = useState<ProcurementPlan[]>(mockProcurementPlans);
+  const [plans, setPlans] = useState<ProcurementPlan[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<ProcurementPlan | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
@@ -81,12 +82,35 @@ const ProcurementPlanPage = () => {
     return planDate >= dateRange.from && planDate <= dateRange.to;
   };
 
+  useEffect(() => {
+    const fetchProcurementPlans = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/v1/procurement-plans/getallprocurementplans', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch procurement plans');
+        const data = await response.json();
+        setPlans(data.data.procurementPlans);
+      } catch (error) {
+        // Silently handle the error, let the UI show "No plans found"
+      setPlans([]); // Ensure plans is empty to trigger "No plans found
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProcurementPlans();
+  }, [toast]);
+
   const filteredPlans = plans.filter(plan => {
     const matchesSearch = plan.project_name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDepartment = selectedDepartment === 'all' || plan.department === selectedDepartment;
     const matchesStatus = selectedStatus === 'all' || calculatePlanStatus(plan) === selectedStatus;
     const matchesProgress = selectedProgress === 'all' || calculateProgress(plan) === selectedProgress;
-    const matchesDateRange = isWithinDateRange(plan.created_at);
+    const matchesDateRange = isWithinDateRange(plan.createdAt);
 
     return matchesSearch && matchesDepartment && matchesStatus && matchesProgress && matchesDateRange;
   });
@@ -124,27 +148,38 @@ const ProcurementPlanPage = () => {
     );
   };
 
-  const handleAddNewPlan = (newPlan: Omit<ProcurementPlan, 'id'>) => {
-    const lastId = Math.max(...plans.map(p => p.id), 0);
-    const planWithId = {
-      ...newPlan,
-      id: lastId + 1,
-      quarterly_targets: newPlan.quarterly_targets.map((target, index) => ({
-        ...target,
-        id: (lastId + 1) * 4 + index + 1,
-        procurement_plan_id: lastId + 1
-      }))
-    };
+  const handleAddNewPlan = async (newPlan: Omit<ProcurementPlan, '_id' | 'createdBy' | 'createdAt'>) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/procurement-plans/createprocurementplan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newPlan),
+      });
 
-    setPlans(prev => [...prev, planWithId]);
-    toast({
-      title: "Success",
-      description: "New procurement plan has been added successfully.",
-    });
+      if (!response.ok) throw new Error('Failed to create procurement plan');
+      const data = await response.json();
+      const createdPlan = data.data.procurementPlan;
+
+      setPlans(prev => [...prev, createdPlan]);
+      toast({
+        title: "Success",
+        description: "New procurement plan has been added successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add new procurement plan.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleView = (plan: ProcurementPlan) => {
-    setSelectedPlan(plan);
+    setSelectedPlanId(plan._id);
     setIsViewDialogOpen(true);
   };
 
@@ -233,49 +268,59 @@ const ProcurementPlanPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedPlans.map((plan) => {
-                    const deptIndex = plan.policy_number.split('-').slice(-1)[0];
-                    const policyNumber = plan.policy_number.split('-').slice(0, -1).join('-');
-                    
-                    return (
-                      <TableRow key={plan.id}>
-                        <TableCell>{plan.id}</TableCell>
-                        <TableCell>{policyNumber}</TableCell>
-                        <TableCell>{plan.department}</TableCell>
-                        <TableCell>{deptIndex}</TableCell>
-                        <TableCell className="font-medium max-w-[200px] truncate">
-                          {plan.project_name}
-                        </TableCell>
-                        <TableCell className="max-w-[300px] truncate">
-                          {plan.project_description}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(plan.estimated_cost)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(plan.proposed_budget)}
-                        </TableCell>
-                        {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => (
-                          <TableCell key={quarter} className="text-center">
-                            {getQuarterStatusDisplay(
-                              plan.quarterly_targets.find(t => t.quarter === quarter) || 
-                              { status: 'Planned', target_details: 'No task planned' }
-                            )}
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={13} className="text-center">Loading...</TableCell>
+                    </TableRow>
+                  ) : paginatedPlans.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={13} className="text-center">No plans found</TableCell>
+                    </TableRow>
+                  ) : (
+                    paginatedPlans.map((plan) => {
+                      const deptIndex = plan.policy_number.split('-').slice(-1)[0];
+                      const policyNumber = plan.policy_number.split('-').slice(0, -1).join('-');
+                      
+                      return (
+                        <TableRow key={plan._id}>
+                          <TableCell>{plan._id}</TableCell>
+                          <TableCell>{policyNumber}</TableCell>
+                          <TableCell>{plan.department}</TableCell>
+                          <TableCell>{deptIndex}</TableCell>
+                          <TableCell className="font-medium max-w-[200px] truncate">
+                            {plan.project_name}
                           </TableCell>
-                        ))}
-                        <TableCell>
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" onClick={() => handleView(plan)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                          <TableCell className="max-w-[300px] truncate">
+                            {plan.project_description}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(plan.estimated_cost)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(plan.proposed_budget)}
+                          </TableCell>
+                          {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => (
+                            <TableCell key={quarter} className="text-center">
+                              {getQuarterStatusDisplay(
+                                plan.quarterly_targets.find(t => t.quarter === quarter) || 
+                                { status: 'Planned', target_details: 'No task planned' }
+                              )}
+                            </TableCell>
+                          ))}
+                          <TableCell>
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => handleView(plan)}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -322,13 +367,16 @@ const ProcurementPlanPage = () => {
                 <Download className="h-4 w-4 mr-2" />
                 Export to Excel
               </Button>
-              <Button 
-                className="w-full sm:w-auto"
-                onClick={() => setIsAddDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Procurement Item
-              </Button>
+              {['admin', 'procurement_officer'].includes(user?.role) && (
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={() => setIsAddDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Procurement Item
+                </Button>
+              )}
+
             </div>
           </div>
         </Card>
@@ -338,14 +386,14 @@ const ProcurementPlanPage = () => {
         onClose={() => setIsAddDialogOpen(false)}
         onSubmit={handleAddNewPlan}
       />
-      {selectedPlan && (
+      {selectedPlanId && (
         <ProcurementPlanView
           open={isViewDialogOpen}
           onClose={() => {
             setIsViewDialogOpen(false);
-            setSelectedPlan(null);
+            setSelectedPlanId(null);
           }}
-          plan={selectedPlan}
+          planId={selectedPlanId}
         />
       )}
     </div>

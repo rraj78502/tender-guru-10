@@ -98,8 +98,8 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: function () {
       const rolePermissions = {
-        admin: ['manage_users', 'manage_committees', 'manage-tenders'],
-        procurement_officer: ['manage-tenders'],
+        admin: ['manage_users', 'manage_committees', 'manage-tenders','manage-procurement-plans'],
+        procurement_officer: ['manage-tenders', 'manage-procurement-plans'],
         committee_member: [],
         evaluator: [],
         bidder: [],

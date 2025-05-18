@@ -6,6 +6,7 @@ const AppError = require('../utils/appError.js');
 const nodemailer = require('nodemailer');
 const validator = require('validator');
 const winston = require('winston');
+const { uploadToPaperless } = require('../config/multer.js');
 
 // Set up Winston logger
 const logger = winston.createLogger({
@@ -84,7 +85,20 @@ const createCommittee = async (req, res, next) => {
     });
 
     await committee.save();
-    
+
+    // Upload to Paperless-ngx if formation letter exists
+    let paperlessDocument = null;
+    if (req.file) {
+      paperlessDocument = await uploadToPaperless(req.file, {
+        title: `Formation Letter - ${committee.name}`,
+        tags: ['Committee'],
+        document_type: 'Formation Letter'
+      });
+      if (!paperlessDocument) {
+        logger.warn('Paperless-ngx upload failed, continuing with local storage');
+      }
+    }
+
     const populatedCommittee = await Committee.findById(committee._id)
       .populate('createdBy', 'name email role employeeId');
 
@@ -94,12 +108,15 @@ const createCommittee = async (req, res, next) => {
 
     res.status(201).json({
       status: 'success',
-      data: { committee: populatedCommittee }
+      data: { 
+        committee: populatedCommittee,
+        paperlessDocumentId: paperlessDocument ? paperlessDocument.id : null
+      }
     });
   } catch (error) {
     if (req.file) {
       fs.unlink(req.file.path, err => {
-        if (err) console.error('Error deleting uploaded file:', err);
+        if (err) logger.error('Error deleting uploaded file:', { error: err.message });
       });
     }
     next(error);
@@ -290,8 +307,34 @@ const updateCommittee = async (req, res, next) => {
       allowedUpdates.members = membersArray;
     }
 
-    if (req.body.formationLetter) {
-      logger.warn('formationLetter ignored; file upload not enabled');
+    // Handle new formation letter upload
+    let paperlessDocument = null;
+    if (req.file) {
+      // Delete old formation letter if exists
+      if (committee.formationLetter && committee.formationLetter.path) {
+        fs.unlink(committee.formationLetter.path, (err) => {
+          if (err) logger.error('Error deleting old formation letter:', { error: err.message });
+        });
+      }
+
+      // Update formation letter details
+      allowedUpdates.formationLetter = {
+        filename: req.file.filename,
+        path: req.file.path,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+      };
+
+      // Upload to Paperless-ngx
+      paperlessDocument = await uploadToPaperless(req.file, {
+        title: `Formation Letter - ${allowedUpdates.name || committee.name}`,
+        tags: ['Committee'],
+        document_type: 'Formation Letter',
+      });
+      if (!paperlessDocument) {
+        logger.warn('Paperless-ngx upload failed, continuing with local storage');
+      }
     }
 
     Object.assign(committee, allowedUpdates);
@@ -317,10 +360,16 @@ const updateCommittee = async (req, res, next) => {
       status: 'success',
       data: {
         committee: populatedCommittee,
+        paperlessDocumentId: paperlessDocument ? paperlessDocument.id : null
       },
     });
   } catch (error) {
-    next(new AppError('Failed to update committee', 500));
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) logger.error('Error deleting uploaded file:', { error: err.message });
+      });
+    }
+    next(error);
   }
 };
 
@@ -337,7 +386,7 @@ const deleteCommittee = async (req, res, next) => {
 
     if (committee.formationLetter && committee.formationLetter.path) {
       fs.unlink(committee.formationLetter.path, (err) => {
-        if (err) logger.error('Error deleting file:', err);
+        if (err) logger.error('Error deleting file:', { error: err.message });
       });
     }
 
@@ -354,9 +403,8 @@ const deleteCommittee = async (req, res, next) => {
       status: 'success',
       message: 'Committee deleted successfully',
     });
-  } catch (err) {
-    logger.error('Error deleting committee:', err);
-    return next(new AppError('Error deleting committee', 400));
+  } catch (error) {
+    next(new AppError('Error deleting committee', 400));
   }
 };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ProcurementPlan } from "@/types/procurement-plan";
@@ -21,27 +21,56 @@ import { useToast } from "@/hooks/use-toast";
 interface ProcurementPlanViewProps {
   open: boolean;
   onClose: () => void;
-  plan: ProcurementPlan;
+  planId: string;
 }
 
-const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose, plan }) => {
+const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose, planId }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const [plan, setPlan] = useState<ProcurementPlan | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-NP', {
       maximumFractionDigits: 0
     }).format(amount);
   };
 
+  useEffect(() => {
+    const fetchProcurementPlan = async () => {
+      if (!open || !planId) return;
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:5000/api/v1/procurement-plans/getprocurementplanbyid/${planId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch procurement plan');
+        const data = await response.json();
+        setPlan(data.data.procurementPlan);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load procurement plan details.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProcurementPlan();
+  }, [open, planId, toast]);
+
   const handleNavigate = (path: string, requiresCommittee: boolean = false) => {
-    if (requiresCommittee && !plan.committee_id) {
+    if (requiresCommittee && !plan?.committee_id) {
       toast({
         title: "Committee Required",
         description: "Please form a committee first before accessing this section.",
         variant: "destructive",
       });
-      navigate(`/committee/create?procurement_plan_id=${plan.id}`);
+      navigate(`/committee/create?procurement_plan_id=${planId}`);
       return;
     }
     onClose();
@@ -51,10 +80,10 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
   const projectSections = [
     {
       title: "Committee",
-      icon: plan.committee_id ? Users : UserPlus,
-      status: plan.committee_id ? "View Committee" : "Formation Required",
-      statusColor: plan.committee_id ? "text-green-600" : "text-yellow-600",
-      path: plan.committee_id ? `/committee/${plan.committee_id}` : `/committee/create?procurement_plan_id=${plan.id}`,
+      icon: plan?.committee_id ? Users : UserPlus,
+      status: plan?.committee_id ? "View Committee" : "Formation Required",
+      statusColor: plan?.committee_id ? "text-green-600" : "text-yellow-600",
+      path: plan?.committee_id ? `/committee/${plan.committee_id}` : `/committee/create?procurement_plan_id=${planId}`,
       requiresCommittee: false
     },
     {
@@ -62,7 +91,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: FileText,
       status: "Draft",
       statusColor: "text-blue-600",
-      path: `/specification/${plan.id}`,
+      path: `/specification/${planId}`,
       requiresCommittee: true
     },
     {
@@ -70,7 +99,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: Search,
       status: "Not Started",
       statusColor: "text-gray-600",
-      path: `/review/${plan.id}`,
+      path: `/review/${planId}`,
       requiresCommittee: true
     },
     {
@@ -78,7 +107,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: Building2,
       status: "Not Created",
       statusColor: "text-gray-600",
-      path: `/tender/${plan.id}`,
+      path: `/tender/${planId}`,
       requiresCommittee: true
     },
     {
@@ -86,7 +115,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: FileCheck,
       status: "Pending",
       statusColor: "text-gray-600",
-      path: `/evaluation/${plan.id}`,
+      path: `/evaluation/${planId}`,
       requiresCommittee: true
     },
     {
@@ -94,10 +123,37 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
       icon: MessageSquare,
       status: "No Complaints",
       statusColor: "text-green-600",
-      path: `/complaints/${plan.id}`,
+      path: `/complaints/${planId}`,
       requiresCommittee: true
     }
   ];
+
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Loading...</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!plan) {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Plan Not Found</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={onClose}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -143,7 +199,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
               </div>
               <div>
                 <h3 className="font-semibold mb-1">Created At</h3>
-                <p className="text-gray-700">{format(new Date(plan.created_at), 'PPP')}</p>
+                <p className="text-gray-700">{format(new Date(plan.createdAt), 'PPP')}</p>
               </div>
             </div>
 
@@ -210,7 +266,7 @@ const ProcurementPlanView: React.FC<ProcurementPlanViewProps> = ({ open, onClose
             <h3 className="font-semibold mb-4">Quarterly Targets</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {plan.quarterly_targets.map((target) => (
-                <div key={target.id} className="p-4 bg-gray-50 rounded-lg">
+                <div key={target._id || target.quarter} className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-medium mb-2">{target.quarter}</h4>
                   <p className="text-sm text-gray-600 mb-2">{target.target_details || "No details provided"}</p>
                   <span className={`text-xs font-medium px-2 py-1 rounded ${

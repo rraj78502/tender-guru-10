@@ -6,3 +6,15 @@
 {"filename":"documents-1745913149197-858352599.docx","level":"info","message":"File upload:","originalName":"Gopi dai document.docx","timestamp":"2025-04-29T07:52:29.199Z"}
 {"filename":"documents-1745913149207-983136735.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-04-29T07:52:29.208Z"}
 {"filename":"documents-1745913197515-210289131.docx","level":"info","message":"File upload:","originalName":"To.docx","timestamp":"2025-04-29T07:53:17.515Z"}
+{"filename":"formationLetter-1746431206009-991853940.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T07:46:46.009Z"}
+{"filename":"formationLetter-1746431210136-564570240.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T07:46:50.136Z"}
+{"filename":"formationLetter-1746431217164-307930605.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T07:46:57.164Z"}
+{"filename":"formationLetter-1746431247482-352217498.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T07:47:27.482Z"}
+{"filename":"formationLetter-1746436683509-976275733.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T09:18:03.510Z"}
+{"error":"Request failed with status code 400","filename":"Letter.docx","level":"error","message":"Error uploading to Paperless-ngx:","timestamp":"2025-05-05T09:18:03.735Z"}
+{"filename":"formationLetter-1746437159450-383493649.docx","level":"info","message":"File upload:","originalName":"Letter.docx","timestamp":"2025-05-05T09:25:59.454Z"}
+{"error":"Request failed with status code 400","filename":"Letter.docx","level":"error","message":"Error uploading to Paperless-ngx:","response":{"document":["File type application/vnd.openxmlformats-officedocument.wordprocessingml.document not supported"]},"timestamp":"2025-05-05T09:25:59.831Z"}
+{"filename":"formationLetter-1746437342098-79065077.pdf","level":"info","message":"File upload:","originalName":"A Project Work.pdf","timestamp":"2025-05-05T09:29:02.098Z"}
+{"filename":"A Project Work.pdf","level":"info","message":"File uploaded to Paperless-ngx:","timestamp":"2025-05-05T09:29:02.644Z"}
+{"filename":"formationLetter-1746444458553-565391362.pdf","level":"info","message":"File upload:","originalName":"security_linux_ctf_challenges_documentation.pdf","timestamp":"2025-05-05T11:27:38.554Z"}
+{"filename":"security_linux_ctf_challenges_documentation.pdf","level":"info","message":"File uploaded to Paperless-ngx:","timestamp":"2025-05-05T11:27:39.053Z"}

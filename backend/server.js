@@ -1,6 +1,6 @@
+// server.js
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -11,18 +11,18 @@ const path = require('path');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const authRoutes = require('./routes/authRoutes');
-const committeeRoutes = require('./routes/committeRoutes'); // Adjusted path to match your structure
-const tenderRoutes = require('./routes/tenderRoutes'); // Adjusted path to match your structure
+const committeeRoutes = require('./routes/committeRoutes');
+const tenderRoutes = require('./routes/tenderRoutes');
+const procurementPlanRoutes = require('./routes/procumentPlanRoutes');
+const connectDB = require('./config/db'); 
 
 // Create Express app
 const app = express();
 
 // 1) GLOBAL MIDDLEWARES
-
-// Trust proxies if behind a load balancer (e.g., Heroku)
 app.set('trust proxy', 1);
 
-// Implement CORS with specific options
+// Implement CORS
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Limit requests from same API
+// Rate limiter
 const limiter = rateLimit({
   max: process.env.RATE_LIMIT_MAX || 100,
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -45,19 +45,19 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Body parser, reading data from body into req.body
-// Increased limit to 50MB to handle file uploads (tenders can include multiple files)
-app.use(express.json({ limit: '50mb' })); // Updated from 10kb to 50mb
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Updated from 10kb to 50mb
+// Body parser
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
-// Serving static files (for uploaded documents)
+// Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 2) ROUTES
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/committees', committeeRoutes);
 app.use('/api/v1/tenders', tenderRoutes);
+app.use('/api/v1/procurement-plans', procurementPlanRoutes);
 
 // Test route
 app.get('/api/v1/health', (req, res) => {
@@ -72,7 +72,7 @@ app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Add middleware to handle payload too large errors more gracefully
+// Handle payload too large errors
 app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({
@@ -89,34 +89,35 @@ app.use(globalErrorHandler);
 const port = process.env.PORT || 5000;
 
 // Connect to database and start server
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('MongoDB connected successfully');
-  const server = app.listen(port, () => {
-    console.log(`App running on port ${port}...`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
-
-  // Handle unhandled promise rejections
-  process.on('unhandledRejection', (err) => {
-    console.log('UNHANDLED REJECTION! 💥 Shutting down...');
-    console.log(err.name, err.message);
-    server.close(() => {
-      process.exit(1);
+const startServer = async () => {
+  try {
+    await connectDB(); // Call connectDB from db.js
+    const server = app.listen(port, () => {
+      console.log(`App running on port ${port}...`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
-  });
-})
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
-});
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
-  console.log(err.name, err.message);
-  process.exit(1);
-});
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (err) => {
+      console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+      console.log(err.name, err.message);
+      server.close(() => {
+        process.exit(1);
+      });
+    });
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (err) => {
+      console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+      console.log(err.name, err.message);
+      server.close(() => {
+        process.exit(1);
+      });
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+};
+
+startServer();

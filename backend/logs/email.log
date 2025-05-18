@@ -19,3 +19,15 @@
 {"email":"admin2@ntc.net.np","level":"info","message":"OTP email sent:","timestamp":"2025-04-28T11:47:37.931Z","userId":"680f6ab8944a7b172338b585"}
 {"committeeId":"67ecf761a55ab7ddffb73714","deletedBy":"680f6c077602e9bfd24ea363","level":"info","message":"Committee deleted:","name":"Ethics Committee update ","timestamp":"2025-04-29T07:14:22.135Z"}
 {"committeeId":"680778f54abf336326c2b809","deletedBy":"680f6c077602e9bfd24ea363","level":"info","message":"Committee deleted:","name":"Email test committe","timestamp":"2025-04-29T07:14:27.876Z"}
+{"level":"warn","message":"Paperless-ngx upload failed, continuing with local storage","timestamp":"2025-05-05T09:25:59.832Z"}
+{"error":"ENOENT: no such file or directory, unlink 'D:\\New folder (3)\\tender-guru-10\\backend\\Uploads\\committees\\formationLetter-1746431217164-307930605.docx'","level":"error","message":"Error deleting file:","timestamp":"2025-05-05T09:28:31.818Z"}
+{"committeeId":"68186cf11813e36bda03de51","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:31.827Z"}
+{"error":"ENOENT: no such file or directory, unlink 'D:\\New folder (3)\\tender-guru-10\\backend\\Uploads\\committees\\formationLetter-1746431247482-352217498.docx'","level":"error","message":"Error deleting file:","timestamp":"2025-05-05T09:28:33.878Z"}
+{"committeeId":"68186d0f1813e36bda03de56","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:33.890Z"}
+{"error":"ENOENT: no such file or directory, unlink 'D:\\New folder (3)\\tender-guru-10\\backend\\Uploads\\committees\\formationLetter-1746431206009-991853940.docx'","level":"error","message":"Error deleting file:","timestamp":"2025-05-05T09:28:36.465Z"}
+{"committeeId":"68186ce61813e36bda03de47","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:36.467Z"}
+{"error":"ENOENT: no such file or directory, unlink 'D:\\New folder (3)\\tender-guru-10\\backend\\Uploads\\committees\\formationLetter-1746431210136-564570240.docx'","level":"error","message":"Error deleting file:","timestamp":"2025-05-05T09:28:38.006Z"}
+{"committeeId":"68186cea1813e36bda03de4c","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:38.009Z"}
+{"error":"ENOENT: no such file or directory, unlink 'D:\\New folder (3)\\tender-guru-10\\backend\\Uploads\\committees\\formationLetter-1746436683509-976275733.docx'","level":"error","message":"Error deleting file:","timestamp":"2025-05-05T09:28:39.744Z"}
+{"committeeId":"6818824b9897f2a421a0a690","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:39.748Z"}
+{"committeeId":"681884278b109af73989bbe1","deletedBy":"681716f3f0533722377e0be2","level":"info","message":"Committee deleted:","name":"fileupload ","timestamp":"2025-05-05T09:28:44.501Z"}

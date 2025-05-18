@@ -9,6 +9,8 @@ import TenderTable from "./TenderTable";
 import TenderForm from "./TenderForm";
 import { getNextStatus } from "@/utils/tenderUtils";
 import { Tender, TenderStatus, TenderApprovalStatus, TenderComment, TenderDocument } from "@/types/tender";
+import { useAuth } from "@/contexts/AuthContext";
+import { constrainedMemory } from "process";
 
 // Define the raw backend response type
 interface RawTender {
@@ -144,6 +146,7 @@ const updateTenderStatus = async (tenderId: string, currentStatus: TenderStatus)
 };
 
 const TenderList = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,11 +168,7 @@ const TenderList = () => {
       const fetchedTenders = await fetchTenders();
       setTenders(fetchedTenders);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load tenders",
-        variant: "destructive",
-      });
+      setTenders([]);
     } finally {
       setLoading(false);
     }
@@ -292,12 +291,12 @@ const TenderList = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Tenders</h2>
-        {canCreateTender && (
-          <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Tender
-          </Button>
-        )}
+          {['admin', 'procurement_officer'].includes(user?.role) && (
+              <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Create Tender
+            </Button>
+          )}
       </div>
 
       <TenderSearchFilter
@@ -309,8 +308,10 @@ const TenderList = () => {
 
       {loading ? (
         <p>Loading tenders...</p>
-      ) : (
-        <TenderTable
+      ) : filteredTenders.length === 0 ? (
+        <p>No tenders found.</p> 
+      ) :(
+       <TenderTable
           tenders={filteredTenders}
           onPreview={(tender) => {
             setSelectedTender(tender);
